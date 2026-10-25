@@ -83,6 +83,20 @@ class PaperNumbersTest(unittest.TestCase):
         self.assertEqual((deterministic["clauses"], deterministic["records"]), (3193, 316))
         self.assertEqual((reviewed["clauses"], reviewed["records"]), (4010, 321))
         self.says("raises the 3,193 parser clauses to 4,010 clauses from 321 records")
+        # The review keeps or modifies every parser clause, and the search adds the rest.
+        run = DATA / "clauses" / "model_review_gpt-6-luna-2026-09-22"
+        summary = json.loads((run / "run_summary.json").read_text())
+        actions = summary["review"]["final_actions"]
+        proposals = pd.read_csv(run / "search_proposals.csv")
+        added = proposals[proposals.status.eq("added")]
+        observation = ["tablet", "source_start", "source_end", "discovered_claim"]
+        self.assertEqual((actions.get("KEEP"), actions.get("MODIFY"), actions.get("DROP", 0)), (3142, 51, 0))
+        self.assertEqual((len(proposals.drop_duplicates(observation)),
+                          len(added.drop_duplicates(observation)), len(added)), (8123, 795, 817))
+        self.assertEqual(3142 + 51 + len(added), reviewed["clauses"])
+        self.says("In the review, the model kept 3,142 parser clauses and modified the other 51")
+        self.says("795 of its 8,123 proposed observations passed the checks, and they gave 817 clauses")
+        self.says("The 3,193 reviewed parser clauses and these 817 clauses make the 4,010 clauses of the main text")
         verdicts = parser.forward_verdict.value_counts()
         testable = int(verdicts.get("agree", 0) + verdicts.get("contradict", 0))
         self.assertEqual((int(verdicts["agree"]), testable), (2169, 2313))
@@ -238,6 +252,9 @@ class PaperNumbersTest(unittest.TestCase):
                 if record["tablet"] in benchmark and record.get("prompt_version") in final:
                     cost += sum(call.get("cost_usd") or 0.0 for call in record.get("calls") or [])
         self.assertEqual((len(benchmark), round(cost)), (179, 3))
+        # At the ratio of the ten-record comparison, the larger model's cost of the benchmark.
+        self.assertEqual(round(cost * large["cost_usd"] / small["cost_usd"], -1), 60)
+        self.says("so the 179 benchmark records would have cost about \\$60 with it, against about \\$3")
         self.says("The review, the search and the dating of the 179 benchmark records cost about \\$3.")
         iv = runs[1]["review"]["final_actions"]
         self.assertEqual((runs[1]["review"]["clauses"], iv["KEEP"], iv["MODIFY"], runs[1]["recall"]["added"]),
