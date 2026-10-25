@@ -1640,7 +1640,12 @@ def audit(t0: float, scratch: Path) -> int:
                                       f"{int(active_backward.active_decisive.astype(float).gt(0).sum())}, the "
                                       "median size is "
                                       f"{num(active_backward[active_backward.active_decisive.astype(float).gt(0)].strict_count.median())} years",
-            "first three groups": f"contain it in {three} ({pct(three, n_act)}\\%)",
+            "first two groups": (lambda rank: f"The first two groups contain it in {int(rank(active_backward).le(2).sum())} "
+                                 f"({pct(int(rank(active_backward).le(2).sum()), n_act)}\\%), and the third and fourth add none"
+                                 if all(int(rank(part).le(2).sum()) == int(rank(part).le(4).sum())
+                                        for part in (active_backward, backward, supporting))
+                                 else "Fig. 4b: the third or fourth group adds a record")(
+                                     lambda part: part.truth_evidence_group_rank),
             "supporting-only first group": "The supporting-only records also reach "
                                            f"{pct(supporting.truth_in_top_evidence_group.sum(), len(supporting))}"
                                            "\\% for the first group",

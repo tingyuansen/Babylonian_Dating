@@ -96,7 +96,8 @@ def panel_groups(ax, sample) -> None:
         (f"supporting only, {int((~sample.frozen_active).sum())}",
          ~sample.frozen_active, fs.FAINT),
     ]
-    ranks, width = [1, 2, 3, 4], 0.26
+    # Later groups add no record, so the panel stops at two.
+    ranks, width = [1, 2], 0.26
     for offset, (label, mask, colour) in enumerate(groups):
         part = sample[mask]
         value = [float(part.truth_evidence_group_rank.le(r).mean()) * 100
@@ -108,7 +109,8 @@ def panel_groups(ax, sample) -> None:
             ax.text(position, height + 1.4, f"{height:.0f}", ha="center",
                     va="bottom", fontsize=6.9, color=colour)
     ax.set_xticks(range(len(ranks)))
-    ax.set_xticklabels(["1", "1-2", "1-3", "1-4"])
+    ax.set_xticklabels(["1", "1-2"])
+    ax.set_xlim(-0.6, len(ranks) - 0.4)
     ax.set_xlabel("Groups accepted")
     ax.set_ylim(0, 142)
     ax.set_yticks([0, 25, 50, 75, 100])
@@ -138,7 +140,7 @@ def main() -> Path:
 
     fig, axes = plt.subplots(
         1, 2, figsize=(fs.FULL_WIDTH, 2.85),
-        gridspec_kw={"width_ratios": [1.0, 1.0], "wspace": 0.215})
+        gridspec_kw={"width_ratios": [1.65, 1.0], "wspace": 0.215})
     for place, colour, label in (
             (active, fs.BLUE, f"decisive clauses, {len(active)}"),
             (eligible, fs.GREY, f"all, {len(eligible)}"),
