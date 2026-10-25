@@ -1654,7 +1654,7 @@ def audit(t0: float, scratch: Path) -> int:
                                      "have a decisive clause",
             "outside median": f"The median strict set of these {len(outside_ranked)} holds "
                               f"{num(outside_ranked.strict_count.median())} years, against "
-                              f"{num(active_backward.strict_count.median())} years in the benchmark",
+                              f"{num(active_backward.strict_count.median())} in the benchmark",
             "commitments": f"In the whole corpus of {n_dated} dated records, the commitment rule "
                            f"of Eq.~\\ref{{eq:commit}} commits to one year for {len(committed_all)}. "
                            f"All {committed_match} match the published year, and all "

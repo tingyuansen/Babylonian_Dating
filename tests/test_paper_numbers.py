@@ -210,7 +210,7 @@ class PaperNumbersTest(unittest.TestCase):
         small, large = pilot["gpt-6-luna-2026-09-22"], pilot["gpt-5.6-terra-2026-07-09"]
         self.assertEqual((small["cost_usd"], large["cost_usd"]), (0.25, 4.79))
         self.assertEqual(round(large["cost_usd"] / small["cost_usd"]), 19)
-        self.says("the larger GPT-5.6-Terra cost 19 times as much")
+        self.says("the larger GPT-5.6-Terra cost an order of magnitude more")
         self.assertEqual((large["modified"], small["modified"], large["added"], small["added"]), (2, 6, 80, 69))
         tested = lambda row: row["added_at_published_year"]["agree"] + row["added_at_published_year"]["contradict"]
         share = lambda row: round(100 * row["added_at_published_year"]["agree"] / tested(row))
