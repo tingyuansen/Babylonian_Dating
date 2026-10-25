@@ -55,7 +55,6 @@ The results record the SHA-256 of the code and tables that made them. Editing `t
 
 - `make check` runs the tests, then `tests/verify.py`. It checks every recorded SHA-256 and that the results and the audits come from one run. It also checks that the tree holds only what this README, the Makefile and `data/columns.csv` describe.
 - `python3 scripts/audit/audit_held_out.py --run-held-out` repeats the held-out test.
-- `python3 scripts/audit/diagnose_candidate.py X301492` explains why a candidate year ranks above the published year.
 - `python3 scripts/agent/mcp_server.py` gives the read-only tools to an MCP client.
 
 ## The interactive page

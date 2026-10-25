@@ -93,7 +93,6 @@ rebuild:
 	$(PYTHON) scripts/audit/audit_era_readings.py
 	$(PYTHON) scripts/physical/appulse_residuals.py
 	$(PYTHON) scripts/physical/calibrate_visibility.py
-	$(PYTHON) scripts/physical/validate_zodiac.py
 	$(PYTHON) scripts/physical/check_calendar_against_sky.py
 	$(PYTHON) scripts/paper/build_paper_counts.py
 	$(PYTHON) scripts/audit/audit_held_out.py --run-held-out
@@ -112,9 +111,8 @@ NEEDS_SOURCE := scripts/source/fetch_adsd.py scripts/source/fetch_texts.py \
 # test on the dated addenda of ADART IV, and they read the ADART IV text:
 REGISTERED_TEST := scripts/source/build_adart_iv_addenda.py \
 	scripts/inference/date_adart_iv_addenda.py scripts/audit/score_adart_iv_addenda.py
-# These trace one record, or serve the tools to an MCP client:
-EXPLORE := scripts/audit/date_tablet.py scripts/audit/diagnose_candidate.py \
-	scripts/agent/mcp_server.py
+# These trace one record, or give the tools to an MCP client:
+EXPLORE := scripts/audit/date_tablet.py scripts/agent/mcp_server.py
 
 # Every offline test, then the cold check of data, provenance and results.
 check:

@@ -10,7 +10,7 @@ __pycache__/
 .venv/
 venv/
 
-# Credentials. scripts/agent/llm.py reads LITELLM_API_KEY from here or ~/.env.
+# Credentials. scripts/agent/model_review.py reads LITELLM_API_KEY from here or ~/.env.
 .env
 
 # The book scans are under copyright and never enter the repository.
