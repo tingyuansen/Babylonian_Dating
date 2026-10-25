@@ -23,9 +23,11 @@ paper.
 Each record also tells what the language model of step 1 did, from the
 committed run in data/clauses/model_review_<model>/: the review of each parser
 clause, each field change that the review proposed and what the checks did
-with it, and the clauses that the search found in the text. The dates use the parser's
-clauses only, so none of this changes a score. A parser clause that a rule
-from a coding agent read is marked too (data/clauses/parser_clauses.parquet).
+with it, and the clauses that the search found in the text. The dates use the
+final clauses of data/clauses/reviewed_clauses.parquet: the parser clauses as
+the review leaves them, and the clauses that the search added. A parser clause
+that a rule from a coding agent read is marked too
+(data/clauses/parser_clauses.parquet).
 
 Usage:
     python scripts/site/build_site_data.py
@@ -49,7 +51,7 @@ import pandas as pd
 HERE = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(HERE))
 
-from tools import cal, sky, statements as S  # noqa: E402
+from tools import cal, clauses as final_clauses, sky, statements as S  # noqa: E402
 from tools import years as yr  # noqa: E402
 
 sys.path.insert(0, str(HERE / "scripts" / "site"))
@@ -147,6 +149,8 @@ def load_review_run() -> dict:
         tiers    the clauses of the run's final list, by record, with the tier
                  of each one
         origin   the parser clauses, by record, with the origin of each rule
+        clauses  the final clauses, by record, each with its origin, parser
+                 index and review action
     """
     review = {}
     with (REVIEW_RUN / "review_cache.jsonl").open(encoding="utf-8") as fh:
@@ -162,6 +166,7 @@ def load_review_run() -> dict:
         "found": {t: g for t, g in search[search.status == "added"].groupby("tablet", sort=False)},
         "tiers": {t: g.sort_values("statement_index") for t, g in bits.groupby("tablet")},
         "origin": {t: g.sort_values("statement_index") for t, g in parser.groupby("tablet")},
+        "clauses": final_clauses.load(final_clauses.REVIEWED, provenance=True),
     }
 
 
@@ -316,13 +321,15 @@ def found_label(st: dict) -> str:
 
 
 def search_found(tablet: str, text: str, sts: list, finals: list,
-                 rows: pd.DataFrame | None, tiers: pd.DataFrame | None) -> list[dict]:
+                 rows: pd.DataFrame | None, tiers: pd.DataFrame | None,
+                 index: dict) -> list[dict]:
     """The clauses that the search added to one record, placed in its text.
 
     The run's final list holds the reviewed parser clauses and the added ones,
     sorted as merge_recall_additions in scripts/agent/model_review.py sorts
     them, so its order gives the tier of each added clause in
-    reviewed_clause_bits.parquet. A quote that
+    reviewed_clause_bits.parquet. index gives the place of each added clause in
+    the final list, by its passage, kind and body. A quote that
     is not at its offsets is placed at the nearest exact match in the text; a
     quote that is not in the text is left out.
     """
@@ -338,13 +345,15 @@ def search_found(tablet: str, text: str, sts: list, finals: list,
     final_list.sort(key=lambda c: c[:4])
     if tiers is None or len(tiers) != len(final_list):
         raise RuntimeError(f"{tablet}: the run's final list does not match its scored clauses")
-    decisive = {}
+    decisive, restored = {}, {}
     for (_, _, kind, planet, i), row in zip(final_list, tiers.itertuples()):
         same = row.kind == kind and row.planet == planet
         if i is not None:
             st = added[i][2]
-            same = same and row.parser_rule == st["parser_rule"] and bool(row.restored) == st["restored"]
-            decisive[i] = bool(row.decisive_tier)
+            same = same and row.parser_rule == st["parser_rule"]
+            # The restored mark of the final clause, which code also sets from
+            # the passage after the run.
+            decisive[i], restored[i] = bool(row.decisive_tier), bool(row.restored)
         if not same:
             raise RuntimeError(f"{tablet}: the run's final list does not match its scored clauses")
     found = []
@@ -353,8 +362,9 @@ def search_found(tablet: str, text: str, sts: list, finals: list,
         if place is None:
             continue
         found.append({"start": place[0], "end": place[1], "quote": quote,
-                      "what": found_label(st), "restored": bool(st["restored"]),
-                      "decisive": decisive[i]})
+                      "what": found_label(st), "restored": restored[i],
+                      "decisive": decisive[i],
+                      "j": index[(start, end, st["kind"], st["planet"])]})
     return sorted(found, key=lambda c: (c["start"], c["end"]))
 
 
@@ -362,7 +372,9 @@ def record_story(tablet: str, text: str, years: list[int], saved: pd.Series,
                  published: int | None, review_run: dict) -> dict:
     """One record's clauses, verdict grid, scores, sets and decision, and what
     the language model of step 1 did with the record."""
-    sts = S.extract(text)
+    parsed = S.extract(text)
+    items = review_run["clauses"].get(tablet, [])
+    sts = [st for st, _, _, _ in items]
     months = S.months_in(text)
     story = {"id": tablet, "published_astro": published,
              "claim": saved.claim, "basis": saved.basis, "reason": saved.reason}
@@ -370,22 +382,36 @@ def record_story(tablet: str, text: str, years: list[int], saved: pd.Series,
     # The spans of year numbers and ruler names, which the language model sees
     # as placeholders. The site hides them until the edition's date is shown.
     story["hidden"] = [[int(a), int(b)] for a, b, _, _ in blind(text).spans]
-    # The language model's part. It changes no clause and no score.
+    # The language model's part. The review names a parser clause by its index
+    # in the parser's list, and the page by its place in the final list.
     origin = review_run["origin"].get(tablet)
-    check_parser_clauses(tablet, sts, origin)
-    review, finals = model_review(tablet, text, sts, review_run["review"])
-    if sts:
+    check_parser_clauses(tablet, parsed, origin)
+    review, finals = model_review(tablet, text, parsed, review_run["review"])
+    place = {index: j for j, (_, source, index, _) in enumerate(items) if source == "parser"}
+    for change in review.get("changes", []):
+        change["j"] = place[change["j"]]
+    if parsed:
         story["review"] = review
-    found = search_found(tablet, text, sts, finals,
-                         review_run["found"].get(tablet), review_run["tiers"].get(tablet))
+    added = {(st.source_start, st.source_end, st.kind, st.planet): j
+             for j, (st, source, _, _) in enumerate(items) if source == "search"}
+    found = search_found(tablet, text, parsed, finals, review_run["found"].get(tablet),
+                         review_run["tiers"].get(tablet), added)
     if found:
         story["found"] = found
+    # What the parser clauses alone would give, for the comparison on the page.
+    if len(parsed) != len(sts) or any(a != b for a, b in zip(parsed, sts)):
+        alone = S.candidate_scores(parsed, months, years, "skill") if parsed else None
+        alone_levels = S.evidence_levels(alone) if alone is not None else []
+        story["parser_alone"] = {
+            "clauses": len(parsed),
+            "strict": int(alone.strict.sum()) if alone is not None else len(years),
+            "first": len(alone_levels[0]["years_astro"]) if alone_levels else len(years)}
     # The sets and the first three groups of the ranking, as the results hold them.
     levels = json.loads(saved.evidence_levels_json) if isinstance(
         saved.evidence_levels_json, str) else []
     groups = [years_list(level.get("years_astro")) for level in levels[:3]]
     if not sts:
-        # No parser clause, so no evidence: every candidate year stays in the
+        # No clause, so no evidence: every candidate year stays in the
         # strict and safety sets. The page shows this case on its own. When the
         # results hold no ranking, all the candidate years are one group.
         story.update(no_clauses=True, clauses=[], grid=[], K=[], ID=[], IS=[], contradict=[],
@@ -403,7 +429,7 @@ def record_story(tablet: str, text: str, years: list[int], saved: pd.Series,
         raise RuntimeError(f"{tablet}: the safety set does not match the committed result")
     order = [int(year_arr[i]) for i in scores.order]
     clauses = []
-    for j, st in enumerate(sts):
+    for j, (st, source, index, _) in enumerate(items):
         families = list(S.evidence_families(st))
         # A joint statement such as "Saturn and Mars were in Leo" gives one
         # clause per planet. Each clause shows the clock of its own body.
@@ -426,8 +452,10 @@ def record_story(tablet: str, text: str, years: list[int], saved: pd.Series,
             "rule": st.parser_rule,
         })
         # A rule that a coding agent proposed; the authors wrote and tested it.
-        if str(origin.rule_origin.iloc[j]).startswith("agent_suggested"):
+        if source == "parser" and str(origin.rule_origin.iloc[index]).startswith("agent_suggested"):
             clauses[-1]["agent_rule"] = True
+        if source == "search":
+            clauses[-1]["found"] = True
     grid =["".join(VERDICT[int(v)] for v in scores.outcomes[:, j])
             for j in range(len(sts))]
     # A written reason for each clause in the years a reader will open first.

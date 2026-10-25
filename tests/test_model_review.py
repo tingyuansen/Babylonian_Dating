@@ -168,6 +168,16 @@ class SearchRulesTest(unittest.TestCase):
                             source_start=text.rindex("the moon became"), source_end=len(text) - 2)
         self.assertFalse(v._continues_existing_eclipse(text, other, held))
 
+    def test_bracketed_or_queried_passage_counts_as_restored(self):
+        def restored(text: str, passage: str) -> bool:
+            start = text.index(passage)
+            return v._passage_restored(text, start, start + len(passage))
+        self.assertFalse(restored("Month II. Mars was in Taurus.", "Mars was in Taurus"))
+        self.assertTrue(restored("Month II. Ju ] piter was in Leo.", "Ju ] piter was in Leo"))
+        self.assertTrue(restored("Month II. Saturn was in Ge ] mini.", "Saturn was in Ge ] mini"))
+        self.assertTrue(restored("Month II. Mars? was in Taurus.", "Mars? was in Taurus"))
+        self.assertTrue(restored("Month II. [Mars was in Taurus.", "Mars was in Taurus"))
+
 
 class ClientPlumbingTest(unittest.TestCase):
     def test_schema_check_used_in_json_mode(self):

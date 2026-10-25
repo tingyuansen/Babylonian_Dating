@@ -775,7 +775,7 @@ def audit(t0: float, scratch: Path) -> int:
     active_public = dated[dated.tablet.isin(active_ids)]
     ok("public results expose complete score levels and exact physical subgroups",
        bool(evidence_outputs_are_complete.all())
-       and dated.method_version.eq("date-all-v6-joint-signs").all()
+       and dated.method_version.eq("date-all-v7-reviewed-clauses").all()
        and dated.loc[dated.tablet.eq("X301492"),
                      "top_evidence_group_years_astro"].iloc[0]
        == [yr.bce_to_astro(150)])
@@ -951,9 +951,11 @@ def audit(t0: float, scratch: Path) -> int:
     adart_iv_pdf = "data/source/adart_iv/scan.pdf"
     ocr_lines = "data/source/adart_iv/mathpix_lines.json"
     hashed_columns = {
-        "data/results/tablet_dates.parquet": tool_hashes,
+        "data/results/tablet_dates.parquet": {
+            **tool_hashes, "clauses_sha256": "data/clauses/reviewed_clauses.parquet"},
         "data/results/adart_iv_dates.parquet": {
             **tool_hashes,
+            "clauses_sha256": "data/clauses/adart_iv_reviewed_clauses.parquet",
             "date_adart_iv_sha256": "scripts/inference/date_adart_iv.py",
             "corpus_sha256": "data/corpus/adart_iv_tablets.parquet"},
         "data/clauses/parser_clauses.parquet": {"extractor_sha256": "tools/statements.py"},
@@ -1007,6 +1009,7 @@ def audit(t0: float, scratch: Path) -> int:
                  if isinstance(entry, dict) and isinstance(entry.get("file"), dict)]
     recorded += [("held_out_summary.json", value,
                   "scripts/audit/audit_held_out.py" if name == "audit_held_out"
+                  else "data/clauses/reviewed_clauses.parquet" if name == "reviewed_clauses"
                   else f"tools/{name}.py")
                  for name, value in held_summary["hashes"].items()]
     stale = [f"{where} ({source})" for where, value, source in recorded
@@ -1670,7 +1673,7 @@ def audit(t0: float, scratch: Path) -> int:
                                                    "confirms_astronomy"]).all()
                                               else "stated years: one lies outside the strict set",
             "Fig. 4": f"Inclusion of the published year in the benchmark of {n_bench} dated records",
-            "ADART IV coverage": "The parser recognizes astronomical clauses in "
+            "ADART IV coverage": "The parser and the search find astronomical clauses in "
                                  f"{int(adart_iv_dates.n_statements.gt(0).sum())} entries, and "
                                  f"{len(ranked_iv)} of them have a decisive clause",
             "ADART IV median": f"cut the {n_years} candidate years to a median of "
@@ -1724,10 +1727,11 @@ def audit(t0: float, scratch: Path) -> int:
                                             and shift(name, "truth_strict") < 0
                                             for name in ("contradictions_bound_the_leading_set", "information_weighting"))
                                      else "strict-set runs: the strict set does not shrink as stated"),
-            "a few points": ("raise first-group inclusion by a few points"
-                             if all(1 <= shift(name, "truth_in_leading_group") <= 5
-                                    for name in ("contradictions_before_information", "equal_weighting_with_tiers"))
-                             else "ordering runs: the gain is not a few points"),
+            "ordering runs": ("and they give the same rates as the baseline"
+                              if all(shift(name, column) == 0
+                                     for name in ("contradictions_before_information", "equal_weighting_with_tiers")
+                                     for column in ("truth_in_leading_group", "truth_strict"))
+                              else "ordering runs: a rate changes"),
             "rates change little": ("Across the 31 settings, the rates change little"
                                     if len(alternatives) == 31
                                     and all(abs(shift(name, column)) <= 8 for name in alternatives
@@ -1743,14 +1747,18 @@ def audit(t0: float, scratch: Path) -> int:
                                           for name in ("no_mars_family", "no_jupiter_family", "no_saturn_family"))
                                     and float(sensitivity.loc["no_month_context", "median_leading_group"]) >= 10 * base_first
                                     else "month context: the sets do not widen most"),
-            "conventions matter least": ("Each moves a rate by at most one point"
-                                         if all(within_point(name) for name in conventions)
-                                         else "conventions: a rate moves by more than one point"),
-            "no agent rules": ("Without the agent rules, each rate falls by at most two points, and the median strict set about doubles"
-                               if all(-2 <= shift("no_agent_suggested_rules", column) <= 0
-                                      for column in ("truth_in_leading_group", "truth_strict"))
-                               and 1.7 <= float(sensitivity.loc["no_agent_suggested_rules", "median_strict_count"]) / base_strict <= 2.5
-                               else "agent rules: the stated change does not hold"),
+            "conventions matter least": (lambda most: f"Each moves a rate by at most {word(most)} "
+                                                      + ("point" if most == 1 else "points"))(
+                max(abs(shift(name, column)) for name in conventions
+                    for column in ("truth_in_leading_group", "truth_strict"))),
+            "no agent rules": (lambda growth: (
+                "Without the agent rules, each rate falls by at most two points, and the median strict set "
+                + ("about doubles" if 1.7 <= growth <= 2.5 else "grows by about half" if 1.3 <= growth < 1.7
+                   else "changes otherwise"))
+                if all(-2 <= shift("no_agent_suggested_rules", column) <= 0
+                       for column in ("truth_in_leading_group", "truth_strict"))
+                else "agent rules: a rate falls by more than two points")(
+                float(sensitivity.loc["no_agent_suggested_rules", "median_strict_count"]) / base_strict),
             "eclipses untestable": f"Of {len(eclipse_rows)} eclipse clauses, the scribes mark "
                                    f"{int(eclipse_untestable_reasons.get('unobserved', 0))} as unobserved, and "
                                    f"{int(eclipse_untestable_reasons.get('no date', 0))} lack a secure month and day",
@@ -1761,36 +1769,79 @@ def audit(t0: float, scratch: Path) -> int:
             "sensitivity configurations": f"The sensitivity audit tests {len(SENSITIVITY_CONFIGS)} "
                                           "fixed configurations, including the baseline, on the "
                                           f"same {n_bench} records",
-            "held-out tolerances": f"Round I chose a planet tolerance of ${num(tolerances.get('ADART I', 0))}^\\circ$ "
-                                   f"and Round III one of ${num(tolerances.get('ADART III', 0))}^\\circ$",
+            "held-out tolerances": (f"Round I chose a planet tolerance of ${num(tolerances.get('ADART I', 0))}^\\circ$."
+                                    if tolerances.get("ADART II") == tolerances.get("ADART III") == S.TOL_PLANET
+                                    else "held-out: rounds II or III change the planet tolerance"),
+            "held-out types": ("Rounds II and III kept the distances of the outer planets to Normal Stars in compound "
+                               "units supporting, and Round III also made the sign entries of the outer planets supporting"
+                               if {name: sorted(rounds[name]["choices"]["demoted_types"]) for name in held.HELD_OUT}
+                               == {"ADART I": [], "ADART II": ["distance to Normal Star|outer|compound"],
+                                   "ADART III": ["distance to Normal Star|outer|compound", "sign entry|outer|-"]}
+                               and not any(rounds[name]["choices"]["promoted_types"] for name in held.HELD_OUT)
+                               else "held-out: the rounds change other decisive types"),
             "held-out reading": "passes if it lies at most "
                                 f"{word(int(held.CLOSE_POINTS))} percentage points",
             "one record of ADART II": "because single volumes hold few records, such as "
                                       f"{held_rows.get('ADART II', {}).get('records')} in ADART II",
-            "Wilson intervals": (lambda held_ci, full_ci: f"{held_ci[0]}--{held_ci[1]}\\% for the held-out test and "
-                                 f"{full_ci[0]}--{full_ci[1]}\\% for the full benchmark")(
-                                     wilson(pooled["first_group"]["n"], pooled["records"]), wilson(first, n_act)),
+            "Wilson intervals": ((lambda ci: f"With {n_act} records, the 95\\% Wilson interval of the first-group "
+                                  f"rate is {ci[0]}--{ci[1]}\\%")(wilson(first, n_act))
+                                 if pooled["first_group"]["n"] == first
+                                 else "held-out: the pooled first-group rate differs from the benchmark"),
             "addenda interval": (lambda ci: f"the 95\\% interval of their first-group rate, {ci[0]}--{ci[1]}\\%, is wide, "
                                  "and it holds the benchmark rate"
                                  if ci[0] <= int(pct(first, n_act)) <= ci[1] else "addenda: the interval misses the benchmark rate")(
                                      wilson(addenda["published_year_in_first_group"]["count"],
                                             addenda["texts_with_a_decisive_clause"])),
-            "held-out result": (f"With settings chosen on the other volumes, both pooled rates lie within the "
-                                f"{word(int(held.CLOSE_POINTS))} points"
+            "held-out result": ("With settings chosen on the other volumes, both pooled rates equal those of the "
+                                f"full benchmark, well within the {word(int(held.CLOSE_POINTS))} points"
                                 if all(r["close"] for r in reading.values())
-                                else "One drop exceeds the fixed points"),
+                                and (pooled["first_group"]["n"], pooled["strict_set"]["n"]) == (first, strict_in)
+                                else "held-out: a pooled rate differs from the benchmark"),
             "held-out (main text)": "Over the three rounds, the first group holds the published year in "
                                     f"{pct(pooled['first_group']['n'], pooled['records'])}\\% and the "
                                     f"strict set in {pct(pooled['strict_set']['n'], pooled['records'])}\\%, "
-                                    f"within {word(int(held.CLOSE_POINTS))} points of the full benchmark"
-                                    if all(r["close"] for r in reading.values())
-                                    else "held-out: not close",
+                                    "as in the full benchmark"
+                                    if (pooled["first_group"]["n"], pooled["strict_set"]["n"]) == (first, strict_in)
+                                    else "held-out: a pooled rate differs from the benchmark",
             "Britton": "\\lambda_{\\mathrm{Bab}}=\\lambda_{\\mathrm{date}}"
                        f"+{sky.BABYLONIAN_OFFSET_YEAR0_DEG:.2f}^\\circ-"
                        f"{sky.BABYLONIAN_PRECESSION_DEG_PER_CENTURY:.4f}^\\circ\\,Y",
             "tolerances": f"tolerances of ${num(S.TOL_MOON)}^\\circ$ for the Moon and "
                           f"${num(S.TOL_PLANET)}^\\circ$ for a planet",
         }
+        # SI section S10: the records dated with the parser clauses alone and
+        # with the reviewed clauses that the dates use.
+        clause_sets = json.loads((HERE / "data" / "benchmark" / "clause_set_comparison.json")
+                                 .read_text(encoding="utf-8"))
+        alone, reviewed_set = (clause_sets["adart_i_iii"][k] for k in ("parser", "reviewed"))
+        iv_alone, iv_reviewed = (clause_sets["adart_iv"][k] for k in ("parser", "reviewed"))
+        change = clause_sets["benchmark_records_that_change"]
+        ok("the reviewed column of SI Table S8 is the benchmark of the main text",
+           (reviewed_set["first_group"], reviewed_set["records_with_decisive_clauses"]) == (first, n_act))
+        claims.update({
+            "parser alone": ("which narrow the dates without a loss at the published years"
+                             if reviewed_set["first_group"] >= alone["first_group"]
+                             and reviewed_set["strict_set"] >= alone["strict_set"]
+                             and reviewed_set["median_strict_set"] <= alone["median_strict_set"]
+                             else "the reviewed clauses lose at the published years"),
+            "S10 change": (f"With them, {change['records']} of the {n_act} records with decisive clauses "
+                           f"change. The strict set becomes narrower in {change['strict_set_narrower']}, "
+                           "and the published year moves up the ranking in "
+                           f"{change['published_year_ranked_higher']}. In none of them does it move "
+                           "down or leave the strict set"
+                           if not change["published_year_ranked_lower"]
+                           and not change["published_year_leaves_strict_set"]
+                           else "S10: a published year moves down or leaves the strict set"),
+            "S10 commitments": (f"the commitments rise from {alone['commitments']} to "
+                                f"{reviewed_set['commitments']}, and all {reviewed_set['commitments']} "
+                                "match the published year"
+                                if reviewed_set["commitments_correct"] == reviewed_set["commitments"]
+                                else "S10: a commitment misses the published year"),
+            "S10 ADART IV": ("the search finds clauses in "
+                             f"{iv_reviewed['entries_with_clauses'] - iv_alone['entries_with_clauses']} "
+                             f"more entries, and {iv_reviewed['ranked_entries'] - iv_alone['ranked_entries']} "
+                             "more entries receive ranked candidate years"),
+        })
         missing = [label for label, phrase in claims.items() if phrase not in tex]
         ok("every number the paper prints follows from the data",
            not missing, "; ".join(f"{m}: '{claims[m][:90]}'" for m in missing[:3])
@@ -1853,10 +1904,34 @@ def audit(t0: float, scratch: Path) -> int:
                        "strict_set": {"n": sum(t["published_year_in_strict_set"] for t in addenda_new)},
                        "median_strict_set": addenda_json["scores"]["not_linked_to_adart_i_iii"]["median_strict_set_size"]}
         want_s6.append(s6("Frozen rules, ADART IV addenda", addenda_row))
+        def both(key: str, rate: bool = False, unit: str = "") -> tuple[str, str]:
+            if rate:
+                return tuple(f"{t[key]} ({pct(t[key], n_act)}\\%)" for t in (alone, reviewed_set))
+            return tuple(f"{num(t[key])}{unit}" for t in (alone, reviewed_set))
+
+        want_s8 = [
+            row("Clauses in ADART I to III", *both("clauses")),
+            row("First group holds the published year", *both("first_group", rate=True)),
+            row("First three groups hold it", *both("first_three_groups", rate=True)),
+            row("Strict set holds it", *both("strict_set", rate=True)),
+            row("Median strict set", *both("median_strict_set", unit=" years")),
+            row("First groups of one year (with the published year)",
+                *(f"{t['single_year_first_groups']} ({t['single_year_first_groups_correct']})"
+                  for t in (alone, reviewed_set))),
+            row("Commitments (correct)",
+                *(f"{t['commitments']} ({t['commitments_correct']})" for t in (alone, reviewed_set))),
+            row("ADART IV entries with clauses",
+                *(t["entries_with_clauses"] for t in (iv_alone, iv_reviewed))),
+            row("ADART IV entries with ranked years",
+                *(t["ranked_entries"] for t in (iv_alone, iv_reviewed))),
+            row("Median strict set in ADART IV",
+                *(f"{num(t['median_strict_set'])} years" for t in (iv_alone, iv_reviewed))),
+        ]
         for name, label, want in (("S3", "tab:information", want_s3),
                                   ("S4", "tab:forward", want_s4),
-                                  ("S6", "tab:heldout", want_s6)):
-            have = tex_rows(label) if name == "S6" else sorted(tex_rows(label))
+                                  ("S6", "tab:heldout", want_s6),
+                                  ("S8", "tab:clausesets", want_s8)):
+            have = tex_rows(label) if name in ("S6", "S8") else sorted(tex_rows(label))
             if name == "S4":
                 want = sorted(want)
             wrong = [f"'{h}' should be '{w}'" for h, w in zip(have, want) if h != w]

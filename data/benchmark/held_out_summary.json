@@ -69,10 +69,12 @@
           "planet": 1.5
         },
         "decisive_types": [
+          "Moon distance to planet|outer|compound",
           "Moon distance to planet|outer|single",
           "Sirius date|scheme|-",
           "acronychal rising|outer|-",
           "coordinated signs|outer|-",
+          "distance to Normal Star|outer|compound",
           "distance to Normal Star|outer|single",
           "eclipse|lunar|-",
           "first appearance|outer|-",
@@ -82,10 +84,12 @@
           "station|outer|-"
         ],
         "repo_decisive_types": [
+          "Moon distance to planet|outer|compound",
           "Moon distance to planet|outer|single",
           "Sirius date|scheme|-",
           "acronychal rising|outer|-",
           "coordinated signs|outer|-",
+          "distance to Normal Star|outer|compound",
           "distance to Normal Star|outer|single",
           "eclipse|lunar|-",
           "first appearance|outer|-",
@@ -100,47 +104,47 @@
         "training_records": 255,
         "tolerance_detail": {
           "moon": {
-            "residuals": 899,
+            "residuals": 1069,
             "tolerance": 3.0,
             "share_within": {
-              "0.5": 0.6196,
-              "1.0": 0.693,
-              "1.5": 0.7575,
-              "2.0": 0.8087,
-              "2.5": 0.8565,
-              "3.0": 0.8988,
-              "3.5": 0.9166,
-              "4.0": 0.9199,
-              "4.5": 0.9232,
-              "5.0": 0.9232,
-              "5.5": 0.9266,
-              "6.0": 0.9277
+              "0.5": 0.6109,
+              "1.0": 0.6857,
+              "1.5": 0.754,
+              "2.0": 0.8036,
+              "2.5": 0.8503,
+              "3.0": 0.8962,
+              "3.5": 0.913,
+              "4.0": 0.9177,
+              "4.5": 0.9214,
+              "5.0": 0.9233,
+              "5.5": 0.927,
+              "6.0": 0.9289
             },
             "quantile_interval_same_choice": [
-              0.8565,
-              0.8988
+              0.8503,
+              0.8962
             ]
           },
           "planet": {
-            "residuals": 100,
+            "residuals": 123,
             "tolerance": 1.5,
             "share_within": {
-              "0.5": 0.73,
-              "1.0": 0.83,
-              "1.5": 0.89,
-              "2.0": 0.9,
-              "2.5": 0.93,
-              "3.0": 0.93,
-              "3.5": 0.94,
-              "4.0": 0.95,
-              "4.5": 0.95,
-              "5.0": 0.95,
-              "5.5": 0.95,
-              "6.0": 0.95
+              "0.5": 0.748,
+              "1.0": 0.8374,
+              "1.5": 0.8943,
+              "2.0": 0.9024,
+              "2.5": 0.9268,
+              "3.0": 0.9268,
+              "3.5": 0.935,
+              "4.0": 0.9431,
+              "4.5": 0.9431,
+              "5.0": 0.9431,
+              "5.5": 0.9431,
+              "6.0": 0.9431
             },
             "quantile_interval_same_choice": [
-              0.83,
-              0.89
+              0.8374,
+              0.8943
             ]
           }
         },
@@ -180,17 +184,17 @@
           {
             "unit": "month headings and Scorpius alias",
             "provenance_item": "scoped month headings and Scorpius alias",
-            "testable": 178,
-            "agree": 165,
-            "agreement": 0.927,
+            "testable": 267,
+            "agree": 247,
+            "agreement": 0.9251,
             "passes_gate": true
           },
           {
             "unit": "summary months",
             "provenance_item": "preceding-summary windows",
-            "testable": 251,
-            "agree": 242,
-            "agreement": 0.9641,
+            "testable": 335,
+            "agree": 321,
+            "agreement": 0.9582,
             "passes_gate": true
           }
         ],
@@ -208,9 +212,9 @@
           {
             "type": "Moon distance to planet|inner|single",
             "eligibility": "fixed_supporting",
-            "testable": 22,
-            "agree": 22,
-            "agreement": 1.0,
+            "testable": 40,
+            "agree": 39,
+            "agreement": 0.975,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -218,19 +222,19 @@
           {
             "type": "Moon distance to planet|outer|compound",
             "eligibility": "gated",
-            "testable": 0,
-            "agree": 0,
-            "agreement": null,
-            "passes_gate": false,
-            "decisive": false,
-            "repo_decisive": false
+            "testable": 9,
+            "agree": 9,
+            "agreement": 1.0,
+            "passes_gate": true,
+            "decisive": true,
+            "repo_decisive": true
           },
           {
             "type": "Moon distance to planet|outer|single",
             "eligibility": "gated",
-            "testable": 39,
-            "agree": 36,
-            "agreement": 0.9231,
+            "testable": 104,
+            "agree": 94,
+            "agreement": 0.9038,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -238,8 +242,8 @@
           {
             "type": "Sirius date|scheme|-",
             "eligibility": "gated",
-            "testable": 20,
-            "agree": 20,
+            "testable": 21,
+            "agree": 21,
             "agreement": 1.0,
             "passes_gate": true,
             "decisive": true,
@@ -248,9 +252,9 @@
           {
             "type": "acronychal rising|outer|-",
             "eligibility": "gated",
-            "testable": 14,
-            "agree": 13,
-            "agreement": 0.9286,
+            "testable": 15,
+            "agree": 14,
+            "agreement": 0.9333,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -288,9 +292,9 @@
           {
             "type": "distance to Normal Star|inner|single",
             "eligibility": "fixed_supporting",
-            "testable": 50,
-            "agree": 43,
-            "agreement": 0.86,
+            "testable": 53,
+            "agree": 46,
+            "agreement": 0.8679,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -298,8 +302,8 @@
           {
             "type": "distance to Normal Star|moon|compound",
             "eligibility": "fixed_supporting",
-            "testable": 11,
-            "agree": 11,
+            "testable": 12,
+            "agree": 12,
             "agreement": 1.0,
             "passes_gate": true,
             "decisive": false,
@@ -308,8 +312,8 @@
           {
             "type": "distance to Normal Star|moon|single",
             "eligibility": "fixed_supporting",
-            "testable": 826,
-            "agree": 762,
+            "testable": 903,
+            "agree": 833,
             "agreement": 0.9225,
             "passes_gate": true,
             "decisive": false,
@@ -318,19 +322,19 @@
           {
             "type": "distance to Normal Star|outer|compound",
             "eligibility": "gated",
-            "testable": 1,
-            "agree": 1,
+            "testable": 3,
+            "agree": 3,
             "agreement": 1.0,
-            "passes_gate": false,
-            "decisive": false,
-            "repo_decisive": false
+            "passes_gate": true,
+            "decisive": true,
+            "repo_decisive": true
           },
           {
             "type": "distance to Normal Star|outer|single",
             "eligibility": "gated",
-            "testable": 31,
-            "agree": 28,
-            "agreement": 0.9032,
+            "testable": 37,
+            "agree": 34,
+            "agreement": 0.9189,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -338,10 +342,10 @@
           {
             "type": "eclipse|lunar|-",
             "eligibility": "fixed_decisive",
-            "testable": 2,
-            "agree": 2,
+            "testable": 3,
+            "agree": 3,
             "agreement": 1.0,
-            "passes_gate": false,
+            "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
           },
@@ -358,9 +362,9 @@
           {
             "type": "first appearance|inner|-",
             "eligibility": "fixed_supporting",
-            "testable": 92,
-            "agree": 89,
-            "agreement": 0.9674,
+            "testable": 133,
+            "agree": 128,
+            "agreement": 0.9624,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -368,9 +372,9 @@
           {
             "type": "first appearance|outer|-",
             "eligibility": "gated",
-            "testable": 32,
-            "agree": 31,
-            "agreement": 0.9688,
+            "testable": 43,
+            "agree": 42,
+            "agreement": 0.9767,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -378,9 +382,9 @@
           {
             "type": "last appearance|inner|-",
             "eligibility": "fixed_supporting",
-            "testable": 84,
-            "agree": 79,
-            "agreement": 0.9405,
+            "testable": 122,
+            "agree": 114,
+            "agreement": 0.9344,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -388,9 +392,9 @@
           {
             "type": "last appearance|outer|-",
             "eligibility": "fixed_supporting",
-            "testable": 29,
-            "agree": 28,
-            "agreement": 0.9655,
+            "testable": 43,
+            "agree": 41,
+            "agreement": 0.9535,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -408,9 +412,19 @@
           {
             "type": "planet distance to planet|outer|single",
             "eligibility": "gated",
-            "testable": 3,
+            "testable": 5,
+            "agree": 2,
+            "agreement": 0.4,
+            "passes_gate": false,
+            "decisive": false,
+            "repo_decisive": false
+          },
+          {
+            "type": "planet distance to planet|with inner|compound",
+            "eligibility": "fixed_supporting",
+            "testable": 1,
             "agree": 1,
-            "agreement": 0.3333,
+            "agreement": 1.0,
             "passes_gate": false,
             "decisive": false,
             "repo_decisive": false
@@ -418,8 +432,8 @@
           {
             "type": "planet distance to planet|with inner|single",
             "eligibility": "fixed_supporting",
-            "testable": 9,
-            "agree": 8,
+            "testable": 18,
+            "agree": 16,
             "agreement": 0.8889,
             "passes_gate": true,
             "decisive": false,
@@ -428,9 +442,9 @@
           {
             "type": "planet in sign|inner|-",
             "eligibility": "fixed_supporting",
-            "testable": 73,
-            "agree": 71,
-            "agreement": 0.9726,
+            "testable": 136,
+            "agree": 132,
+            "agreement": 0.9706,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -438,9 +452,9 @@
           {
             "type": "planet in sign|outer|-",
             "eligibility": "gated",
-            "testable": 173,
-            "agree": 172,
-            "agreement": 0.9942,
+            "testable": 247,
+            "agree": 245,
+            "agreement": 0.9919,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -448,9 +462,9 @@
           {
             "type": "sign entry|inner|-",
             "eligibility": "fixed_supporting",
-            "testable": 60,
-            "agree": 58,
-            "agreement": 0.9667,
+            "testable": 66,
+            "agree": 64,
+            "agreement": 0.9697,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -458,9 +472,9 @@
           {
             "type": "sign entry|outer|-",
             "eligibility": "gated",
-            "testable": 34,
+            "testable": 35,
             "agree": 34,
-            "agreement": 1.0,
+            "agreement": 0.9714,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -468,9 +482,9 @@
           {
             "type": "solstice or equinox|scheme|-",
             "eligibility": "gated",
-            "testable": 24,
-            "agree": 22,
-            "agreement": 0.9167,
+            "testable": 25,
+            "agree": 23,
+            "agreement": 0.92,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -486,11 +500,21 @@
             "repo_decisive": false
           },
           {
+            "type": "station distance to Normal Star|outer|compound",
+            "eligibility": "gated",
+            "testable": 1,
+            "agree": 0,
+            "agreement": 0.0,
+            "passes_gate": false,
+            "decisive": false,
+            "repo_decisive": false
+          },
+          {
             "type": "station distance to Normal Star|outer|single",
             "eligibility": "gated",
-            "testable": 15,
-            "agree": 8,
-            "agreement": 0.5333,
+            "testable": 22,
+            "agree": 11,
+            "agreement": 0.5,
             "passes_gate": false,
             "decisive": false,
             "repo_decisive": false
@@ -498,9 +522,9 @@
           {
             "type": "station|outer|-",
             "eligibility": "gated",
-            "testable": 4,
-            "agree": 4,
-            "agreement": 1.0,
+            "testable": 12,
+            "agree": 10,
+            "agreement": 0.8333,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -508,11 +532,11 @@
         ],
         "gate_interval_units": [
           0.0,
-          0.927
+          0.9251
         ],
         "gate_interval_types": [
-          0.5333,
-          0.9032
+          0.5,
+          0.8333
         ],
         "count_interval_units": [
           1,
@@ -520,29 +544,29 @@
         ],
         "count_interval_types": [
           2,
-          4
+          3
         ],
-        "seconds": 4.5,
+        "seconds": 1.6,
         "same_choices_as_all_volumes": false
       },
       "exposure": {
         "records": 43,
         "records_with_decisive_clauses": 31,
-        "clauses": 732,
-        "clauses_kept": 732,
-        "decisive_repo": 111,
-        "decisive_round": 111,
+        "clauses": 893,
+        "clauses_kept": 893,
+        "decisive_repo": 132,
+        "decisive_round": 132,
         "records_with_changed_decisive_clauses": 0,
-        "moon_relations": 360,
-        "planet_relations": 88
+        "moon_relations": 431,
+        "planet_relations": 109
       },
       "scored": true,
       "table_row": {
         "test_volume": "ADART I",
         "records": 31,
         "first_group": {
-          "n": 28,
-          "percent": 90.3
+          "n": 30,
+          "percent": 96.8
         },
         "first_three_groups": {
           "n": 31,
@@ -552,9 +576,9 @@
           "n": 31,
           "percent": 100.0
         },
-        "median_strict_set": 15.0
+        "median_strict_set": 9.0
       },
-      "scoring_cpu_seconds": 17.6
+      "scoring_cpu_seconds": 15.0
     },
     {
       "round": "ADART II",
@@ -571,6 +595,7 @@
           "planet": 2.0
         },
         "decisive_types": [
+          "Moon distance to planet|outer|compound",
           "Moon distance to planet|outer|single",
           "Sirius date|scheme|-",
           "acronychal rising|outer|-",
@@ -584,10 +609,12 @@
           "station|outer|-"
         ],
         "repo_decisive_types": [
+          "Moon distance to planet|outer|compound",
           "Moon distance to planet|outer|single",
           "Sirius date|scheme|-",
           "acronychal rising|outer|-",
           "coordinated signs|outer|-",
+          "distance to Normal Star|outer|compound",
           "distance to Normal Star|outer|single",
           "eclipse|lunar|-",
           "first appearance|outer|-",
@@ -597,52 +624,54 @@
           "station|outer|-"
         ],
         "rejected_units": [],
-        "demoted_types": [],
+        "demoted_types": [
+          "distance to Normal Star|outer|compound"
+        ],
         "promoted_types": [],
         "training_records": 229,
         "tolerance_detail": {
           "moon": {
-            "residuals": 945,
+            "residuals": 1106,
             "tolerance": 3.0,
             "share_within": {
-              "0.5": 0.5915,
-              "1.0": 0.6582,
-              "1.5": 0.7249,
-              "2.0": 0.7862,
-              "2.5": 0.8434,
-              "3.0": 0.8942,
-              "3.5": 0.9153,
-              "4.0": 0.9175,
-              "4.5": 0.9196,
-              "5.0": 0.9196,
-              "5.5": 0.9206,
-              "6.0": 0.9206
+              "0.5": 0.5832,
+              "1.0": 0.6483,
+              "1.5": 0.7161,
+              "2.0": 0.7785,
+              "2.5": 0.8345,
+              "3.0": 0.8924,
+              "3.5": 0.9141,
+              "4.0": 0.9177,
+              "4.5": 0.9195,
+              "5.0": 0.9213,
+              "5.5": 0.9231,
+              "6.0": 0.9241
             },
             "quantile_interval_same_choice": [
-              0.8434,
-              0.8942
+              0.8345,
+              0.8924
             ]
           },
           "planet": {
-            "residuals": 114,
+            "residuals": 141,
             "tolerance": 2.0,
             "share_within": {
-              "0.5": 0.7193,
-              "1.0": 0.807,
-              "1.5": 0.8772,
-              "2.0": 0.8947,
-              "2.5": 0.9123,
-              "3.0": 0.9123,
-              "3.5": 0.9211,
-              "4.0": 0.9211,
-              "4.5": 0.9211,
-              "5.0": 0.9211,
-              "5.5": 0.9211,
-              "6.0": 0.9211
+              "0.5": 0.7305,
+              "1.0": 0.8156,
+              "1.5": 0.8794,
+              "2.0": 0.8936,
+              "2.5": 0.9078,
+              "3.0": 0.9078,
+              "3.5": 0.922,
+              "4.0": 0.922,
+              "4.5": 0.922,
+              "5.0": 0.922,
+              "5.5": 0.922,
+              "6.0": 0.922
             },
             "quantile_interval_same_choice": [
-              0.8772,
-              0.8947
+              0.8794,
+              0.8936
             ]
           }
         },
@@ -682,17 +711,17 @@
           {
             "unit": "month headings and Scorpius alias",
             "provenance_item": "scoped month headings and Scorpius alias",
-            "testable": 143,
-            "agree": 133,
-            "agreement": 0.9301,
+            "testable": 213,
+            "agree": 198,
+            "agreement": 0.9296,
             "passes_gate": true
           },
           {
             "unit": "summary months",
             "provenance_item": "preceding-summary windows",
-            "testable": 361,
-            "agree": 351,
-            "agreement": 0.9723,
+            "testable": 473,
+            "agree": 457,
+            "agreement": 0.9662,
             "passes_gate": true
           }
         ],
@@ -700,19 +729,19 @@
           {
             "type": "Moon distance to planet|inner|compound",
             "eligibility": "fixed_supporting",
-            "testable": 2,
-            "agree": 2,
+            "testable": 4,
+            "agree": 4,
             "agreement": 1.0,
-            "passes_gate": false,
+            "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
           },
           {
             "type": "Moon distance to planet|inner|single",
             "eligibility": "fixed_supporting",
-            "testable": 27,
-            "agree": 25,
-            "agreement": 0.9259,
+            "testable": 45,
+            "agree": 43,
+            "agreement": 0.9556,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -720,19 +749,19 @@
           {
             "type": "Moon distance to planet|outer|compound",
             "eligibility": "gated",
-            "testable": 1,
-            "agree": 1,
+            "testable": 12,
+            "agree": 12,
             "agreement": 1.0,
-            "passes_gate": false,
-            "decisive": false,
-            "repo_decisive": false
+            "passes_gate": true,
+            "decisive": true,
+            "repo_decisive": true
           },
           {
             "type": "Moon distance to planet|outer|single",
             "eligibility": "gated",
-            "testable": 59,
-            "agree": 56,
-            "agreement": 0.9492,
+            "testable": 114,
+            "agree": 104,
+            "agreement": 0.9123,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -750,9 +779,9 @@
           {
             "type": "acronychal rising|outer|-",
             "eligibility": "gated",
-            "testable": 13,
-            "agree": 12,
-            "agreement": 0.9231,
+            "testable": 14,
+            "agree": 13,
+            "agreement": 0.9286,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -780,9 +809,9 @@
           {
             "type": "distance to Normal Star|inner|compound",
             "eligibility": "fixed_supporting",
-            "testable": 6,
-            "agree": 5,
-            "agreement": 0.8333,
+            "testable": 7,
+            "agree": 6,
+            "agreement": 0.8571,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -790,9 +819,9 @@
           {
             "type": "distance to Normal Star|inner|single",
             "eligibility": "fixed_supporting",
-            "testable": 49,
-            "agree": 43,
-            "agreement": 0.8776,
+            "testable": 51,
+            "agree": 45,
+            "agreement": 0.8824,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -800,9 +829,9 @@
           {
             "type": "distance to Normal Star|moon|compound",
             "eligibility": "fixed_supporting",
-            "testable": 27,
-            "agree": 24,
-            "agreement": 0.8889,
+            "testable": 30,
+            "agree": 27,
+            "agreement": 0.9,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -810,9 +839,9 @@
           {
             "type": "distance to Normal Star|moon|single",
             "eligibility": "fixed_supporting",
-            "testable": 829,
-            "agree": 763,
-            "agreement": 0.9204,
+            "testable": 901,
+            "agree": 830,
+            "agreement": 0.9212,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -820,19 +849,19 @@
           {
             "type": "distance to Normal Star|outer|compound",
             "eligibility": "gated",
-            "testable": 2,
-            "agree": 2,
-            "agreement": 1.0,
+            "testable": 4,
+            "agree": 3,
+            "agreement": 0.75,
             "passes_gate": false,
             "decisive": false,
-            "repo_decisive": false
+            "repo_decisive": true
           },
           {
             "type": "distance to Normal Star|outer|single",
             "eligibility": "gated",
-            "testable": 43,
-            "agree": 40,
-            "agreement": 0.9302,
+            "testable": 51,
+            "agree": 48,
+            "agreement": 0.9412,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -840,10 +869,10 @@
           {
             "type": "eclipse|lunar|-",
             "eligibility": "fixed_decisive",
-            "testable": 2,
-            "agree": 2,
+            "testable": 3,
+            "agree": 3,
             "agreement": 1.0,
-            "passes_gate": false,
+            "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
           },
@@ -860,9 +889,9 @@
           {
             "type": "first appearance|inner|-",
             "eligibility": "fixed_supporting",
-            "testable": 98,
-            "agree": 95,
-            "agreement": 0.9694,
+            "testable": 134,
+            "agree": 128,
+            "agreement": 0.9552,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -870,9 +899,9 @@
           {
             "type": "first appearance|outer|-",
             "eligibility": "gated",
-            "testable": 36,
-            "agree": 34,
-            "agreement": 0.9444,
+            "testable": 51,
+            "agree": 49,
+            "agreement": 0.9608,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -880,9 +909,9 @@
           {
             "type": "last appearance|inner|-",
             "eligibility": "fixed_supporting",
-            "testable": 100,
-            "agree": 94,
-            "agreement": 0.94,
+            "testable": 145,
+            "agree": 135,
+            "agreement": 0.931,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -890,9 +919,9 @@
           {
             "type": "last appearance|outer|-",
             "eligibility": "fixed_supporting",
-            "testable": 34,
-            "agree": 33,
-            "agreement": 0.9706,
+            "testable": 48,
+            "agree": 46,
+            "agreement": 0.9583,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -910,9 +939,19 @@
           {
             "type": "planet distance to planet|outer|single",
             "eligibility": "gated",
-            "testable": 3,
-            "agree": 1,
-            "agreement": 0.3333,
+            "testable": 5,
+            "agree": 2,
+            "agreement": 0.4,
+            "passes_gate": false,
+            "decisive": false,
+            "repo_decisive": false
+          },
+          {
+            "type": "planet distance to planet|with inner|compound",
+            "eligibility": "fixed_supporting",
+            "testable": 2,
+            "agree": 2,
+            "agreement": 1.0,
             "passes_gate": false,
             "decisive": false,
             "repo_decisive": false
@@ -920,9 +959,9 @@
           {
             "type": "planet distance to planet|with inner|single",
             "eligibility": "fixed_supporting",
-            "testable": 10,
-            "agree": 10,
-            "agreement": 1.0,
+            "testable": 20,
+            "agree": 19,
+            "agreement": 0.95,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -930,9 +969,9 @@
           {
             "type": "planet in sign|inner|-",
             "eligibility": "fixed_supporting",
-            "testable": 119,
-            "agree": 116,
-            "agreement": 0.9748,
+            "testable": 201,
+            "agree": 195,
+            "agreement": 0.9701,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -940,9 +979,9 @@
           {
             "type": "planet in sign|outer|-",
             "eligibility": "gated",
-            "testable": 258,
-            "agree": 253,
-            "agreement": 0.9806,
+            "testable": 339,
+            "agree": 333,
+            "agreement": 0.9823,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -950,9 +989,9 @@
           {
             "type": "sign entry|inner|-",
             "eligibility": "fixed_supporting",
-            "testable": 60,
-            "agree": 58,
-            "agreement": 0.9667,
+            "testable": 65,
+            "agree": 63,
+            "agreement": 0.9692,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -960,9 +999,9 @@
           {
             "type": "sign entry|outer|-",
             "eligibility": "gated",
-            "testable": 33,
+            "testable": 34,
             "agree": 33,
-            "agreement": 1.0,
+            "agreement": 0.9706,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -988,11 +1027,21 @@
             "repo_decisive": false
           },
           {
+            "type": "station distance to Normal Star|outer|compound",
+            "eligibility": "gated",
+            "testable": 1,
+            "agree": 0,
+            "agreement": 0.0,
+            "passes_gate": false,
+            "decisive": false,
+            "repo_decisive": false
+          },
+          {
             "type": "station distance to Normal Star|outer|single",
             "eligibility": "gated",
-            "testable": 18,
-            "agree": 9,
-            "agreement": 0.5,
+            "testable": 25,
+            "agree": 13,
+            "agreement": 0.52,
             "passes_gate": false,
             "decisive": false,
             "repo_decisive": false
@@ -1000,9 +1049,9 @@
           {
             "type": "station|outer|-",
             "eligibility": "gated",
-            "testable": 3,
-            "agree": 3,
-            "agreement": 1.0,
+            "testable": 13,
+            "agree": 12,
+            "agreement": 0.9231,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -1013,42 +1062,42 @@
           0.8974
         ],
         "gate_interval_types": [
-          0.5,
-          0.9231
+          0.75,
+          0.9123
         ],
         "count_interval_units": [
           1,
           39
         ],
         "count_interval_types": [
-          3,
-          3
+          2,
+          12
         ],
-        "seconds": 4.9,
-        "same_choices_as_all_volumes": true
+        "seconds": 1.7,
+        "same_choices_as_all_volumes": false
       },
       "exposure": {
         "records": 40,
         "records_with_decisive_clauses": 15,
-        "clauses": 406,
-        "clauses_kept": 406,
-        "decisive_repo": 41,
-        "decisive_round": 41,
+        "clauses": 508,
+        "clauses_kept": 508,
+        "decisive_repo": 53,
+        "decisive_round": 53,
         "records_with_changed_decisive_clauses": 0,
-        "moon_relations": 260,
-        "planet_relations": 53
+        "moon_relations": 315,
+        "planet_relations": 66
       },
       "scored": true,
       "table_row": {
         "test_volume": "ADART II",
         "records": 15,
         "first_group": {
-          "n": 13,
-          "percent": 86.7
+          "n": 15,
+          "percent": 100.0
         },
         "first_three_groups": {
-          "n": 14,
-          "percent": 93.3
+          "n": 15,
+          "percent": 100.0
         },
         "strict_set": {
           "n": 15,
@@ -1056,7 +1105,7 @@
         },
         "median_strict_set": 49.0
       },
-      "scoring_cpu_seconds": 9.8
+      "scoring_cpu_seconds": 8.7
     },
     {
       "round": "ADART III",
@@ -1070,9 +1119,10 @@
       "choices": {
         "tolerance": {
           "moon": 3.0,
-          "planet": 2.5
+          "planet": 2.0
         },
         "decisive_types": [
+          "Moon distance to planet|outer|compound",
           "Moon distance to planet|outer|single",
           "Sirius date|scheme|-",
           "acronychal rising|outer|-",
@@ -1085,10 +1135,12 @@
           "station|outer|-"
         ],
         "repo_decisive_types": [
+          "Moon distance to planet|outer|compound",
           "Moon distance to planet|outer|single",
           "Sirius date|scheme|-",
           "acronychal rising|outer|-",
           "coordinated signs|outer|-",
+          "distance to Normal Star|outer|compound",
           "distance to Normal Star|outer|single",
           "eclipse|lunar|-",
           "first appearance|outer|-",
@@ -1099,53 +1151,54 @@
         ],
         "rejected_units": [],
         "demoted_types": [
+          "distance to Normal Star|outer|compound",
           "sign entry|outer|-"
         ],
         "promoted_types": [],
         "training_records": 180,
         "tolerance_detail": {
           "moon": {
-            "residuals": 536,
+            "residuals": 641,
             "tolerance": 3.0,
             "share_within": {
-              "0.5": 0.597,
-              "1.0": 0.6549,
-              "1.5": 0.7239,
-              "2.0": 0.791,
-              "2.5": 0.8601,
-              "3.0": 0.9086,
-              "3.5": 0.9272,
-              "4.0": 0.9291,
-              "4.5": 0.931,
-              "5.0": 0.931,
-              "5.5": 0.9347,
-              "6.0": 0.9366
+              "0.5": 0.5928,
+              "1.0": 0.6521,
+              "1.5": 0.7207,
+              "2.0": 0.7894,
+              "2.5": 0.8549,
+              "3.0": 0.9126,
+              "3.5": 0.9314,
+              "4.0": 0.9329,
+              "4.5": 0.936,
+              "5.0": 0.936,
+              "5.5": 0.9392,
+              "6.0": 0.9407
             },
             "quantile_interval_same_choice": [
-              0.8601,
-              0.9086
+              0.8549,
+              0.9126
             ]
           },
           "planet": {
-            "residuals": 64,
-            "tolerance": 2.5,
+            "residuals": 82,
+            "tolerance": 2.0,
             "share_within": {
-              "0.5": 0.7656,
-              "1.0": 0.7969,
-              "1.5": 0.8594,
-              "2.0": 0.875,
-              "2.5": 0.8906,
-              "3.0": 0.8906,
-              "3.5": 0.8906,
-              "4.0": 0.9062,
-              "4.5": 0.9062,
-              "5.0": 0.9062,
-              "5.5": 0.9062,
-              "6.0": 0.9062
+              "0.5": 0.7927,
+              "1.0": 0.8293,
+              "1.5": 0.878,
+              "2.0": 0.8902,
+              "2.5": 0.9024,
+              "3.0": 0.9024,
+              "3.5": 0.9146,
+              "4.0": 0.9268,
+              "4.5": 0.9268,
+              "5.0": 0.9268,
+              "5.5": 0.9268,
+              "6.0": 0.9268
             },
             "quantile_interval_same_choice": [
-              0.875,
-              0.8906
+              0.878,
+              0.8902
             ]
           }
         },
@@ -1185,17 +1238,17 @@
           {
             "unit": "month headings and Scorpius alias",
             "provenance_item": "scoped month headings and Scorpius alias",
-            "testable": 149,
-            "agree": 143,
-            "agreement": 0.9597,
+            "testable": 206,
+            "agree": 194,
+            "agreement": 0.9417,
             "passes_gate": true
           },
           {
             "unit": "summary months",
             "provenance_item": "preceding-summary windows",
-            "testable": 214,
-            "agree": 203,
-            "agreement": 0.9486,
+            "testable": 288,
+            "agree": 272,
+            "agreement": 0.9444,
             "passes_gate": true
           }
         ],
@@ -1203,19 +1256,19 @@
           {
             "type": "Moon distance to planet|inner|compound",
             "eligibility": "fixed_supporting",
-            "testable": 1,
-            "agree": 1,
+            "testable": 3,
+            "agree": 3,
             "agreement": 1.0,
-            "passes_gate": false,
+            "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
           },
           {
             "type": "Moon distance to planet|inner|single",
             "eligibility": "fixed_supporting",
-            "testable": 17,
-            "agree": 15,
-            "agreement": 0.8824,
+            "testable": 29,
+            "agree": 26,
+            "agreement": 0.8966,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -1223,19 +1276,19 @@
           {
             "type": "Moon distance to planet|outer|compound",
             "eligibility": "gated",
-            "testable": 1,
-            "agree": 1,
+            "testable": 5,
+            "agree": 5,
             "agreement": 1.0,
-            "passes_gate": false,
-            "decisive": false,
-            "repo_decisive": false
+            "passes_gate": true,
+            "decisive": true,
+            "repo_decisive": true
           },
           {
             "type": "Moon distance to planet|outer|single",
             "eligibility": "gated",
-            "testable": 36,
-            "agree": 34,
-            "agreement": 0.9444,
+            "testable": 72,
+            "agree": 66,
+            "agreement": 0.9167,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -1243,8 +1296,8 @@
           {
             "type": "Sirius date|scheme|-",
             "eligibility": "gated",
-            "testable": 11,
-            "agree": 11,
+            "testable": 12,
+            "agree": 12,
             "agreement": 1.0,
             "passes_gate": true,
             "decisive": true,
@@ -1253,8 +1306,8 @@
           {
             "type": "acronychal rising|outer|-",
             "eligibility": "gated",
-            "testable": 7,
-            "agree": 7,
+            "testable": 9,
+            "agree": 9,
             "agreement": 1.0,
             "passes_gate": true,
             "decisive": true,
@@ -1283,9 +1336,9 @@
           {
             "type": "distance to Normal Star|inner|compound",
             "eligibility": "fixed_supporting",
-            "testable": 7,
-            "agree": 6,
-            "agreement": 0.8571,
+            "testable": 8,
+            "agree": 7,
+            "agreement": 0.875,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -1293,9 +1346,9 @@
           {
             "type": "distance to Normal Star|inner|single",
             "eligibility": "fixed_supporting",
-            "testable": 31,
-            "agree": 26,
-            "agreement": 0.8387,
+            "testable": 34,
+            "agree": 29,
+            "agreement": 0.8529,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -1303,9 +1356,9 @@
           {
             "type": "distance to Normal Star|moon|compound",
             "eligibility": "fixed_supporting",
-            "testable": 22,
-            "agree": 19,
-            "agreement": 0.8636,
+            "testable": 24,
+            "agree": 21,
+            "agreement": 0.875,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -1313,9 +1366,9 @@
           {
             "type": "distance to Normal Star|moon|single",
             "eligibility": "fixed_supporting",
-            "testable": 459,
-            "agree": 423,
-            "agreement": 0.9216,
+            "testable": 508,
+            "agree": 469,
+            "agreement": 0.9232,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -1323,19 +1376,19 @@
           {
             "type": "distance to Normal Star|outer|compound",
             "eligibility": "gated",
-            "testable": 1,
-            "agree": 1,
-            "agreement": 1.0,
+            "testable": 3,
+            "agree": 2,
+            "agreement": 0.6667,
             "passes_gate": false,
             "decisive": false,
-            "repo_decisive": false
+            "repo_decisive": true
           },
           {
             "type": "distance to Normal Star|outer|single",
             "eligibility": "gated",
-            "testable": 18,
-            "agree": 17,
-            "agreement": 0.9444,
+            "testable": 26,
+            "agree": 25,
+            "agreement": 0.9615,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -1363,9 +1416,9 @@
           {
             "type": "first appearance|inner|-",
             "eligibility": "fixed_supporting",
-            "testable": 46,
-            "agree": 46,
-            "agreement": 1.0,
+            "testable": 63,
+            "agree": 60,
+            "agreement": 0.9524,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -1373,9 +1426,9 @@
           {
             "type": "first appearance|outer|-",
             "eligibility": "gated",
-            "testable": 18,
-            "agree": 17,
-            "agreement": 0.9444,
+            "testable": 32,
+            "agree": 31,
+            "agreement": 0.9688,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -1383,9 +1436,9 @@
           {
             "type": "last appearance|inner|-",
             "eligibility": "fixed_supporting",
-            "testable": 44,
-            "agree": 43,
-            "agreement": 0.9773,
+            "testable": 61,
+            "agree": 59,
+            "agreement": 0.9672,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -1393,9 +1446,9 @@
           {
             "type": "last appearance|outer|-",
             "eligibility": "fixed_supporting",
-            "testable": 15,
-            "agree": 15,
-            "agreement": 1.0,
+            "testable": 21,
+            "agree": 19,
+            "agreement": 0.9048,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -1411,11 +1464,21 @@
             "repo_decisive": false
           },
           {
+            "type": "planet distance to planet|with inner|compound",
+            "eligibility": "fixed_supporting",
+            "testable": 1,
+            "agree": 1,
+            "agreement": 1.0,
+            "passes_gate": false,
+            "decisive": false,
+            "repo_decisive": false
+          },
+          {
             "type": "planet distance to planet|with inner|single",
             "eligibility": "fixed_supporting",
-            "testable": 7,
-            "agree": 6,
-            "agreement": 0.8571,
+            "testable": 10,
+            "agree": 9,
+            "agreement": 0.9,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -1423,9 +1486,9 @@
           {
             "type": "planet in sign|inner|-",
             "eligibility": "fixed_supporting",
-            "testable": 70,
-            "agree": 67,
-            "agreement": 0.9571,
+            "testable": 111,
+            "agree": 105,
+            "agreement": 0.9459,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -1433,12 +1496,22 @@
           {
             "type": "planet in sign|outer|-",
             "eligibility": "gated",
-            "testable": 139,
-            "agree": 135,
-            "agreement": 0.9712,
+            "testable": 174,
+            "agree": 168,
+            "agreement": 0.9655,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
+          },
+          {
+            "type": "sign entry|inner|-",
+            "eligibility": "fixed_supporting",
+            "testable": 1,
+            "agree": 1,
+            "agreement": 1.0,
+            "passes_gate": false,
+            "decisive": false,
+            "repo_decisive": false
           },
           {
             "type": "sign entry|outer|-",
@@ -1453,19 +1526,29 @@
           {
             "type": "solstice or equinox|scheme|-",
             "eligibility": "gated",
-            "testable": 14,
-            "agree": 13,
-            "agreement": 0.9286,
+            "testable": 15,
+            "agree": 14,
+            "agreement": 0.9333,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
           },
           {
+            "type": "station distance to Normal Star|outer|compound",
+            "eligibility": "gated",
+            "testable": 0,
+            "agree": 0,
+            "agreement": null,
+            "passes_gate": false,
+            "decisive": false,
+            "repo_decisive": false
+          },
+          {
             "type": "station distance to Normal Star|outer|single",
             "eligibility": "gated",
-            "testable": 5,
+            "testable": 7,
             "agree": 2,
-            "agreement": 0.4,
+            "agreement": 0.2857,
             "passes_gate": false,
             "decisive": false,
             "repo_decisive": false
@@ -1473,9 +1556,9 @@
           {
             "type": "station|outer|-",
             "eligibility": "gated",
-            "testable": 3,
-            "agree": 3,
-            "agreement": 1.0,
+            "testable": 9,
+            "agree": 8,
+            "agreement": 0.8889,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -1486,8 +1569,8 @@
           0.875
         ],
         "gate_interval_types": [
-          0.4,
-          0.9286
+          0.6667,
+          0.8889
         ],
         "count_interval_units": [
           1,
@@ -1495,29 +1578,29 @@
         ],
         "count_interval_types": [
           2,
-          3
+          5
         ],
-        "seconds": 2.4,
+        "seconds": 1.2,
         "same_choices_as_all_volumes": false
       },
       "exposure": {
         "records": 96,
         "records_with_decisive_clauses": 66,
-        "clauses": 1711,
-        "clauses_kept": 1711,
-        "decisive_repo": 190,
-        "decisive_round": 175,
+        "clauses": 2107,
+        "clauses_kept": 2107,
+        "decisive_repo": 224,
+        "decisive_round": 209,
         "records_with_changed_decisive_clauses": 14,
-        "moon_relations": 915,
-        "planet_relations": 187
+        "moon_relations": 1076,
+        "planet_relations": 240
       },
       "scored": true,
       "table_row": {
         "test_volume": "ADART III",
         "records": 66,
         "first_group": {
-          "n": 62,
-          "percent": 93.9
+          "n": 63,
+          "percent": 95.5
         },
         "first_three_groups": {
           "n": 64,
@@ -1527,9 +1610,9 @@
           "n": 66,
           "percent": 100.0
         },
-        "median_strict_set": 19.5
+        "median_strict_set": 19.0
       },
-      "scoring_cpu_seconds": 105.9
+      "scoring_cpu_seconds": 76.2
     },
     {
       "round": "all volumes",
@@ -1549,10 +1632,12 @@
           "planet": 2.0
         },
         "decisive_types": [
+          "Moon distance to planet|outer|compound",
           "Moon distance to planet|outer|single",
           "Sirius date|scheme|-",
           "acronychal rising|outer|-",
           "coordinated signs|outer|-",
+          "distance to Normal Star|outer|compound",
           "distance to Normal Star|outer|single",
           "eclipse|lunar|-",
           "first appearance|outer|-",
@@ -1562,10 +1647,12 @@
           "station|outer|-"
         ],
         "repo_decisive_types": [
+          "Moon distance to planet|outer|compound",
           "Moon distance to planet|outer|single",
           "Sirius date|scheme|-",
           "acronychal rising|outer|-",
           "coordinated signs|outer|-",
+          "distance to Normal Star|outer|compound",
           "distance to Normal Star|outer|single",
           "eclipse|lunar|-",
           "first appearance|outer|-",
@@ -1580,47 +1667,47 @@
         "training_records": 332,
         "tolerance_detail": {
           "moon": {
-            "residuals": 1190,
+            "residuals": 1408,
             "tolerance": 3.0,
             "share_within": {
-              "0.5": 0.6034,
-              "1.0": 0.6706,
-              "1.5": 0.737,
-              "2.0": 0.7958,
-              "2.5": 0.8521,
-              "3.0": 0.8992,
-              "3.5": 0.9185,
-              "4.0": 0.921,
-              "4.5": 0.9235,
-              "5.0": 0.9235,
-              "5.5": 0.9261,
-              "6.0": 0.9269
+              "0.5": 0.5959,
+              "1.0": 0.6634,
+              "1.5": 0.7315,
+              "2.0": 0.7905,
+              "2.5": 0.8452,
+              "3.0": 0.8984,
+              "3.5": 0.9176,
+              "4.0": 0.9212,
+              "4.5": 0.924,
+              "5.0": 0.9254,
+              "5.5": 0.9283,
+              "6.0": 0.9297
             },
             "quantile_interval_same_choice": [
-              0.8521,
-              0.8992
+              0.8452,
+              0.8984
             ]
           },
           "planet": {
-            "residuals": 139,
+            "residuals": 173,
             "tolerance": 2.0,
             "share_within": {
-              "0.5": 0.7338,
-              "1.0": 0.8129,
-              "1.5": 0.8777,
-              "2.0": 0.8921,
-              "2.5": 0.9137,
-              "3.0": 0.9137,
-              "3.5": 0.9209,
-              "4.0": 0.9281,
-              "4.5": 0.9281,
-              "5.0": 0.9281,
-              "5.5": 0.9281,
-              "6.0": 0.9281
+              "0.5": 0.7514,
+              "1.0": 0.8266,
+              "1.5": 0.8844,
+              "2.0": 0.896,
+              "2.5": 0.9133,
+              "3.0": 0.9133,
+              "3.5": 0.9249,
+              "4.0": 0.9306,
+              "4.5": 0.9306,
+              "5.0": 0.9306,
+              "5.5": 0.9306,
+              "6.0": 0.9306
             },
             "quantile_interval_same_choice": [
-              0.8777,
-              0.8921
+              0.8844,
+              0.896
             ]
           }
         },
@@ -1660,17 +1747,17 @@
           {
             "unit": "month headings and Scorpius alias",
             "provenance_item": "scoped month headings and Scorpius alias",
-            "testable": 235,
-            "agree": 221,
-            "agreement": 0.9404,
+            "testable": 343,
+            "agree": 320,
+            "agreement": 0.9329,
             "passes_gate": true
           },
           {
             "unit": "summary months",
             "provenance_item": "preceding-summary windows",
-            "testable": 413,
-            "agree": 398,
-            "agreement": 0.9637,
+            "testable": 548,
+            "agree": 525,
+            "agreement": 0.958,
             "passes_gate": true
           }
         ],
@@ -1678,19 +1765,19 @@
           {
             "type": "Moon distance to planet|inner|compound",
             "eligibility": "fixed_supporting",
-            "testable": 2,
-            "agree": 2,
+            "testable": 4,
+            "agree": 4,
             "agreement": 1.0,
-            "passes_gate": false,
+            "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
           },
           {
             "type": "Moon distance to planet|inner|single",
             "eligibility": "fixed_supporting",
-            "testable": 33,
-            "agree": 31,
-            "agreement": 0.9394,
+            "testable": 57,
+            "agree": 54,
+            "agreement": 0.9474,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -1698,19 +1785,19 @@
           {
             "type": "Moon distance to planet|outer|compound",
             "eligibility": "gated",
-            "testable": 1,
-            "agree": 1,
+            "testable": 13,
+            "agree": 13,
             "agreement": 1.0,
-            "passes_gate": false,
-            "decisive": false,
-            "repo_decisive": false
+            "passes_gate": true,
+            "decisive": true,
+            "repo_decisive": true
           },
           {
             "type": "Moon distance to planet|outer|single",
             "eligibility": "gated",
-            "testable": 67,
-            "agree": 63,
-            "agreement": 0.9403,
+            "testable": 145,
+            "agree": 132,
+            "agreement": 0.9103,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -1718,8 +1805,8 @@
           {
             "type": "Sirius date|scheme|-",
             "eligibility": "gated",
-            "testable": 26,
-            "agree": 26,
+            "testable": 27,
+            "agree": 27,
             "agreement": 1.0,
             "passes_gate": true,
             "decisive": true,
@@ -1728,9 +1815,9 @@
           {
             "type": "acronychal rising|outer|-",
             "eligibility": "gated",
-            "testable": 17,
-            "agree": 16,
-            "agreement": 0.9412,
+            "testable": 19,
+            "agree": 18,
+            "agreement": 0.9474,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -1758,9 +1845,9 @@
           {
             "type": "distance to Normal Star|inner|compound",
             "eligibility": "fixed_supporting",
-            "testable": 9,
-            "agree": 8,
-            "agreement": 0.8889,
+            "testable": 10,
+            "agree": 9,
+            "agreement": 0.9,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -1768,9 +1855,9 @@
           {
             "type": "distance to Normal Star|inner|single",
             "eligibility": "fixed_supporting",
-            "testable": 65,
-            "agree": 57,
-            "agreement": 0.8769,
+            "testable": 69,
+            "agree": 61,
+            "agreement": 0.8841,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -1778,9 +1865,9 @@
           {
             "type": "distance to Normal Star|moon|compound",
             "eligibility": "fixed_supporting",
-            "testable": 30,
-            "agree": 27,
-            "agreement": 0.9,
+            "testable": 33,
+            "agree": 30,
+            "agreement": 0.9091,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -1788,9 +1875,9 @@
           {
             "type": "distance to Normal Star|moon|single",
             "eligibility": "fixed_supporting",
-            "testable": 1057,
-            "agree": 974,
-            "agreement": 0.9215,
+            "testable": 1156,
+            "agree": 1066,
+            "agreement": 0.9221,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -1798,19 +1885,19 @@
           {
             "type": "distance to Normal Star|outer|compound",
             "eligibility": "gated",
-            "testable": 2,
-            "agree": 2,
-            "agreement": 1.0,
-            "passes_gate": false,
-            "decisive": false,
-            "repo_decisive": false
+            "testable": 5,
+            "agree": 4,
+            "agreement": 0.8,
+            "passes_gate": true,
+            "decisive": true,
+            "repo_decisive": true
           },
           {
             "type": "distance to Normal Star|outer|single",
             "eligibility": "gated",
-            "testable": 46,
-            "agree": 43,
-            "agreement": 0.9348,
+            "testable": 57,
+            "agree": 54,
+            "agreement": 0.9474,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -1818,10 +1905,10 @@
           {
             "type": "eclipse|lunar|-",
             "eligibility": "fixed_decisive",
-            "testable": 2,
-            "agree": 2,
+            "testable": 3,
+            "agree": 3,
             "agreement": 1.0,
-            "passes_gate": false,
+            "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
           },
@@ -1838,9 +1925,9 @@
           {
             "type": "first appearance|inner|-",
             "eligibility": "fixed_supporting",
-            "testable": 118,
-            "agree": 115,
-            "agreement": 0.9746,
+            "testable": 165,
+            "agree": 158,
+            "agreement": 0.9576,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -1848,9 +1935,9 @@
           {
             "type": "first appearance|outer|-",
             "eligibility": "gated",
-            "testable": 43,
-            "agree": 41,
-            "agreement": 0.9535,
+            "testable": 63,
+            "agree": 61,
+            "agreement": 0.9683,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -1858,9 +1945,9 @@
           {
             "type": "last appearance|inner|-",
             "eligibility": "fixed_supporting",
-            "testable": 114,
-            "agree": 108,
-            "agreement": 0.9474,
+            "testable": 164,
+            "agree": 154,
+            "agreement": 0.939,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -1868,9 +1955,9 @@
           {
             "type": "last appearance|outer|-",
             "eligibility": "fixed_supporting",
-            "testable": 39,
-            "agree": 38,
-            "agreement": 0.9744,
+            "testable": 56,
+            "agree": 53,
+            "agreement": 0.9464,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -1888,9 +1975,19 @@
           {
             "type": "planet distance to planet|outer|single",
             "eligibility": "gated",
-            "testable": 3,
-            "agree": 1,
-            "agreement": 0.3333,
+            "testable": 5,
+            "agree": 2,
+            "agreement": 0.4,
+            "passes_gate": false,
+            "decisive": false,
+            "repo_decisive": false
+          },
+          {
+            "type": "planet distance to planet|with inner|compound",
+            "eligibility": "fixed_supporting",
+            "testable": 2,
+            "agree": 2,
+            "agreement": 1.0,
             "passes_gate": false,
             "decisive": false,
             "repo_decisive": false
@@ -1898,9 +1995,9 @@
           {
             "type": "planet distance to planet|with inner|single",
             "eligibility": "fixed_supporting",
-            "testable": 13,
-            "agree": 12,
-            "agreement": 0.9231,
+            "testable": 24,
+            "agree": 22,
+            "agreement": 0.9167,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -1908,9 +2005,9 @@
           {
             "type": "planet in sign|inner|-",
             "eligibility": "fixed_supporting",
-            "testable": 131,
-            "agree": 127,
-            "agreement": 0.9695,
+            "testable": 224,
+            "agree": 216,
+            "agreement": 0.9643,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -1918,9 +2015,9 @@
           {
             "type": "planet in sign|outer|-",
             "eligibility": "gated",
-            "testable": 285,
-            "agree": 280,
-            "agreement": 0.9825,
+            "testable": 380,
+            "agree": 373,
+            "agreement": 0.9816,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -1928,9 +2025,9 @@
           {
             "type": "sign entry|inner|-",
             "eligibility": "fixed_supporting",
-            "testable": 60,
-            "agree": 58,
-            "agreement": 0.9667,
+            "testable": 66,
+            "agree": 64,
+            "agreement": 0.9697,
             "passes_gate": true,
             "decisive": false,
             "repo_decisive": false
@@ -1938,9 +2035,9 @@
           {
             "type": "sign entry|outer|-",
             "eligibility": "gated",
-            "testable": 34,
+            "testable": 35,
             "agree": 34,
-            "agreement": 1.0,
+            "agreement": 0.9714,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -1948,9 +2045,9 @@
           {
             "type": "solstice or equinox|scheme|-",
             "eligibility": "gated",
-            "testable": 34,
-            "agree": 32,
-            "agreement": 0.9412,
+            "testable": 35,
+            "agree": 33,
+            "agreement": 0.9429,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -1966,11 +2063,21 @@
             "repo_decisive": false
           },
           {
+            "type": "station distance to Normal Star|outer|compound",
+            "eligibility": "gated",
+            "testable": 1,
+            "agree": 0,
+            "agreement": 0.0,
+            "passes_gate": false,
+            "decisive": false,
+            "repo_decisive": false
+          },
+          {
             "type": "station distance to Normal Star|outer|single",
             "eligibility": "gated",
-            "testable": 19,
-            "agree": 9,
-            "agreement": 0.4737,
+            "testable": 27,
+            "agree": 13,
+            "agreement": 0.4815,
             "passes_gate": false,
             "decisive": false,
             "repo_decisive": false
@@ -1978,9 +2085,9 @@
           {
             "type": "station|outer|-",
             "eligibility": "gated",
-            "testable": 5,
-            "agree": 5,
-            "agreement": 1.0,
+            "testable": 17,
+            "agree": 15,
+            "agreement": 0.8824,
             "passes_gate": true,
             "decisive": true,
             "repo_decisive": true
@@ -1991,109 +2098,110 @@
           0.9111
         ],
         "gate_interval_types": [
-          0.4737,
-          0.9348
+          0.4815,
+          0.8
         ],
         "count_interval_units": [
           1,
           45
         ],
         "count_interval_types": [
-          3,
+          2,
           5
         ],
-        "seconds": 5.1
+        "seconds": 1.7
       },
       "exposure": {
         "records": 179,
         "records_with_decisive_clauses": 112,
-        "clauses": 2849,
-        "clauses_kept": 2849,
-        "decisive_repo": 342,
-        "decisive_round": 342,
+        "clauses": 3508,
+        "clauses_kept": 3508,
+        "decisive_repo": 409,
+        "decisive_round": 409,
         "records_with_changed_decisive_clauses": 0,
-        "moon_relations": 1535,
-        "planet_relations": 328
+        "moon_relations": 1822,
+        "planet_relations": 415
       },
       "scored": true,
       "table_row": {
         "test_volume": "all volumes",
         "records": 112,
         "first_group": {
-          "n": 104,
-          "percent": 92.9
+          "n": 108,
+          "percent": 96.4
         },
         "first_three_groups": {
-          "n": 109,
-          "percent": 97.3
+          "n": 110,
+          "percent": 98.2
         },
         "strict_set": {
           "n": 112,
           "percent": 100.0
         },
-        "median_strict_set": 17.5
+        "median_strict_set": 16.5
       },
-      "scoring_cpu_seconds": 140.8,
+      "scoring_cpu_seconds": 99.3,
       "repo_check": {
         "records": 179,
         "identical": true,
         "differing_records": [],
-        "cpu_seconds": 140.9
+        "cpu_seconds": 98.6
       },
       "repo_table_row": {
         "test_volume": "unmodified pipeline",
         "records": 112,
         "first_group": {
-          "n": 104,
-          "percent": 92.9
+          "n": 108,
+          "percent": 96.4
         },
         "first_three_groups": {
-          "n": 109,
-          "percent": 97.3
+          "n": 110,
+          "percent": 98.2
         },
         "strict_set": {
           "n": 112,
           "percent": 100.0
         },
-        "median_strict_set": 17.5
+        "median_strict_set": 16.5
       }
     }
   ],
   "hashes": {
-    "statements": "83d402f06d98f76357235254352d739303c885f4d580ad4a1a7c828d115eb8d6",
+    "statements": "fbcbe97e1e900b515d0bcdedd68622fa36e69c2504c1ce727b4cc118eb176850",
     "cal": "370231c111606692b34da9473c1acb42b81d41abfef422dbd6a5da3543f37d66",
     "sky": "6578ceb3126ac83d13cbb3cc4ffcddbc2bd12bf8a7ebbe8aa84ab6c2ada98b65",
     "eclipses": "c88938b300ee6067a0a8263796281242c043b78ccb9f59f0188feb1a59c96bb0",
-    "audit_held_out": "149f55b78fa12b5d172fbf8eb27679f58e10c0cb968b1afc4edbeee1a6646121"
+    "audit_held_out": "9209cfc7272bcc67db7c853642e7f9f5e5f09a6b8c78daeb5051acc440ed3bf2",
+    "reviewed_clauses": "2d85cad107cc16da5b123140e7205a66fca9287adaabdcdc5978d90d633d4eba"
   },
   "all_volumes_reproduces_repo_choices": {
     "tolerances": true,
     "parser_rules": true,
     "decisive_types": true
   },
-  "scoring_wall_seconds": 70.2,
+  "scoring_wall_seconds": 51.1,
   "all_three_rounds": {
     "test_volume": "all three rounds",
     "records": 112,
     "first_group": {
-      "n": 103,
-      "percent": 92.0
+      "n": 108,
+      "percent": 96.4
     },
     "first_three_groups": {
-      "n": 109,
-      "percent": 97.3
+      "n": 110,
+      "percent": 98.2
     },
     "strict_set": {
       "n": 112,
       "percent": 100.0
     },
-    "median_strict_set": 19.0
+    "median_strict_set": 17.5
   },
   "reading": {
     "first_group": {
-      "all_volumes_percent": 92.9,
-      "held_out_percent": 92.0,
-      "drop_points": 0.9,
+      "all_volumes_percent": 96.4,
+      "held_out_percent": 96.4,
+      "drop_points": 0.0,
       "close": true
     },
     "strict_set": {
@@ -2105,10 +2213,10 @@
   },
   "main_text": {
     "records": 112,
-    "first_group": 104,
-    "first_three_groups": 109,
+    "first_group": 108,
+    "first_three_groups": 110,
     "strict_set": 112,
-    "median_strict_set": 17.5
+    "median_strict_set": 16.5
   },
-  "seconds": 81.2
+  "seconds": 54.1
 }

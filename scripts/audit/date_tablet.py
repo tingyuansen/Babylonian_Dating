@@ -4,6 +4,9 @@
     --year N     forward. Given a historical year (BCE by default), does every statement hold?
     (default)    backward. Given no year, which years hold?
 
+Both modes use the record's reviewed clauses, the clauses that the dates use,
+or with --parser the parser's clauses alone.
+
 Backward scores every Babylonian year the calendar covers, weighting each
 agreement by how few candidate years agree with that statement. It never reads
 the published date, and it takes month headings from the tablet's own text
@@ -19,6 +22,7 @@ the result; neither may be hidden behind recall alone.
 Usage:
     python3 date_tablet.py X301492
     python3 date_tablet.py X301492 --year 150
+    python3 date_tablet.py X301492 --parser
 """
 
 from __future__ import annotations
@@ -33,15 +37,18 @@ import pandas as pd
 HERE = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(HERE))
 
-from tools import cal, eras, statements as S   # noqa: E402
+from tools import cal, clauses, eras, statements as S   # noqa: E402
 from tools import years as yr  # noqa: E402
 
 
-def forward(text: str, year_astro: int) -> int:
-    res = S.score(text, year_astro)
-    print(f"months the text itself preserves: {res['months'] or 'none found'}")
-    print(f"\nchecking {res['n']} statements against {yr.year_label(year_astro)}\n")
-    for v in res["verdicts"]:
+def forward(text: str, sts: list[S.Statement], year_astro: int) -> int:
+    months = S.months_in(text)
+    verdicts = [S.check(st, year_astro, months) for st in sts]
+    res = {result: sum(v.result == result for v in verdicts)
+           for result in ("agree", "contradict", "untestable")}
+    print(f"months the text itself preserves: {months or 'none found'}")
+    print(f"\nchecking {len(sts)} statements against {yr.year_label(year_astro)}\n")
+    for v in verdicts:
         mark = {"agree": "agree", "contradict": "CONTRADICT",
                 "untestable": "untestable"}[v.result]
         print(f"  {mark:<11} {v.statement.text[:54]:<56} {v.detail}")
@@ -50,9 +57,8 @@ def forward(text: str, year_astro: int) -> int:
     return 0 if res["contradict"] == 0 else 1
 
 
-def backward(text: str, truth: int | None, top: int,
+def backward(text: str, sts: list[S.Statement], truth: int | None, top: int,
              weighting: str) -> int:
-    sts = S.extract(text)
     months = S.months_in(text)
     if not sts:
         print("no testable statement on this tablet, declining to guess")
@@ -147,6 +153,8 @@ def main() -> int:
                     help="display a text-internal dual-era lookup separately")
     ap.add_argument("--show-reference", action="store_true",
                     help="after inference, annotate output with catalogue truth")
+    ap.add_argument("--parser", action="store_true",
+                    help="use the parser's clauses alone, without the model review")
     args = ap.parse_args()
 
     # The default inference path loads only identifier and surviving text. A
@@ -185,11 +193,13 @@ def main() -> int:
             print(f"  {label} = {yr.year_label(reading.astro_year)}")
         print()
 
+    sts = (S.extract(r.text) if args.parser
+           else clauses.load(clauses.REVIEWED).get(args.tablet, []))
     if args.year is not None:
         year_astro = (yr.bce_to_astro(args.year)
                       if args.era == "BCE" else int(args.year))
-        return forward(r.text, year_astro)
-    return backward(r.text, truth, args.top, args.weighting)
+        return forward(r.text, sts, year_astro)
+    return backward(r.text, sts, truth, args.top, args.weighting)
 
 
 if __name__ == "__main__":

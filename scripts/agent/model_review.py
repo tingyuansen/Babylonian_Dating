@@ -3128,15 +3128,24 @@ def filter_extracted(
 # ---------------------------------------------------------------------------
 
 
-# The paper reports ADART I-III; ADART V-VI records carry no reference year.
+# The dated records of ADART I-III, the undated entries of ADART IV, or every
+# ADsD record. ADART V-VI records carry no reference year.
 SCOPES = {
     "adart-i-iii": ("adsd/adart1", "adsd/adart2", "adsd/adart3"),
+    "adart-iv": (),
     "all": None,
 }
 
 
 def load_tablets(scope: str = "adart-i-iii") -> pd.DataFrame:
     """Record ids and translations only; published years are not loaded here."""
+    if scope == "adart-iv":
+        # The dating input of each entry: its astronomy text, without the year
+        # and ruler lines (source/build_adart_iv_corpus.py).
+        entries = pd.read_parquet(HERE / "data" / "corpus" / "adart_iv_tablets.parquet",
+                                  columns=["tablet", "astronomy_text"])
+        entries = entries.rename(columns={"astronomy_text": "text"})
+        return entries[entries.text.notna()][["tablet", "text"]].copy()
     tablets = pd.read_parquet(HERE / "data" / "corpus" / "tablets.parquet",
                               columns=["tablet", "project", "text"])
     tablets = tablets[tablets.text.notna()]
@@ -3960,6 +3969,20 @@ def _recall_context(text: str, pos: int, kind: str) -> tuple[str | None, int | N
     return month, None, year_offset, restored
 
 
+def _passage_restored(text: str, start: int, end: int) -> bool:
+    """Whether a search passage rests on restored or queried words.
+
+    The parser marks a clause restored when one of its fields lies in the
+    editors' brackets, and it reads no clause whose words carry their query
+    mark. A passage of the search is marked restored when it holds a bracket
+    or a question mark, or starts inside a bracket, so that such a clause can
+    only support.
+    """
+    passage = text[start:end]
+    return ("[" in passage or "]" in passage or "?" in passage
+            or S.inside_restoration(text, start))
+
+
 def _make_recalled_statement(
     text: str,
     source_start: int,
@@ -3969,7 +3992,8 @@ def _make_recalled_statement(
     """A Statement for one accepted search atom, in original-text offsets.
 
     Month, day and year come from the parser's context machinery at the
-    passage, and the unobserved mark from the parser's rule. The model's own
+    passage, and the unobserved mark from the parser's rule. The restored mark
+    also follows the passage itself (_passage_restored). The model's own
     omitted value is never used.
     """
     final = _strict_recall_final(normalized)
@@ -3990,7 +4014,8 @@ def _make_recalled_statement(
         offset=offset,
         latitudinal=latitudinal,
         omitted=S.unwatched(text, final["kind"], source_start, source_end),
-        restored=bool(final.get("restored")) or bool(context_restored),
+        restored=(bool(final.get("restored")) or bool(context_restored)
+                  or _passage_restored(text, source_start, source_end)),
         source_start=source_start,
         source_end=source_end,
         parser_rule=_recall_parser_rule(final),

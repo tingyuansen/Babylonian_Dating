@@ -236,6 +236,68 @@ clauses/parser_clauses.parquet,bce_second,integer,BCE year,Copy of bce_second of
 clauses/parser_clauses.parquet,forward_verdict,string,,"Verdict of the clause at the published year. Values are agree, contradict and untestable. not_evaluated marks a record without a published year."
 clauses/parser_clauses.parquet,forward_detail,string,,Short English text from the rule that explains the verdict at the published year.
 clauses/parser_clauses.parquet,extractor_sha256,string,SHA-256,"SHA-256 of tools/statements.py, the parser and rules that produced the clauses."
+clauses/reviewed_clauses.parquet,tablet,string,,"Identifier of the record: the ADsD identifier for ADART I to III, and the entry identifier of ADART IV."
+clauses/reviewed_clauses.parquet,clause_index,integer,,"Position of the clause in the final clause list of the record, from 0. The dates read the clauses in this order."
+clauses/reviewed_clauses.parquet,kind,string,,"Clause type, with the values of the kind column of clauses/parser_clauses.parquet."
+clauses/reviewed_clauses.parquet,planet,string,,"Body of the clause. Values are moon, mercury, venus, mars, jupiter and saturn, sun for a solstice or equinox, sirius for a Sirius date, and lunar or solar for an eclipse."
+clauses/reviewed_clauses.parquet,sign,string,,"Zodiacal sign of the clause, such as Leo. Empty when the clause has no sign."
+clauses/reviewed_clauses.parquet,text,string,,"Words of the translation that the clause rests on. For ADART IV, the extracted statement."
+clauses/reviewed_clauses.parquet,month,string,,"Babylonian month that governs the clause, I to XII, VI2 or XII2. VI|VI2 means that the tools test both. Empty when the month is lost."
+clauses/reviewed_clauses.parquet,day,float,,Day of the Babylonian month from the governing day heading. Empty when no day governs the clause.
+clauses/reviewed_clauses.parquet,year_offset,integer,,Number of year changes in the text before the clause. The tools test the clause in the candidate year plus this number.
+clauses/reviewed_clauses.parquet,star,string,,"Normal Star of the clause, named as in physical/normal_stars.parquet. Empty when the clause has no star."
+clauses/reviewed_clauses.parquet,target_planet,string,,Planet that the clause measures the body against. Empty otherwise.
+clauses/reviewed_clauses.parquet,offset,float,degrees,"Expected longitude of the body minus that of the star or planet, at 2 degrees a cubit. Empty when the clause states no distance."
+clauses/reviewed_clauses.parquet,latitudinal,boolean,,True if the direction is above or below. The rule then tests only that the body lies within the tolerance of the star in longitude.
+clauses/reviewed_clauses.parquet,omitted,boolean,,True if the scribe marks the event as unobserved. The verdict of such a clause is untestable.
+clauses/reviewed_clauses.parquet,restored,boolean,,"True if the clause rests on words that the editors restored, or counts as restored by a rule of SI Appendix section S2. A restored clause can only support."
+clauses/reviewed_clauses.parquet,source_start,integer,characters,"Offset where the passage of the clause starts in the text that the dating reads: the text column of corpus/tablets.parquet, or the astronomy text of an ADART IV entry."
+clauses/reviewed_clauses.parquet,source_end,integer,characters,Offset where the passage of the clause ends in that text. The end is exclusive.
+clauses/reviewed_clauses.parquet,parser_rule,string,,"Name of the parser rule that read the clause. For a clause that the search added, the rule name of its clause type."
+clauses/reviewed_clauses.parquet,amount,float,cubits,"Stated distance in cubits, at 24 fingers to the cubit. Empty when the clause states no distance."
+clauses/reviewed_clauses.parquet,unit,string,,Unit words of the stated distance as the text writes them. Empty when the clause states no distance.
+clauses/reviewed_clauses.parquet,direction,string,,"Direction of the stated distance: above, below, in front of or behind. Empty when the clause states none."
+clauses/reviewed_clauses.parquet,station_phase,string,,"Side of a station against a Normal Star, east or west. Empty for other clauses."
+clauses/reviewed_clauses.parquet,joint_positions,JSON,,"Linked sign positions of a joint statement, as a list of planet and sign pairs. Empty list for a single clause."
+clauses/reviewed_clauses.parquet,joint_source_start,integer,characters,Offset where the passage of the joint statement starts. It is -1 for a single clause.
+clauses/reviewed_clauses.parquet,joint_source_end,integer,characters,"Offset where the passage of the joint statement ends, exclusive. It is -1 for a single clause."
+clauses/reviewed_clauses.parquet,joint_day,integer,,Day that governs a joint statement. Empty otherwise.
+clauses/reviewed_clauses.parquet,joint_restored,boolean,,True if a clause of the joint statement is restored.
+clauses/reviewed_clauses.parquet,joint_omitted,boolean,,True if a clause of the joint statement is marked unobserved.
+clauses/reviewed_clauses.parquet,origin,string,,"parser for a parser clause as the review leaves it, search for a clause that the search added."
+clauses/reviewed_clauses.parquet,parser_index,integer,,"Index of the clause in the parser output of the text, from 0. It is -1 for a clause that the search added."
+clauses/reviewed_clauses.parquet,review,string,,"What the review did with the clause: keep, modify, or add for a clause that the search added."
+clauses/adart_iv_reviewed_clauses.parquet,tablet,string,,"Identifier of the record: the ADsD identifier for ADART I to III, and the entry identifier of ADART IV."
+clauses/adart_iv_reviewed_clauses.parquet,clause_index,integer,,"Position of the clause in the final clause list of the record, from 0. The dates read the clauses in this order."
+clauses/adart_iv_reviewed_clauses.parquet,kind,string,,"Clause type, with the values of the kind column of clauses/parser_clauses.parquet."
+clauses/adart_iv_reviewed_clauses.parquet,planet,string,,"Body of the clause. Values are moon, mercury, venus, mars, jupiter and saturn, sun for a solstice or equinox, sirius for a Sirius date, and lunar or solar for an eclipse."
+clauses/adart_iv_reviewed_clauses.parquet,sign,string,,"Zodiacal sign of the clause, such as Leo. Empty when the clause has no sign."
+clauses/adart_iv_reviewed_clauses.parquet,text,string,,"Words of the translation that the clause rests on. For ADART IV, the extracted statement."
+clauses/adart_iv_reviewed_clauses.parquet,month,string,,"Babylonian month that governs the clause, I to XII, VI2 or XII2. VI|VI2 means that the tools test both. Empty when the month is lost."
+clauses/adart_iv_reviewed_clauses.parquet,day,float,,Day of the Babylonian month from the governing day heading. Empty when no day governs the clause.
+clauses/adart_iv_reviewed_clauses.parquet,year_offset,integer,,Number of year changes in the text before the clause. The tools test the clause in the candidate year plus this number.
+clauses/adart_iv_reviewed_clauses.parquet,star,string,,"Normal Star of the clause, named as in physical/normal_stars.parquet. Empty when the clause has no star."
+clauses/adart_iv_reviewed_clauses.parquet,target_planet,string,,Planet that the clause measures the body against. Empty otherwise.
+clauses/adart_iv_reviewed_clauses.parquet,offset,float,degrees,"Expected longitude of the body minus that of the star or planet, at 2 degrees a cubit. Empty when the clause states no distance."
+clauses/adart_iv_reviewed_clauses.parquet,latitudinal,boolean,,True if the direction is above or below. The rule then tests only that the body lies within the tolerance of the star in longitude.
+clauses/adart_iv_reviewed_clauses.parquet,omitted,boolean,,True if the scribe marks the event as unobserved. The verdict of such a clause is untestable.
+clauses/adart_iv_reviewed_clauses.parquet,restored,boolean,,"True if the clause rests on words that the editors restored, or counts as restored by a rule of SI Appendix section S2. A restored clause can only support."
+clauses/adart_iv_reviewed_clauses.parquet,source_start,integer,characters,"Offset where the passage of the clause starts in the text that the dating reads: the text column of corpus/tablets.parquet, or the astronomy text of an ADART IV entry."
+clauses/adart_iv_reviewed_clauses.parquet,source_end,integer,characters,Offset where the passage of the clause ends in that text. The end is exclusive.
+clauses/adart_iv_reviewed_clauses.parquet,parser_rule,string,,"Name of the parser rule that read the clause. For a clause that the search added, the rule name of its clause type."
+clauses/adart_iv_reviewed_clauses.parquet,amount,float,cubits,"Stated distance in cubits, at 24 fingers to the cubit. Empty when the clause states no distance."
+clauses/adart_iv_reviewed_clauses.parquet,unit,string,,Unit words of the stated distance as the text writes them. Empty when the clause states no distance.
+clauses/adart_iv_reviewed_clauses.parquet,direction,string,,"Direction of the stated distance: above, below, in front of or behind. Empty when the clause states none."
+clauses/adart_iv_reviewed_clauses.parquet,station_phase,string,,"Side of a station against a Normal Star, east or west. Empty for other clauses."
+clauses/adart_iv_reviewed_clauses.parquet,joint_positions,JSON,,"Linked sign positions of a joint statement, as a list of planet and sign pairs. Empty list for a single clause."
+clauses/adart_iv_reviewed_clauses.parquet,joint_source_start,integer,characters,Offset where the passage of the joint statement starts. It is -1 for a single clause.
+clauses/adart_iv_reviewed_clauses.parquet,joint_source_end,integer,characters,"Offset where the passage of the joint statement ends, exclusive. It is -1 for a single clause."
+clauses/adart_iv_reviewed_clauses.parquet,joint_day,integer,,Day that governs a joint statement. Empty otherwise.
+clauses/adart_iv_reviewed_clauses.parquet,joint_restored,boolean,,True if a clause of the joint statement is restored.
+clauses/adart_iv_reviewed_clauses.parquet,joint_omitted,boolean,,True if a clause of the joint statement is marked unobserved.
+clauses/adart_iv_reviewed_clauses.parquet,origin,string,,"parser for a parser clause as the review leaves it, search for a clause that the search added."
+clauses/adart_iv_reviewed_clauses.parquet,parser_index,integer,,"Index of the clause in the parser output of the text, from 0. It is -1 for a clause that the search added."
+clauses/adart_iv_reviewed_clauses.parquet,review,string,,"What the review did with the clause: keep, modify, or add for a clause that the search added."
 clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_bits.parquet,tablet,string,,ADsD identifier of the record.
 clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_bits.parquet,statement_index,integer,,"Position of the clause in the reviewed clause list of the record, from 0, in order of the passage. It differs from statement_index of parser_clauses.parquet, because the search inserts clauses."
 clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_bits.parquet,kind,string,,"Clause type. appulse is a Moon or planet against a Normal Star, and planet_appulse is the Moon against a planet. planet_planet_appulse is a planet against a planet, and station_appulse is a station against a Normal Star. station is a station in a sign, in_sign is a planet in a sign, and entry is a planet that reaches a sign. first_app and last_app are a first and a last appearance, and acronychal is an acronychal rising. eclipse is an eclipse, season is a solstice or equinox, and sirius is a Sirius date."

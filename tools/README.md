@@ -10,6 +10,7 @@ These modules are the primitives that inference is built from. Each answers one 
 | `eclipses.py` | Was there an eclipse of this type on this Babylonian day, and which phase was visible at Babylon? Does that hold over the uncertainty in Delta T? |
 | `eras.py` | Does an unrestored era formula in the text name an absolute year? |
 | `statements.py` | What claim does this clause make, and which candidate years agree with it? |
+| `clauses.py` | Which clauses does a record's date use? It reads the reviewed clauses of `data/clauses/` back into the clauses of `statements.py` |
 | `__init__.py` | Marks the package |
 
 `statements.py` holds the parser, the tier rule, the scoring and the candidate sets, and is the only place a candidate year is decided.

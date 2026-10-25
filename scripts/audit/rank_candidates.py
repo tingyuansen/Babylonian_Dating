@@ -23,7 +23,7 @@ import pandas as pd
 HERE = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(HERE))
 
-from tools import cal, statements as S  # noqa: E402
+from tools import cal, clauses, statements as S  # noqa: E402
 from tools import years as yr  # noqa: E402
 
 
@@ -49,11 +49,12 @@ def infer_candidates() -> pd.DataFrame:
     eligible = set(frozen.loc[frozen.tool_benchmark_eligible, "tablet"])
     frozen_active = frozen.set_index("tablet").tool_year_bearing.to_dict()
     years = cal.candidate_years()
+    reviewed = clauses.load(clauses.REVIEWED)
     rows: list[dict] = []
     for tablet in texts.itertuples(index=False):
         if tablet.tablet not in eligible or not isinstance(tablet.text, str):
             continue
-        statements = S.extract(tablet.text)
+        statements = reviewed.get(tablet.tablet, [])
         usable = [st for st in statements
                   if not (st.kind == "eclipse" and st.omitted)]
         if len(usable) < 3:

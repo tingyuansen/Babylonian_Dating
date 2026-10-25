@@ -27,7 +27,7 @@ ROOT = HERE.parents[2]
 OUT = ROOT / "paper" / "Figures"
 sys.path.insert(0, str(ROOT))
 
-from tools import cal, statements as S  # noqa: E402
+from tools import cal, clauses, statements as S  # noqa: E402
 
 TABLET = "X301322"
 PHOTO = ROOT / "data" / "source" / "photos" / "alexander_diary_BM45962.jpg"
@@ -47,7 +47,7 @@ def panel_diary(ax, bar_ax, years) -> None:
     text = pd.read_parquet(
         ROOT / "data" / "corpus" / "tablets.parquet",
         columns=["tablet", "text"]).set_index("tablet").loc[TABLET, "text"]
-    sts = S.extract(text)
+    sts = clauses.load(clauses.REVIEWED)[TABLET]
     scores = S.candidate_scores(sts, S.months_in(text), years)
     allowed = (scores.outcomes == 1).sum(axis=0)
 

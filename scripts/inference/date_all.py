@@ -15,7 +15,7 @@ import pandas as pd
 HERE = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(HERE))
 
-from tools import cal, eras, statements as S  # noqa: E402
+from tools import cal, clauses, eras, statements as S  # noqa: E402
 from tools import years as yr  # noqa: E402
 
 
@@ -139,8 +139,13 @@ def statement_records(statements, scores, strict_mask, safety_mask) -> list[dict
 
 
 def astronomy_one(tablet: str, text: str, years: list[int],
-                  has_transliteration: bool = False) -> dict:
-    """Infer from astronomy without chronology or catalogue metadata."""
+                  has_transliteration: bool = False,
+                  statements: list[S.Statement] | None = None) -> dict:
+    """Infer from astronomy without chronology or catalogue metadata.
+
+    The clauses are the reviewed clauses of the record when given, and the
+    parser's clauses of the text otherwise.
+    """
     if not isinstance(text, str) or not text.strip():
         if has_transliteration:
             return base_result(
@@ -151,7 +156,8 @@ def astronomy_one(tablet: str, text: str, years: list[int],
             tablet, "decline", "no_text",
             "no readable text survives", years, years)
 
-    statements = S.extract(text)
+    if statements is None:
+        statements = S.extract(text)
     if not statements:
         return base_result(
             tablet, "decline", "no_recognized_evidence",
@@ -310,9 +316,10 @@ def add_chronology(result: dict, text: str) -> dict:
 
 
 def date_one(tablet: str, text: str, years: list[int],
-             has_transliteration: bool = False) -> dict:
+             has_transliteration: bool = False,
+             statements: list[S.Statement] | None = None) -> dict:
     """Run answer-blind astronomy first, then add text-internal chronology."""
-    result = astronomy_one(tablet, text, years, has_transliteration)
+    result = astronomy_one(tablet, text, years, has_transliteration, statements)
     return add_chronology(result, text)
 
 
@@ -337,10 +344,12 @@ def main() -> int:
     if args.limit:
         tablets = tablets.head(args.limit)
     years = [int(year) for year in cal.candidate_years()]
+    reviewed = clauses.load(clauses.REVIEWED)
     rows = []
     for number, tablet in enumerate(tablets.itertuples(index=False), start=1):
         rows.append(date_one(
-            tablet.tablet, tablet.text, years, tablet.has_transliteration))
+            tablet.tablet, tablet.text, years, tablet.has_transliteration,
+            reviewed.get(tablet.tablet, [])))
         if number % 100 == 0:
             print(f"  {number}/{len(tablets)} tablets")
 
@@ -354,7 +363,7 @@ def main() -> int:
         if value.strip() else 0)
     result = result.merge(
         catalogue[["tablet", "n_physical_fragments"]], on="tablet", how="left")
-    result["method_version"] = "date-all-v6-joint-signs"
+    result["method_version"] = "date-all-v7-reviewed-clauses"
     result["date_all_sha256"] = sha256(Path(__file__))
     result["statements_sha256"] = sha256(HERE / "tools" / "statements.py")
     result["skill_sha256"] = sha256(HERE / "skills" / "dating_protocol.md")
@@ -366,6 +375,7 @@ def main() -> int:
         "sky_sha256": HERE / "tools" / "sky.py",
         "eclipse_tool_sha256": HERE / "tools" / "eclipses.py",
         "eras_sha256": HERE / "tools" / "eras.py",
+        "clauses_sha256": clauses.REVIEWED,
         "calendar_sha256": HERE / "data" / "physical" / "calendar.parquet",
         "ephemeris_sha256": HERE / "data" / "physical" / "ephemeris.parquet",
         "eclipse_data_sha256": HERE / "data" / "physical" / "eclipses.parquet",

@@ -1,0 +1,170 @@
+{
+  "generated_utc": "2026-10-25T07:39:13+00:00",
+  "model": "gpt-6-luna-2026-09-22",
+  "route": "litellm",
+  "scope": "adart-iv",
+  "endpoint": "https://litellm.cloud.osu.edu/v1",
+  "prompt_versions": {
+    "review": "step1-review-v7-blind",
+    "recall_discovery": "step1-recall-discovery-v6-blind",
+    "recall_normalize": "step1-recall-normalize-v9-blind"
+  },
+  "tablets": null,
+  "review": {
+    "clauses": 539,
+    "final_actions": {
+      "KEEP": 533,
+      "MODIFY": 6
+    },
+    "first_pass_actions": {
+      "KEEP": 528,
+      "MODIFY": 11
+    },
+    "code_field_overrides": 0,
+    "model_output_failures": 0
+  },
+  "recall": {
+    "unsupported_but_astronomical": 1806,
+    "skipped_by_normalizer": 310,
+    "added": 179,
+    "rejected_ungrounded_evidence": 110,
+    "duplicate": 33,
+    "rejected_at_final_grounding_gate": 3
+  },
+  "this_process_calls": {
+    "calls": 4029,
+    "prompt_tokens": 8140254,
+    "completion_tokens": 1207622,
+    "reasoning_tokens": 651886,
+    "cached_tokens": 5614830,
+    "cost_usd_reported": 0.966749,
+    "calls_without_reported_cost": 0,
+    "throttled_retries": 0,
+    "transport_retries": 0,
+    "truncated_calls": 0,
+    "latency_s_median": 2.564,
+    "latency_s_p90": 6.047,
+    "models_reported": [
+      "gpt-6-luna-2026-09-22"
+    ],
+    "response_formats": [
+      "json_schema"
+    ],
+    "reasoning_efforts": [
+      "low"
+    ],
+    "by_stage": {
+      "review": {
+        "calls": 524,
+        "prompt_tokens": 1348833,
+        "completion_tokens": 88199,
+        "cost_usd": 0.09170387500000005
+      },
+      "modify_verify": {
+        "calls": 9,
+        "prompt_tokens": 12523,
+        "completion_tokens": 2973,
+        "cost_usd": 0.0030512
+      },
+      "recall_discovery": {
+        "calls": 892,
+        "prompt_tokens": 1047761,
+        "completion_tokens": 561432,
+        "cost_usd": 0.40556757499999985
+      },
+      "recall_quote_repair": {
+        "calls": 168,
+        "prompt_tokens": 119560,
+        "completion_tokens": 24880,
+        "cost_usd": 0.024838349999999995
+      },
+      "recall_normalize": {
+        "calls": 2316,
+        "prompt_tokens": 5280789,
+        "completion_tokens": 486786,
+        "cost_usd": 0.3867556349999986
+      },
+      "recall_normalize_repair": {
+        "calls": 120,
+        "prompt_tokens": 330788,
+        "completion_tokens": 43352,
+        "cost_usd": 0.054832790000000006
+      }
+    },
+    "failures": {},
+    "wall_time_s": 312.8,
+    "concurrency": {
+      "start": 8,
+      "final_limit": 64,
+      "peak_limit": 64,
+      "ceiling": 64,
+      "http_429": 0,
+      "history": [
+        [
+          6.3,
+          "grow",
+          10
+        ],
+        [
+          12.0,
+          "grow",
+          12
+        ],
+        [
+          16.9,
+          "grow",
+          15
+        ],
+        [
+          21.9,
+          "grow",
+          18
+        ],
+        [
+          26.3,
+          "grow",
+          22
+        ],
+        [
+          31.1,
+          "grow",
+          27
+        ],
+        [
+          36.0,
+          "grow",
+          33
+        ],
+        [
+          41.2,
+          "grow",
+          41
+        ],
+        [
+          45.9,
+          "grow",
+          51
+        ],
+        [
+          50.6,
+          "grow",
+          63
+        ],
+        [
+          68.8,
+          "grow",
+          64
+        ]
+      ]
+    }
+  },
+  "all_cached_record_calls": {
+    "n_calls": 4060,
+    "prompt_tokens": 8215363,
+    "completion_tokens": 1214785,
+    "cost_usd": 0.97401644,
+    "models_reported": [
+      "gpt-6-luna-2026-09-22"
+    ]
+  }
+}

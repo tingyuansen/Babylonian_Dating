@@ -306,7 +306,7 @@
       of the dating reads it. This page hides these words only for the story. It cannot keep them secret, because the
       record number and the data files hold them. It shows them at the end.`);
     d3.select('.t-decisive').html(r.clauses.length
-      ? `A parser finds ${plural(r.clauses.length, 'clause', 'clauses')} in the text. Each clause is one report about the
+      ? `The system finds ${plural(r.clauses.length, 'clause', 'clauses')} in the text. Each clause is one report about the
         sky. The inked clauses are <span class="k k-gold">decisive</span>. Only some types of clause can be decisive. The
         authors chose them by how well they agree with the published dates. They are most clauses about Mars, Jupiter or
         Saturn, lunar eclipses, solstices, equinoxes and dates of Sirius. A decisive clause also needs text that is not
@@ -316,7 +316,7 @@
         ? ` ${plural(idle, 'other clause has', 'other clauses have')} a decisive type, but ${idle === 1 ? 'it agrees' : 'they agree'}
           with each year that the tools can test, so ${idle === 1 ? 'it does' : 'they do'} not narrow the years.` : ''}
         The other clauses only put the years in order.`
-      : `The parser finds no clause about the sky in this text, so the sky cannot date it.`);
+      : `The system finds no clause about the sky in this text, so the sky cannot date it.`);
     writeModel(r);
     const maxK = r.K.length ? d3.max(r.K) : 0;
     const nMax = r.K.filter((k) => k === maxK).length;
@@ -495,8 +495,9 @@
     if (s) s.steps = Array.from(s.el.querySelectorAll('.step'));
   }
 
-  // The part of the language model: it checks the parser clauses and searches for claims that the parser misses.
-  // Code checks each of its citations. The date uses only the parser clauses.
+  // The part of the language model: it checks the parser clauses and searches for clauses that the parser misses.
+  // Code checks each of its citations. The date uses the parser clauses as the model leaves them, and the clauses that
+  // it finds.
   function writeModel(r) {
     const rv = r.review;
     const found = r.found || [];
@@ -504,7 +505,10 @@
     const acc = changes.filter((x) => x.accepted);
     const rej = changes.filter((x) => !x.accepted);
     const agent = r.clauses.filter((c) => c.agent_rule).length;
-    let t = `A language model then reads the same text. It checks each clause of the parser, and it searches for clauses
+    const n = r.clauses.length;
+    const np = r.clauses.filter((c) => !c.found).length;
+    let t = n ? `A rule-based parser reads ${np === n ? (n === 1 ? 'this clause' : 'these clauses') : `${np} of these clauses`}. ` : '';
+    t += `A language model then reads the same text. It checks each clause of the parser, and it searches for clauses
       that the parser misses. It must cite the words that support each change and each new clause, and code checks each
       citation.`;
     if (rv) {
@@ -522,7 +526,16 @@
       : ' It finds no clause that the parser misses.';
     if (changes.length) t += ' A dashed pencil line marks a changed clause.';
     d3.select('.t-model').html(t);
-    d3.select('.t-model-2').html(`The date on this page uses only the parser clauses. The paper compares the two lists of clauses at the published years.${agent
+    const pa = r.parser_alone;
+    const strictNow = (r.strict || []).length;
+    const firstNow = r.groups && r.groups.length ? r.groups[0].length : N;
+    const parts = [];
+    if (pa && pa.strict !== strictNow) parts.push(`the strict set would hold ${plural(pa.strict, 'year', 'years')} in place of ${strictNow}`);
+    if (pa && pa.first !== firstNow) parts.push(`the first group would hold ${plural(pa.first, 'year', 'years')} in place of ${firstNow}`);
+    const alone = !pa ? '' : parts.length
+      ? ` With the parser clauses alone, ${parts.join(', and ')}.`
+      : ' With the parser clauses alone, the strict set and the first group would be the same.';
+    d3.select('.t-model-2').html(`The date on this page uses all these clauses.${alone} The paper compares the two lists of clauses over all records.${agent
       ? ` A coding agent also proposed some rules of the parser, and the authors wrote and tested them. Here these rules
         read ${plural(agent, 'clause', 'clauses')}.` : ''}`);
   }
@@ -662,8 +675,9 @@
       lines.selectAll('.found').on('mousemove', (ev) => {
         ev.stopPropagation();
         const f = REC.found[+ev.currentTarget.dataset.q];
+        const c = REC.clauses[f.j] || {};
         tipShow(ev, `<b class="pencil">Found by the language model</b><br>${esc(f.what)}<br>“${esc(f.quote)}”<br><span class="small">${f.restored
-          ? 'Restored text, so it can only support.' : (f.decisive ? 'A decisive type.' : 'A supporting type.')} The date does not use it.</span>`);
+          ? 'Restored text, so it can only support.' : (c.decisive ? 'Decisive.' : (c.idle ? 'A decisive type that narrows no year.' : 'Supporting.'))} The date uses it like the other clauses.</span>`);
       }).on('mouseleave', tipHide);
     }
     function update(i) {

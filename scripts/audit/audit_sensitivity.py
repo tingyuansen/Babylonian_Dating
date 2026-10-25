@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Retrospective sensitivity and ablation audit of backward inference.
 
-All configurations use the same text-defined population. Candidate sets are
-computed before reference dates or stratification metadata are loaded. These
-are robustness checks on already-seen data, not fresh test-set estimates.
+All configurations use the same text-defined population and its reviewed
+clauses. Candidate sets are computed before reference dates or stratification
+metadata are loaded. These are robustness checks on already-seen data, not
+fresh test-set estimates.
 """
 
 from __future__ import annotations
@@ -23,7 +24,7 @@ import pandas as pd
 HERE = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(HERE))
 
-from tools import cal, sky, statements as S  # noqa: E402
+from tools import cal, clauses, sky, statements as S  # noqa: E402
 from tools import years as yr  # noqa: E402
 
 
@@ -134,8 +135,53 @@ CONFIGS = [
 ]
 
 
+MEASURED_KINDS = {"appulse", "planet_appulse", "station_appulse", "planet_planet_appulse"}
+DAY_KINDS = {"eclipse", "season", "sirius", "acronychal"}
+
+
+def context_restored(text: str, st: S.Statement) -> bool:
+    """The restored mark that the headings give a clause at its passage."""
+    if st.kind in MEASURED_KINDS:
+        return S.appulse_context(text, st.source_start)[3]
+    if st.kind in DAY_KINDS:
+        return S.eclipse_context(text, st.source_start)[3]
+    return S.positional_context(text, st.source_start)[2]
+
+
+def without_restored_month_context(text: str, items: list[tuple]) -> list[S.Statement]:
+    """The reviewed clauses as they would be without the restored month context.
+
+    A parser clause takes the restored mark of the parser without this rule,
+    plus any mark that the review added. An added clause loses the mark that
+    its month heading gave it, unless its own passage holds a bracket.
+    """
+    parsed = S.extract(text)
+    old = S.PROPAGATE_RESTORED_MONTH_CONTEXT
+    out = []
+    try:
+        S.PROPAGATE_RESTORED_MONTH_CONTEXT = False
+        legacy = S.extract(text)
+        for st, origin, index, _review in items:
+            if origin == "parser":
+                restored = (legacy[index].restored
+                            or (st.restored and not parsed[index].restored))
+            else:
+                S.PROPAGATE_RESTORED_MONTH_CONTEXT = True
+                now = context_restored(text, st)
+                S.PROPAGATE_RESTORED_MONTH_CONTEXT = False
+                then = context_restored(text, st)
+                passage = text[st.source_start:st.source_end]
+                restored = (st.restored if now == then
+                            else then or "[" in passage or "]" in passage)
+            out.append(replace(st, restored=bool(restored)))
+    finally:
+        S.PROPAGATE_RESTORED_MONTH_CONTEXT = old
+    return S.bind_joint_positions(text, out)
+
+
 def retained(text: str, statements: list[S.Statement],
-             legacy_month_statements: list[S.Statement], ablation: str):
+             legacy_month_statements: list[S.Statement], ablation: str,
+             origins: list[str] | None = None):
     if ablation == "restoration_reading":
         return [st for st in statements
                 if not st.parser_rule.endswith("_bracket")]
@@ -169,7 +215,11 @@ def retained(text: str, statements: list[S.Statement],
                 else replace(st, offset=st.offset * (2.2 / 2.0))
                 for st in statements]
     if ablation == "agent_rules":
-        return [st for st in statements if st.parser_rule not in AGENT_RULES]
+        # The rules are parser rules. The search finds what the parser misses,
+        # so its additions stay.
+        origins = origins or ["parser"] * len(statements)
+        return [st for st, origin in zip(statements, origins, strict=True)
+                if origin == "search" or st.parser_rule not in AGENT_RULES]
     if ablation == "summary_month":
         return [st for st in statements
                 if not (st.source_start >= 0
@@ -227,12 +277,11 @@ def infer(config: dict, population: list[tuple]) -> list[dict]:
     years = [int(year) for year in cal.candidate_years()]
     rows = []
     try:
-        for (tablet, text, baseline_statements,
+        for (tablet, text, baseline_statements, origins,
              legacy_month_statements, frozen_active) in population:
-            tablet_truth = -1
             statements = retained(
                 text, baseline_statements, legacy_month_statements,
-                config["ablation"])
+                config["ablation"], origins)
             scores = S.candidate_scores(
                 statements, S.months_in(text), years,
                 weighting=config["weighting"])
@@ -340,21 +389,17 @@ def main() -> int:
     frozen_population = frozen_population.set_index("tablet")
     eligible_ids = set(frozen_population.loc[
         frozen_population.tool_benchmark_eligible].index)
+    reviewed = clauses.load(clauses.REVIEWED, provenance=True)
     population = []
     for tablet in texts.itertuples(index=False):
         if not isinstance(tablet.text, str):
             continue
-        statements = S.extract(tablet.text)
         if tablet.tablet in eligible_ids:
-            old = S.PROPAGATE_RESTORED_MONTH_CONTEXT
-            try:
-                S.PROPAGATE_RESTORED_MONTH_CONTEXT = False
-                legacy_month_statements = S.extract(tablet.text)
-            finally:
-                S.PROPAGATE_RESTORED_MONTH_CONTEXT = old
+            items = reviewed.get(tablet.tablet, [])
             population.append((
-                tablet.tablet, tablet.text, statements,
-                legacy_month_statements,
+                tablet.tablet, tablet.text, [item[0] for item in items],
+                [item[1] for item in items],
+                without_restored_month_context(tablet.text, items),
                 bool(frozen_population.loc[
                     tablet.tablet, "tool_year_bearing"]),
             ))

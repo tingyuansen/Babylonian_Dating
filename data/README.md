@@ -33,7 +33,7 @@ Years are astronomical years, where 1 BCE is year 0. A record is named by its AD
 
 ### Not distributed
 
-The book scans, and the full text that the project read from ADART IV, are under copyright, so they stay out of the repository. For ADART IV, the repository keeps the counts and hashes of that text, the statements that the parser extracted, and the candidate years, in `corpus/` and `results/`. A reader with the books can repeat a reading, check each file against these SHA-256 values with `shasum -a 256`, and put it at the path given, which git ignores.
+The book scans, and the full text that the project read from ADART IV, are under copyright, so they stay out of the repository. The model review of ADART IV quotes that text, so its caches stay out too. For ADART IV, the repository keeps the counts and hashes of that text, the clauses extracted from it, the run summary of its review, and the candidate years, in `corpus/`, `clauses/` and `results/`. A reader with the books can repeat a reading, check each file against these SHA-256 values with `shasum -a 256`, and put it at the path given, which git ignores.
 
 | File | What it is | SHA-256 |
 |---|---|---|
@@ -45,6 +45,10 @@ The book scans, and the full text that the project read from ADART IV, are under
 | `corpus/adart_iv_lines.parquet` | One row per line of the translation column of ADART IV, from `source/build_adart_iv_corpus.py` | `36b48671042c31413c83f76677725438f7a38de9a26183a267336880bcadcffa` |
 | `corpus/adart_iv_addenda_tablets.parquet` | One row per text of the dated addenda, with its blind translation, from `source/build_adart_iv_addenda.py` | `aa183f991a2c2b59a8f73c4fd3ea7880383bf59fe9c6865765a34c3c42dd556d` |
 | `corpus/adart_iv_addenda_lines.parquet` | One row per line of the addenda pages, from `source/build_adart_iv_addenda.py` | `564b03836886f49fa50c388c1e1fe85ab592d4583f943a6da74335a8a8a43e7d` |
+| `clauses/model_review_gpt-6-luna-2026-09-22_adart_iv/review_cache.jsonl` | Every model response of the review of the ADART IV parser clauses, from `agent/model_review.py --scope adart-iv` | `90f5dade68b736586d936dc367034cf2a1fabed44f520e99e31123e170864f99` |
+| `clauses/model_review_gpt-6-luna-2026-09-22_adart_iv/recall_cache.jsonl` | Every model response of the search of ADART IV for missed clauses | `b509859436f22098ed8897dadf42f6089e2f85006a9869ee58acb7296054436c` |
+| `clauses/model_review_gpt-6-luna-2026-09-22_adart_iv/review_changes.csv` | Every change the model proposed to an ADART IV parser clause, and its checks | `379ddf0b6390895ea6812a1ba5983d5d46238e1b72a86f3416240fddae1bf754` |
+| `clauses/model_review_gpt-6-luna-2026-09-22_adart_iv/search_proposals.csv` | Every observation the search of ADART IV proposed, and what became of it | `9d50017a53bfa90c3d584848e0ae04e867c7fbfbef08c0b12150d0c183292d22` |
 
 ## corpus/
 
@@ -73,8 +77,11 @@ The book scans, and the full text that the project read from ADART IV, are under
 
 | File | What it holds | Made by |
 |---|---|---|
+| `reviewed_clauses.parquet` | The clauses that the dates of ADART I to III use, one row per clause: the parser clauses as the model review leaves them, and the clauses that its search added. Each row gives the clause's fields, its origin (parser or search), its index in the parser's list and the review's action. `tools/clauses.py` reads it | `agent/rescore_model_review.py`, from the caches |
+| `adart_iv_reviewed_clauses.parquet` | The same for the undated entries of ADART IV, whose clauses keep only their extracted statement | `agent/rescore_model_review.py --scope adart-iv`, from the local caches |
 | `parser_clauses.parquet` | Every parser clause: its fields, its source passage and line, and its verdict at the published year | `audit/build_parser_clauses.py` |
 | `model_review_gpt-6-luna-2026-09-22/` | The language-model review of step 1, listed below | |
+| `model_review_gpt-6-luna-2026-09-22_adart_iv/run_summary.json` | The calls, tokens, cost and outcomes of the review of ADART IV. The rest of this run quotes the volume and stays local | `agent/model_review.py --scope adart-iv` (paid) |
 | `model_review_pilot/` | The pilot of three models on ten records: for each model, `<model>_summary.json` (calls, cost and outcomes), `<model>_changes.csv` (its changes to parser clauses) and `<model>_additions.csv` (its search proposals), and `comparison.json`, their verdicts at the published year | `agent/model_review.py` (paid); `comparison.json` by `agent/compare_models.py` |
 
 `model_review_gpt-6-luna-2026-09-22/` is the committed run of the review. A run with another model writes to its own `model_review_<model>/`.
@@ -103,8 +110,9 @@ The book scans, and the full text that the project read from ADART IV, are under
 |---|---|---|
 | `benchmark_records.parquet` | The frozen benchmark: the 417 records, 179 of them in the benchmark and 112 with decisive clauses | `audit/build_benchmark.py --rebuild-population` only |
 | `benchmark_results.parquet` | The 179 benchmark records, scored against the published year | `audit/score_benchmark.py` |
-| `benchmark_clause_bits.parquet` | Bits and tier of each parser clause of the 179 benchmark records | `audit/score_benchmark.py` |
+| `benchmark_clause_bits.parquet` | Bits and tier of each clause of the 179 benchmark records | `audit/score_benchmark.py` |
 | `ranking_candidates.parquet` | Every candidate year of every benchmark record, with its scores and rank | `audit/rank_candidates.py` |
+| `clause_set_comparison.json` | The rates of the benchmark, and the counts of ADART IV, when the records are dated with the parser clauses alone and with the reviewed clauses (SI Appendix, section S10) | `audit/compare_clause_sets.py` |
 | `sensitivity_runs.parquet`, `sensitivity_summary.parquet` | Every benchmark record under each of the 32 configurations, and the summary per configuration | `audit/audit_sensitivity.py` |
 | `held_out_runs.parquet`, `held_out_summary.json` | The choices and the records of each held-out round | `audit/audit_held_out.py` |
 | `addenda_registration.json` | The registration of the frozen test on the dated addenda of ADART IV: the frozen commit, the input, the blinding and the scores, fixed before any addendum was read | Written by hand before the test |

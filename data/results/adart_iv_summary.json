@@ -1,20 +1,20 @@
 {
-  "active_decisive_facts": 61,
+  "active_decisive_facts": 66,
   "active_median_first_group_size": 100.0,
   "active_median_first_three_group_union": 701.0,
   "active_median_safety_set_size": 701.0,
-  "active_median_strict_set_size": 101.0,
+  "active_median_strict_set_size": 102.0,
   "active_singleton_first_physical_group": 0,
   "all_rows_singleton_first_group_diagnostic": 1,
   "astronomy_bases": {
-    "astronomical_frontier": 52,
-    "no_recognized_evidence": 538,
-    "supporting_only": 269,
+    "astronomical_frontier": 56,
+    "no_recognized_evidence": 460,
+    "supporting_only": 343,
     "unsupported_transliteration": 8
   },
   "astronomy_claims": {
-    "decline": 815,
-    "ranked": 52
+    "decline": 811,
+    "ranked": 56
   },
   "candidate_babylonian_year_labels": [
     "626 BCE",
@@ -30,22 +30,23 @@
     "absent": 867
   },
   "combined_claims": {
-    "decline": 815,
-    "ranked": 52
+    "decline": 811,
+    "ranked": 56
   },
   "entries": 867,
-  "entries_with_at_least_three_facts": 51,
-  "entries_with_decisive_astronomy": 52,
-  "entries_with_recognized_astronomical_facts": 321,
+  "entries_with_at_least_three_facts": 68,
+  "entries_with_decisive_astronomy": 56,
+  "entries_with_recognized_astronomical_facts": 399,
   "entries_with_translation": 860,
   "inputs": {
+    "data/clauses/adart_iv_reviewed_clauses.parquet": "00781a54ce447de2636448230e8be0105a4cb1ef8ded938dc2e0104ba1b146e2",
     "data/corpus/adart_iv_tablets.parquet": "dff212f9047e07fc9408ecdb1a1eada22c3630b19bde5e445bb4d777849b9782"
   },
   "interpretation": "Prospective candidate support and coverage; no accuracy is implied without independent reference years",
   "outputs": {
-    "data/results/adart_iv_dates.parquet": "9d04d6ec3266fb03661c8fb2784c08c174c94e0e8a6edf2769be0c42063f641a"
+    "data/results/adart_iv_dates.parquet": "26b061543e0a151dbacd4f2afb3f82b21ccbe1dccf1351fcad9e37be48a81111"
   },
-  "recognized_facts": 539,
+  "recognized_facts": 718,
   "schema": "adart-iv-prospective-summary-v1",
   "unique_strict_year": 0
 }

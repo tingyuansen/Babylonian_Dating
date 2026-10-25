@@ -24,7 +24,7 @@ ROOT = HERE.parents[2]
 OUT = ROOT / "paper" / "Figures"
 sys.path.insert(0, str(ROOT))
 
-from tools import cal, statements as S  # noqa: E402
+from tools import cal, clauses, statements as S  # noqa: E402
 from tools import years as yr  # noqa: E402
 
 TABLET = "X301492"
@@ -147,7 +147,7 @@ def main() -> Path:
         ROOT / "data" / "corpus" / "tablets.parquet",
         columns=["tablet", "text"]).set_index("tablet").loc[TABLET, "text"]
     years = np.array(cal.candidate_years(), dtype=int)
-    sts = S.extract(text)
+    sts = clauses.load(clauses.REVIEWED)[TABLET]
     scores = S.candidate_scores(sts, S.months_in(text), years)
 
     fig, axes = plt.subplots(

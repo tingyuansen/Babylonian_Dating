@@ -24,7 +24,7 @@ import pandas as pd
 HERE = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(HERE))
 
-from tools import cal, statements as S  # noqa: E402
+from tools import cal, clauses, statements as S  # noqa: E402
 from tools import years as yr  # noqa: E402
 
 
@@ -51,7 +51,7 @@ def main() -> int:
         return 2
 
     truth = yr.bce_to_astro(int(row.bce_first))
-    sts = S.extract(row.text)
+    sts = clauses.load(clauses.REVIEWED).get(args.tablet, [])
     months = S.months_in(row.text)
     years = cal.candidate_years()
     scores = S.candidate_scores(sts, months, years,

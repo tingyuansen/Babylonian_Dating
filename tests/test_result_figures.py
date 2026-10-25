@@ -109,7 +109,7 @@ class ResultFiguresTest(unittest.TestCase):
             return stem.with_suffix(".pdf")
         with patch.object(diary.pd, "read_parquet", return_value=source), \
              patch.object(diary.cal, "candidate_years", return_value=years), \
-             patch.object(diary.S, "extract", return_value=[]), \
+             patch.object(diary.clauses, "load", return_value={diary.TABLET: []}), \
              patch.object(diary.S, "candidate_scores", return_value=scores), \
              patch.object(diary.plt, "imread", return_value=np.zeros((12, 12, 3))), \
              patch.object(diary.fs, "save", side_effect=capture):
@@ -138,7 +138,7 @@ class ResultFiguresTest(unittest.TestCase):
             return stem.with_suffix(".pdf")
         with patch.object(tablet.pd, "read_parquet", return_value=source), \
              patch.object(tablet.cal, "candidate_years", return_value=years), \
-             patch.object(tablet.S, "extract", return_value=[statement]), \
+             patch.object(tablet.clauses, "load", return_value={tablet.TABLET: [statement]}), \
              patch.object(tablet.S, "candidate_scores", return_value=scores), \
              patch.object(tablet.fs, "save", side_effect=capture):
             tablet.main()

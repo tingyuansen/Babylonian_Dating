@@ -1696,11 +1696,12 @@ def check_joint_position(st: Statement, statement_year: int) -> Verdict:
 
 
 def is_decisive(st: Statement) -> bool:
-    """Semantic evidence tier, independent of any candidate-year outcome."""
-    # Mixed-unit parsing is supported by recurring source forms, but the dated
-    # corpus contains no unrestored, fully contextualized outer-planet example
-    # with a testable forward residual. Retain these facts as support until an
-    # independent decisive-tier forward gate exists.
+    """Semantic evidence tier, independent of any candidate-year outcome.
+
+    A distance in cubits and fingers is decisive like one in a single unit. The
+    written rule for decisive types (SI Appendix, section S5) admits it once
+    the reviewed clauses give enough unrestored examples.
+    """
     if st.joint_positions:
         # A supporting inner-planet conjunct must not acquire decisive power
         # merely by being coordinated with an outer planet.
@@ -1710,8 +1711,7 @@ def is_decisive(st: Statement) -> bool:
                         for p, _ in st.joint_positions))
     if st.latitudinal and not LATITUDINAL_DISTANCES_DECISIVE:
         return False
-    if (st.parser_rule.endswith("_compound")
-            or st.parser_rule.startswith("measured_station_normal_star")
+    if (st.parser_rule.startswith("measured_station_normal_star")
             or st.parser_rule.startswith("measured_planet_planet")):
         return False
     return bool(

@@ -98,60 +98,60 @@ class PaperNumbersTest(unittest.TestCase):
         self.says("The same rules date the 238 dated records outside the benchmark")
         outside = self.results.loc[sorted(self.dated - set(self.scores.tablet))]
         ranked = outside[outside.claim.eq("ranked")]
-        self.assertEqual((len(ranked), ranked.strict_years_astro.map(len).median()), (25, 87))
+        self.assertEqual((len(ranked), ranked.strict_years_astro.map(len).median()), (29, 87))
         self.assertFalse(outside.claim.eq("committed").any())
-        self.says("and 25 of them have a decisive clause. The median strict set of these 25 holds 87 years")
+        self.says("and 29 of them have a decisive clause. The median strict set of these 29 holds 87 years")
 
     def test_first_groups(self):
         first = int(self.active.truth_in_top_evidence_group.sum())
         three = int(self.active.truth_evidence_group_rank.le(3).sum())
-        self.assertEqual((first, pct(first, 112)), (104, "93"))
-        self.says("it contains the published year in 104 (93\\%")
-        self.assertEqual(int(self.active.top_evidence_group_size.eq(1).sum()), 78)
-        self.says("For 78 of the 112, it pins down a single year, and in 73 this is the published year")
-        self.says("For 78 of them, the ranking pins down one year, the published year in 73")
+        self.assertEqual((first, pct(first, 112)), (108, "96"))
+        self.says("it contains the published year in 108 (96\\%")
+        self.assertEqual(int(self.active.top_evidence_group_size.eq(1).sum()), 84)
+        self.says("For 84 of the 112, it pins down a single year, and in 83 this is the published year")
+        self.says("For 84 of them, the ranking pins down one year, the published year in 83")
         now = self.active.active_decisive.astype(float).gt(0)
-        self.assertEqual((int((~now).sum()), self.active[now].strict_count.median()), (13, 14))
-        self.says("13 of these records no longer have a decisive clause, and their strict set holds all 701 years")
+        self.assertEqual((int((~now).sum()), self.active[now].strict_count.median()), (11, 14))
+        self.says("11 of these records no longer have a decisive clause, and their strict set holds all 701 years")
         first_now = int(self.active[now].truth_in_top_evidence_group.sum())
-        self.assertEqual((first_now, pct(first_now, int(now.sum()))), (93, "94"))
-        self.says("and the first group holds the published year in 93 (94\\%)")
-        self.assertEqual((three, pct(three, 112)), (109, "97"))
-        self.says("contain it in 109 (97\\%)")
+        self.assertEqual((first_now, pct(first_now, int(now.sum()))), (99, "98"))
+        self.says("and the first group holds the published year in 99 (98\\%)")
+        self.assertEqual((three, pct(three, 112)), (110, "98"))
+        self.says("contain it in 110 (98\\%)")
         supporting = self.scores[~self.scores.frozen_active]
-        self.assertEqual(pct(int(supporting.truth_in_top_evidence_group.sum()), len(supporting)), "90")
-        self.says("The supporting-only records also reach 90\\% for the first group")
+        self.assertEqual(pct(int(supporting.truth_in_top_evidence_group.sum()), len(supporting)), "87")
+        self.says("The supporting-only records also reach 87\\% for the first group")
 
     def test_candidate_years_in_ranked_order(self):
         candidates = pd.read_parquet(DATA / "benchmark" / "ranking_candidates.parquet")
         places = fig4_benchmark.positions(candidates[candidates.frozen_active])
-        self.assertEqual(pct(sum(1 for p in places if p <= 1), 112), "65")
-        self.says("one year suffices in 65\\%")
+        self.assertEqual(pct(sum(1 for p in places if p <= 1), 112), "74")
+        self.says("one year suffices in 74\\%")
 
     def test_strict_sets(self):
         strict = int(self.active.truth_in_strict.sum())
-        self.assertEqual((strict, pct(strict, 112), self.active.strict_count.median()), (112, "100", 17.5))
+        self.assertEqual((strict, pct(strict, 112), self.active.strict_count.median()), (112, "100", 16.5))
         self.says("It contains the published year in all 112 records with decisive clauses, "
-                  "with a median size of 17.5 years")
+                  "with a median size of 16.5 years")
 
     def test_commitments_and_stated_years(self):
         dated = self.results.loc[sorted(self.dated)]
         committed = dated[dated.claim.eq("committed")]
         truth = 1 - self.tablets.loc[committed.index].bce_first
         years = committed.strict_years_astro.map(lambda y: int(y[0]))
-        self.assertEqual(len(committed), 7)
+        self.assertEqual(len(committed), 10)
         self.assertTrue((years == truth).all())
         self.assertEqual(committed.basis.value_counts().to_dict(),
-                         {"independent_astronomy": 6, "secure_lunar_eclipse": 1})
-        self.says("commits to one year for 7. All 7 match the published year")
-        self.says("Six rest on two or more clocks and one on a lunar eclipse")
+                         {"independent_astronomy": 9, "secure_lunar_eclipse": 1})
+        self.says("commits to one year for 10. All 10 match the published year")
+        self.says("Nine rest on two or more clocks and one on a lunar eclipse")
         stated = dated[~dated.chronology_relation.eq("absent")]
         narrowed = stated[~stated.chronology_relation.eq("lookup_only")]
-        self.assertEqual((len(stated), len(narrowed)), (23, 11))
+        self.assertEqual((len(stated), len(narrowed)), (23, 14))
         self.assertTrue(narrowed.chronology_relation.isin(
             ["selects_strict_candidate", "confirms_astronomy"]).all())
         self.says("For 23 dated records, the system extracts a year")
-        self.says("In all 11 records where the astronomy narrows the year, the stated year lies in the strict set")
+        self.says("In all 14 records where the astronomy narrows the year, the stated year lies in the strict set")
 
     def test_worked_examples(self):
         def years(tablet, decisive=None):
@@ -179,12 +179,13 @@ class PaperNumbersTest(unittest.TestCase):
         self.assertEqual((summary["entries"], summary["entries_with_translation"]), (867, 860))
         self.says("which gives 867 entries. Of these, 860 have an English translation")
         self.assertEqual((int(self.adart_iv.n_statements.gt(0).sum()), int(self.adart_iv.n_statements.sum())),
-                         (321, 539))
-        self.assertEqual((len(ranked), int(ranked.n_decisive_statements.eq(1).sum())), (52, 44))
-        self.says("Of the 52 ranked entries, 44 hold a single decisive clause")
-        self.assertEqual((ranked.strict_count.median(), ranked.top_evidence_group_size.median()), (101, 100))
-        self.says("cut the 701 candidate years to a median of 101")
-        self.says("the first groups of all 52 have a median of 100 years")
+                         (399, 718))
+        self.says("The parser and the search find astronomical clauses in 399 entries")
+        self.assertEqual((len(ranked), int(ranked.n_decisive_statements.eq(1).sum())), (56, 47))
+        self.says("Of the 56 ranked entries, 47 hold a single decisive clause")
+        self.assertEqual((ranked.strict_count.median(), ranked.top_evidence_group_size.median()), (102, 100))
+        self.says("cut the 701 candidate years to a median of 102")
+        self.says("the first groups of all 56 have a median of 100 years")
         self.assertFalse(self.adart_iv.claim.eq("committed").any())
 
     def test_clauses_without_a_month(self):
@@ -201,8 +202,8 @@ class PaperNumbersTest(unittest.TestCase):
         import build_adart_iv_table as table
         ranked = self.adart_iv[self.adart_iv.claim.eq("ranked")]
         dated = sum(table.has_month(row) for row in ranked.itertuples())
-        self.assertEqual((len(ranked) - dated, dated), (49, 3))
-        self.says("In 49 of the 52, the decisive clauses lack a month")
+        self.assertEqual((len(ranked) - dated, dated), (53, 3))
+        self.says("In 53 of the 56, the decisive clauses lack a month")
         self.says("a dagger marks the three entries with a decisive clause that has a month")
 
     def test_model_pilot(self):
@@ -219,26 +220,32 @@ class PaperNumbersTest(unittest.TestCase):
         self.says("The added clauses of both agree at the published year in 89\\% of testable cases, against 88\\% for gpt-6-luna")
         self.assertEqual((round(large["cost_usd"] * 10, -1), small["cost_usd"] * 10), (50.0, 2.5))
         self.says("Scaled to 100 records, the larger model would cost about \\$50, against about \\$2.50 for gpt-6-luna")
-        run = json.loads((DATA / "clauses" / "model_review_gpt-6-luna-2026-09-22" / "run_summary.json").read_text())
-        self.assertEqual(round(run["all_cached_record_calls"]["cost_usd"]), 4)
-        self.says("All review and search calls for ADART I to III with gpt-6-luna, superseded ones included, cost about \\$4")
+        runs = [json.loads((DATA / "clauses" / name / "run_summary.json").read_text())
+                for name in ("model_review_gpt-6-luna-2026-09-22", "model_review_gpt-6-luna-2026-09-22_adart_iv")]
+        self.assertEqual(round(sum(run["all_cached_record_calls"]["cost_usd"] for run in runs)), 5)
+        self.says("All review and search calls with gpt-6-luna, for ADART I to III and ADART IV, superseded ones included, cost about \\$5")
+        iv = runs[1]["review"]["final_actions"]
+        self.assertEqual((runs[1]["review"]["clauses"], iv["KEEP"], iv["MODIFY"], runs[1]["recall"]["added"]),
+                         (539, 533, 6, 179))
+        self.says("For ADART IV, the model kept 533 of the 539 parser clauses and modified the other 6, "
+                  "and the search added 179 clauses")
 
     def test_sensitivity(self):
         self.assertEqual(len(self.sensitivity), 32)
         self.says("most of the 31 alternative settings of the method")
         self.says("The sensitivity audit tests 32 fixed configurations, including the baseline")
         baseline = self.sensitivity.loc["baseline"]
-        self.assertEqual((pct(baseline.truth_in_leading_group, 112), pct(baseline.truth_strict, 112)), ("93", "100"))
+        self.assertEqual((pct(baseline.truth_in_leading_group, 112), pct(baseline.truth_strict, 112)), ("96", "100"))
         rate = lambda config, column: pct(self.sensitivity.loc[config, column], 112)
         self.assertEqual((rate("no_sun_family", "truth_in_leading_group"),
                           self.sensitivity.loc["no_sun_family", "median_leading_group"],
-                          rate("no_sun_family", "truth_strict")), ("93", 1, "100"))
+                          rate("no_sun_family", "truth_strict")), ("96", 1, "100"))
         self.says("Without this clock, the benchmark values stay as in the baseline")
-        self.assertEqual(rate("contradictions_before_information", "truth_in_leading_group"), "95")
-        self.assertEqual(rate("equal_weighting_with_tiers", "truth_in_leading_group"), "96")
-        self.says("raise first-group inclusion by a few points")
+        for config in ("contradictions_before_information", "equal_weighting_with_tiers"):
+            self.assertEqual((rate(config, "truth_in_leading_group"), rate(config, "truth_strict")), ("96", "100"))
+        self.says("and they give the same rates as the baseline")
         self.assertEqual((rate("contradictions_bound_the_leading_set", "truth_strict"),
-                          rate("information_weighting", "truth_strict")), ("96", "92"))
+                          rate("information_weighting", "truth_strict")), ("96", "96"))
         self.assertEqual((self.sensitivity.loc["contradictions_bound_the_leading_set", "median_strict_count"],
                           self.sensitivity.loc["information_weighting", "median_strict_count"]), (1, 1))
         self.says("The strict set then shrinks to about one year, which is more often wrong")
@@ -248,10 +255,10 @@ class PaperNumbersTest(unittest.TestCase):
         self.assertTrue(summary["held_out_scored"])
         self.assertEqual(summary["settings"]["close_points"], 5.0)
         pooled = summary["all_three_rounds"]
-        self.assertEqual((pooled["first_group"]["n"], pooled["strict_set"]["n"]), (103, 112))
+        self.assertEqual((pooled["first_group"]["n"], pooled["strict_set"]["n"]), (108, 112))
         self.assertTrue(all(reading["close"] for reading in summary["reading"].values()))
-        self.says("Over the three rounds, the first group holds the published year in 92\\% and the strict set in 100\\%")
-        self.says("All three rounds & 112 & 103 (92\\%) & 109 (97\\%) & 112 (100\\%) & 19 years")
+        self.says("Over the three rounds, the first group holds the published year in 96\\% and the strict set in 100\\%")
+        self.says("All three rounds & 112 & 108 (96\\%) & 110 (98\\%) & 112 (100\\%) & 17.5 years")
 
     def test_corrigenda(self):
         corrigenda = json.loads((DATA / "benchmark" / "adart_iv_corrigenda_summary.json").read_text())

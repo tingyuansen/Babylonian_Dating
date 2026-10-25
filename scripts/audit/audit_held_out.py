@@ -61,7 +61,7 @@ import pandas as pd
 HERE = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(HERE))
 
-from tools import cal, sky, statements as S  # noqa: E402
+from tools import cal, clauses, sky, statements as S  # noqa: E402
 from tools import years as yr  # noqa: E402
 from scripts.audit.audit_sensitivity import retained  # noqa: E402
 
@@ -83,8 +83,8 @@ CHUNK_RECORDS = 6
 # The main-text values for the committed code. They move when tools/ changes,
 # so the criterion for the all-volume round is the unmodified pipeline rerun on
 # the same code, not these numbers; they are reported for orientation only.
-MAIN_TEXT = {"records": 112, "first_group": 104, "first_three_groups": 109,
-             "strict_set": 112, "median_strict_set": 17.5}
+MAIN_TEXT = {"records": 112, "first_group": 108, "first_three_groups": 110,
+             "strict_set": 112, "median_strict_set": 16.5}
 
 # --- The reading of the test, fixed before any held-out round was scored. ---
 # The pooled row of the three held-out rounds is close to the all-volume round
@@ -268,18 +268,34 @@ def clause_is_secure(st: S.Statement) -> bool:
 
 # ------------------------------------------------------------- parser units
 
-def unit_members(text: str, statements: list[S.Statement]) -> dict[str, set[int]]:
+_REVIEWED: dict | None = None
+
+
+def reviewed(tablet: str) -> tuple[list[S.Statement], list[str]]:
+    """The reviewed clauses of a record, and the origin of each."""
+    global _REVIEWED
+    if _REVIEWED is None:
+        _REVIEWED = clauses.load(clauses.REVIEWED, provenance=True)
+    items = _REVIEWED.get(tablet, [])
+    return [item[0] for item in items], [item[1] for item in items]
+
+
+def unit_members(text: str, statements: list[S.Statement],
+                 origins: list[str]) -> dict[str, set[int]]:
     """Indices of the clauses each gated parser rule contributes.
 
-    Rejecting a unit drops exactly these clauses. The three context rules use
-    the removal mechanisms of the sensitivity audit.
+    Rejecting a unit drops exactly these clauses. A reading rule contributes
+    only parser clauses, because the search finds what the parser misses. The
+    three context rules give every clause its month, and they use the removal
+    mechanisms of the sensitivity audit.
     """
     def dropped(ablation: str) -> set[int]:
-        kept = {id(st) for st in retained(text, statements, statements, ablation)}
+        kept = {id(st) for st in retained(text, statements, statements, ablation, origins)}
         return {i for i, st in enumerate(statements) if id(st) not in kept}
 
     def chosen(predicate) -> set[int]:
-        return {i for i, st in enumerate(statements) if predicate(st)}
+        return {i for i, (st, origin) in enumerate(zip(statements, origins, strict=True))
+                if origin == "parser" and predicate(st)}
 
     qualified = ("beginning of", "middle of", "end of")
     return {
@@ -300,10 +316,10 @@ def unit_members(text: str, statements: list[S.Statement]) -> dict[str, set[int]
 
 
 def kept_statements(text: str, statements: list[S.Statement],
-                    rejected: list[str]) -> list[S.Statement]:
+                    rejected: list[str], origins: list[str]) -> list[S.Statement]:
     if not rejected:
         return statements
-    members = unit_members(text, statements)
+    members = unit_members(text, statements, origins)
     drop = set().union(*(members[unit] for unit in rejected))
     return [st for i, st in enumerate(statements) if i not in drop]
 
@@ -467,11 +483,11 @@ def fit_round(spec: dict, texts: pd.DataFrame,
     years = published_years(list(train.tablet))
     train = train[train.tablet.isin(years) & train.text.str.strip().ne("")]
     parsed = [(row.tablet, row.text, years[row.tablet], S.months_in(row.text),
-               S.extract(row.text)) for row in train.itertuples(index=False)]
+               *reviewed(row.tablet)) for row in train.itertuples(index=False)]
 
-    # 1. Tolerances, from every measured relation the full parser reads.
+    # 1. Tolerances, from every measured relation of the reviewed clauses.
     residuals: dict[str, list[float]] = {"moon": [], "planet": []}
-    for _, _, year, _, statements in parsed:
+    for _, _, year, _, statements, _ in parsed:
         for st in statements:
             value = night_residual(st, year)
             if value is not None:
@@ -491,9 +507,9 @@ def fit_round(spec: dict, texts: pd.DataFrame,
     unit_counts = {unit: [0, 0] for unit, _ in PARSER_UNITS}
     verdicts = []
     with round_settings({**choices, "decisive_types": sorted(repo_types)}):
-        for _, text, year, months, statements in parsed:
+        for _, text, year, months, statements, origins in parsed:
             results = [S.check(st, year, months).result for st in statements]
-            members = unit_members(text, statements)
+            members = unit_members(text, statements, origins)
             for unit, indices in members.items():
                 for i in indices:
                     if results[i] != "untestable":
@@ -565,7 +581,8 @@ def score_chunk(choices: dict | None, rejected: list[str],
     rows = []
     with round_settings(choices):
         for tablet, text in records:
-            statements = kept_statements(text, S.extract(text), rejected)
+            statements, origins = reviewed(tablet)
+            statements = kept_statements(text, statements, rejected, origins)
             scores = S.candidate_scores(statements, S.months_in(text), years,
                                         weighting="skill")
             levels = S.evidence_levels(scores)
@@ -645,9 +662,9 @@ def exposure(choices: dict, records: pd.DataFrame) -> dict:
               "clauses": 0, "clauses_kept": 0, "decisive_repo": 0,
               "decisive_round": 0, "records_with_changed_decisive_clauses": 0,
               "moon_relations": 0, "planet_relations": 0}
-    for text in records.text:
-        statements = S.extract(text)
-        kept = kept_statements(text, statements, choices["rejected_units"])
+    for tablet, text in zip(records.tablet, records.text):
+        statements, origins = reviewed(tablet)
+        kept = kept_statements(text, statements, choices["rejected_units"], origins)
         repo = {(st.kind, st.source_start, st.planet) for st in statements
                 if REPO_IS_DECISIVE(st)}
         with round_settings(choices):
@@ -765,7 +782,7 @@ def main() -> int:
                                   on=["tablet", "volume"], validate="one_to_one")
     population = population[population.text.str.strip().ne("")]
 
-    corpus = [st for text in texts.text for st in S.extract(text)]
+    corpus = [st for tablet in texts.tablet for st in reviewed(tablet)[0]]
     repo_types = repo_decisive_types(corpus)
 
     summary = {
@@ -787,7 +804,8 @@ def main() -> int:
         "rounds": [],
         "hashes": {name: sha256(HERE / "tools" / f"{name}.py")
                    for name in ("statements", "cal", "sky", "eclipses")}
-        | {"audit_held_out": sha256(Path(__file__))},
+        | {"audit_held_out": sha256(Path(__file__)),
+           "reviewed_clauses": sha256(clauses.REVIEWED)},
     }
     tests = {spec["round"]: population[population.volume.isin(spec["test"])]
              for spec in ROUNDS}

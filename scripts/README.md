@@ -18,10 +18,10 @@ Run each script from the repository root as `python scripts/<package>/<name>.py`
 source/     build_corpus  classify_evidence  build_cohort  build_adart_iv_corpus
 physical/   build_calendar  build_normal_stars  build_eclipses
 audit/      build_parser_clauses  build_benchmark
-inference/  date_all  date_adart_iv
-audit/      score_benchmark  rank_candidates  audit_sensitivity  audit_adart_iv_corrigenda  audit_era_readings
-physical/   appulse_residuals  calibrate_visibility  validate_zodiac  check_calendar_against_sky
 agent/      rescore_model_review  compare_models
+inference/  date_all  date_adart_iv
+audit/      score_benchmark  rank_candidates  compare_clause_sets  audit_sensitivity  audit_adart_iv_corrigenda  audit_era_readings
+physical/   appulse_residuals  calibrate_visibility  validate_zodiac  check_calendar_against_sky
 paper/      build_paper_counts  build_adart_iv_table
 audit/      audit_held_out --run-held-out
 source/     build_adart_iv_addenda
@@ -38,9 +38,9 @@ Scripts outside that order:
   - `source/ocr_adart_iv_mathpix.py` reads the ADART IV scan with Mathpix.
   - `physical/ocr_parker_dubberstein.py` reads the Parker and Dubberstein scan with Tesseract.
   - `physical/build_ephemeris.py` needs the JPL DE441 kernel.
-  - `agent/model_review.py` runs the paid language-model review.
+  - `agent/model_review.py` runs the paid language-model review, of ADART I to III and, with `--scope adart-iv`, of ADART IV.
   - `paper/build_bibliography.py` writes `paper/Bibliography.bib` from bibliographic APIs.
-- **Need the ADART IV text.** `source/build_adart_iv_corpus.py`, `source/build_adart_iv_addenda.py`, `inference/date_adart_iv.py`, `inference/date_adart_iv_addenda.py` and `audit/score_adart_iv_addenda.py` read the full ADART IV text, which stays local (`data/README.md`). Their outputs are committed.
+- **Need the ADART IV text.** `source/build_adart_iv_corpus.py`, `source/build_adart_iv_addenda.py`, `agent/rescore_model_review.py --scope adart-iv`, `inference/date_adart_iv.py`, `inference/date_adart_iv_addenda.py` and `audit/score_adart_iv_addenda.py` read the full ADART IV text or the caches of its review, which stay local (`data/README.md`). Their outputs are committed.
 - **Optional, after the rebuild.** `site/build_site_data.py` writes the data of the site in `docs/`. The paper does not need it.
 - **Interactive.** `audit/date_tablet.py` and `audit/diagnose_candidate.py` trace one record. `agent/mcp_server.py` serves the read-only tools to any MCP client.
 - **Imported, not run.** `physical/eclipse_catalog.py`, `agent/blind_case_tools.py`, `agent/llm.py` and `site/cuneiform.py`.

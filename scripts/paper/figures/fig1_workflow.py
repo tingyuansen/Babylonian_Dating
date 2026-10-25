@@ -6,7 +6,7 @@ this module computes, so each number follows from what the figure shows.
 
 Step 1 reads a passage of the translation into a clause with its fields and its
 two marks. The rule-based parser makes the clause, and the language model checks
-it. Step 2 gives eight clauses a verdict in eight of the 701 candidate years.
+it and adds the clauses that the parser missed. Step 2 gives eight clauses a verdict in eight of the 701 candidate years.
 The bits of each row follow from that row by Eq. 1. The tier is set by type and
 not by bits, so one supporting row carries 2.0 bits and one decisive row 0.2
 bits. All decisive rows agree in one column only, the year T.
@@ -327,7 +327,8 @@ def panel_read(ax, x0, x1):
     for i, y in enumerate((2.45, 2.33)):
         word_bars(ax, px0, px1, y, seed=30 + i)
     text(ax, cx, 2.20, "passage", size=SMALL, color=fs.GREY, ha="center")
-    # The parser makes the clause, and the language model checks it.
+    # The parser makes the clause, and the language model checks it and adds
+    # the clauses that the parser missed.
     arrow(ax, (cx, 2.12), (cx, 1.97))
     box(ax, px0, 1.73, px1 - px0, 0.24, "white", fs.INK, 0.8, radius=0.03)
     text(ax, cx, 1.85, "rule-based parser", ha="center")
@@ -353,7 +354,8 @@ def panel_read(ax, x0, x1):
     text(ax, lmc, 1.85, "language\nmodel", ha="center", va="center", linespacing=1.25)
     line(ax, [lmc, lmc], [1.69, 1.18], linestyle=DASHED)
     arrow(ax, (lmc, 1.18), (px0, 1.18), linestyle=DASHED)
-    text(ax, lmc + 0.06, 1.25, "checks", size=SMALL, color=fs.GREY)
+    text(ax, lmc + 0.06, 1.37, "checks,", size=SMALL, color=fs.GREY)
+    text(ax, lmc + 0.06, 1.25, "adds", size=SMALL, color=fs.GREY)
 
 
 def panel_compute(ax, x0, x1):

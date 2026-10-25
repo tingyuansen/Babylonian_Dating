@@ -53,3 +53,7 @@ data/corpus/adart_iv_tablets.parquet
 data/corpus/adart_iv_lines.parquet
 data/corpus/adart_iv_addenda_tablets.parquet
 data/corpus/adart_iv_addenda_lines.parquet
+# The model review of ADART IV quotes its passages, so its caches stay local too.
+# Its run summary holds only counts and costs.
+data/clauses/model_review_gpt-6-luna-2026-09-22_adart_iv/*
+!data/clauses/model_review_gpt-6-luna-2026-09-22_adart_iv/run_summary.json

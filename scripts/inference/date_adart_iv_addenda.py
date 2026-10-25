@@ -3,8 +3,8 @@
 
 This is the dating step of the frozen test that
 data/benchmark/addenda_registration.json registers. It runs main() of
-date_adart_iv.py unchanged, with its input and output paths set to the
-addenda. Each text is therefore dated by the same call as an undated entry:
+date_adart_iv.py with its input and output paths set to the addenda, and with
+the parser's clauses, as the rules of the registration read them. Each text is therefore dated by the same call as an undated entry:
 the astronomy pass reads only the identifier and the blind astronomy text of
 build_adart_iv_addenda.py, and the check of stated years runs after it. This
 script reads no published year.
@@ -31,6 +31,7 @@ SUMMARY = HERE / "data" / "results" / "adart_iv_addenda_summary.json"
 
 def main() -> int:
     run.SOURCE, run.OUT, run.SUMMARY = SOURCE, OUT, SUMMARY
+    run.CLAUSES = None
     return run.main()
 
 

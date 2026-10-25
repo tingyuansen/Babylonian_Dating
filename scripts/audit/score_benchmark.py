@@ -38,7 +38,7 @@ import pandas as pd
 HERE = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(HERE))
 
-from tools import cal, statements as S   # noqa: E402
+from tools import cal, clauses, statements as S   # noqa: E402
 from tools import years as yr  # noqa: E402
 
 
@@ -73,9 +73,10 @@ def main() -> int:
     eligible_ids = set(frozen_population.loc[
         frozen_population.tool_benchmark_eligible].index)
     frozen_active = frozen_population.tool_year_bearing.to_dict()
+    reviewed = clauses.load(clauses.REVIEWED)
     cand = []
     for _, r in tb.iterrows():
-        sts = S.extract(r.text)
+        sts = reviewed.get(r.tablet, [])
         usable = [s for s in sts
                   if not (s.kind == "eclipse" and s.omitted)]
         # Population membership was frozen before this harnessing cycle.  Use

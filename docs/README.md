@@ -1,6 +1,6 @@
 # docs
 
-This folder is the companion site of the paper, for GitHub Pages. It shows, one record at a time, how the astronomy of a diary narrows its date. For each record of ADART I to III, it shows the tablet lines in translation and in cuneiform signs, the clauses with the checks of the language model, the verdict of each clause in each of the 701 candidate years, the clocks and bits of each year, the strict set and the ranking. The page computes no verdict. It draws only the data that `scripts/site/build_site_data.py` writes from the committed results.
+This folder is the companion site of the paper, for GitHub Pages. It shows, one record at a time, how the astronomy of a diary narrows its date. For each record of ADART I to III, it shows the tablet lines in translation and in cuneiform signs, the clauses that the parser reads and the language model checks and adds, the verdict of each clause in each of the 701 candidate years, the clocks and bits of each year, the strict set and the ranking. The page computes no verdict. It draws only the data that `scripts/site/build_site_data.py` writes from the committed results.
 
 | File | What it holds |
 |---|---|

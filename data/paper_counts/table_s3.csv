@@ -1,8 +1,8 @@
 Observation type,Clauses,Median years allowed,Bits,Decisive %,Testable across candidate years,Median years allowed unrounded,Decisive % unrounded,kind
 Moon or planet measured against a Normal Star,2062,548,0.4,1,1330,547.5,1.0526315789473684,appulse
-Planet in a named sign,683,123,2.5,40,659,123.0,39.60546282245827,in_sign
-Moon measured against a planet,357,84,3.1,18,219,84.0,17.80821917808219,planet_appulse
-First appearance in a sign,229,436,0.7,16,229,436.0,16.157205240174672,first_app
+Planet in a named sign,683,123,2.5,35,659,123.0,35.053110773899846,in_sign
+Moon measured against a planet,357,84,3.1,19,219,84.0,18.72146118721461,planet_appulse
+First appearance in a sign,229,436,0.7,15,229,436.0,15.283842794759824,first_app
 Last appearance in a sign,222,534,0.4,0,222,533.5,0.0,last_app
 Planet enters a sign,101,460,0.6,16,101,460.0,15.841584158415841,entry
 Eclipse of a stated type,95,19,5.2,60,5,19.0,60.0,eclipse
@@ -11,4 +11,4 @@ Solstice or equinox on a day,54,180,2.0,26,35,180.0,25.71428571428571,season
 Sirius date on a day,41,150,2.2,41,27,150.0,40.74074074074074,sirius
 Acronychal rising on a day,40,32,4.5,32,19,32.0,31.57894736842105,acronychal
 Station measured against a Normal Star,31,2,8.5,0,29,2.0,0.0,station_appulse
-Planet stations in a sign,17,51,3.8,59,17,51.0,58.82352941176471,station
+Planet stations in a sign,17,51,3.8,53,17,51.0,52.94117647058824,station

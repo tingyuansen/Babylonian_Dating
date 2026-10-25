@@ -2,7 +2,8 @@
 """Run prospective, answer-hidden dating over the ADART IV undated corpus.
 
 The astronomy pass receives only ``astronomy_text`` produced by
-``build_adart_iv_corpus.py``. Museum numbers, page order, editorial dating
+``build_adart_iv_corpus.py``, and the reviewed clauses of that text in
+``data/clauses/adart_iv_reviewed_clauses.parquet``. Museum numbers, page order, editorial dating
 discussion, and source-internal ruler/year language are joined or considered
 only after the astronomical ordering is frozen. The output therefore reports
 candidate support and abstention coverage, not accuracy: the section has no
@@ -23,12 +24,14 @@ HERE = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(HERE))
 
 from scripts.inference.date_all import add_chronology, astronomy_one  # noqa: E402
-from tools import cal  # noqa: E402
+from tools import cal, clauses  # noqa: E402
 from tools import years as yr  # noqa: E402
 
 SOURCE = HERE / "data" / "corpus" / "adart_iv_tablets.parquet"
 OUT = HERE / "data" / "results" / "adart_iv_dates.parquet"
 SUMMARY = HERE / "data" / "results" / "adart_iv_summary.json"
+# The reviewed clauses of the entries. None dates with the parser's clauses.
+CLAUSES = clauses.ADART_IV_REVIEWED
 
 
 def sha256(path: Path) -> str:
@@ -47,10 +50,12 @@ def main() -> int:
     # chronology, and every possible reference-year field.
     inference = pd.read_parquet(SOURCE, columns=["tablet", "astronomy_text"])
     years = [int(year) for year in cal.candidate_years()]
+    reviewed = clauses.load(CLAUSES) if CLAUSES is not None else None
     rows = []
     for number, row in enumerate(inference.itertuples(index=False), start=1):
         rows.append(astronomy_one(
-            row.tablet, row.astronomy_text, years, has_transliteration=True))
+            row.tablet, row.astronomy_text, years, has_transliteration=True,
+            statements=reviewed.get(row.tablet, []) if reviewed is not None else None))
         if number % 100 == 0:
             print(f"  astronomy {number}/{len(inference)}")
     result = pd.DataFrame(rows)
@@ -74,7 +79,9 @@ def main() -> int:
         lambda value: len(re.split(r"\s*\+\s*", value)) if value.strip() else 0)
     result = result.merge(post, on="tablet", how="left", validate="one_to_one")
 
-    result["method_version"] = "adart-iv-prospective-v3-local-eclipses"
+    # The parser clauses alone are the method of the frozen addenda test.
+    result["method_version"] = ("adart-iv-prospective-v4-reviewed-clauses" if CLAUSES is not None
+                                else "adart-iv-prospective-v3-local-eclipses")
     provenance = {
         "corpus_sha256": SOURCE,
         "date_adart_iv_sha256": Path(__file__),
@@ -90,6 +97,8 @@ def main() -> int:
         "eclipse_data_sha256": HERE / "data" / "physical" / "eclipses.parquet",
         "normal_stars_sha256": HERE / "data" / "physical" / "normal_stars.parquet",
     }
+    if CLAUSES is not None:
+        provenance["clauses_sha256"] = CLAUSES
     for column, path in provenance.items():
         result[column] = sha256(path)
     OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -136,7 +145,8 @@ def main() -> int:
         "active_median_first_three_group_union": (
             float(active.top_three_evidence_groups_size.median())
             if len(active) else None),
-        "inputs": {str(SOURCE.relative_to(HERE)): sha256(SOURCE)},
+        "inputs": {str(path.relative_to(HERE)): sha256(path)
+                   for path in (SOURCE, CLAUSES) if path is not None},
         "outputs": {str(OUT.relative_to(HERE)): sha256(OUT)},
     }
     SUMMARY.write_text(
