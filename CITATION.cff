@@ -1,0 +1,40 @@
+cff-version: 1.2.0
+message: "If you use this code or data, please cite the paper."
+title: "Babylonian Dating"
+abstract: "Code, data and results for the automated, auditable dating of the Babylonian Astronomical Diaries with language models and astronomical tools."
+type: software
+license: MIT
+repository-code: "https://github.com/tingyuansen/Babylonian_Dating"
+url: "https://tingyuansen.github.io/Babylonian_Dating/"
+authors:
+  - family-names: "Carrit Delgado Pinheiro"
+    given-names: "Lucas"
+  - family-names: "Ting"
+    given-names: "Yuan-Sen"
+  - family-names: "Clindaniel"
+    given-names: "Jon"
+  - family-names: "Li"
+    given-names: "Lu"
+    orcid: "https://orcid.org/0000-0002-0880-3380"
+  - family-names: "Liang"
+    given-names: "Yingbin"
+  - family-names: "Shroff"
+    given-names: "Ness"
+preferred-citation:
+  type: article
+  title: "Automated, auditable dating of the Babylonian Astronomical Diaries with language models and astronomical tools"
+  year: 2026
+  authors:
+    - family-names: "Carrit Delgado Pinheiro"
+      given-names: "Lucas"
+    - family-names: "Ting"
+      given-names: "Yuan-Sen"
+    - family-names: "Clindaniel"
+      given-names: "Jon"
+    - family-names: "Li"
+      given-names: "Lu"
+      orcid: "https://orcid.org/0000-0002-0880-3380"
+    - family-names: "Liang"
+      given-names: "Yingbin"
+    - family-names: "Shroff"
+      given-names: "Ness"

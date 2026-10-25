@@ -1,0 +1,33 @@
+{
+  "astronomy_input_lines": 1116,
+  "diary_numbers_without_a_heading_on_both_pages": 1,
+  "editorial_lines_excluded": 81,
+  "ocr_corrections": "data/source/adart_iv/ocr_corrections.csv",
+  "ocr_corrections_applied": 0,
+  "ocr_corrections_sha256": "4a4897f67f63af4019c042387f00559a46cae03c8c01009f4bddcc2b3b3fb193",
+  "ocr_lines": "data/source/adart_iv/mathpix_lines.json",
+  "ocr_lines_sha256": "4b60c8a9876566996d23ce18e9449177e1f48a114447cfc9e1552a4537a6bc31",
+  "outputs": {
+    "data/benchmark/addenda_published_years.parquet": "64dbf8566763e3496b4388d1ce29debd689ab04622d25edc7f021a8cac34fec9",
+    "data/corpus/adart_iv_addenda_lines.parquet": "564b03836886f49fa50c388c1e1fe85ab592d4583f943a6da74335a8a8a43e7d",
+    "data/corpus/adart_iv_addenda_tablets.parquet": "aa183f991a2c2b59a8f73c4fd3ea7880383bf59fe9c6865765a34c3c42dd556d"
+  },
+  "pdf_pages": [
+    88,
+    179
+  ],
+  "printed_pages": [
+    1,
+    92
+  ],
+  "schema": "adart-iv-addenda-corpus-v1",
+  "section": "ADART IV Dated Diaries: Addenda only",
+  "source_pdf": "data/source/adart_iv/scan.pdf",
+  "source_pdf_sha256": "5c2ca092f1f9a0c4a9a0394b9cc610615a7a53a8220a3b5b0fbaf289512f965c",
+  "texts": 52,
+  "texts_truncated_at_a_foreign_heading": 0,
+  "texts_with_internal_chronology": 20,
+  "texts_with_translation": 52,
+  "texts_without_translation": [],
+  "translation_lines": 1142
+}

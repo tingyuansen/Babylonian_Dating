@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How the sky dates a tablet</title>
+<meta name="description" content="How the recorded sky narrows the date of a Babylonian Astronomical Diary: the scribe's text, the planets as clocks, and the years that remain, record by record.">
+<link rel="icon" href="img/sky/leo.webp">
+<meta property="og:type" content="website">
+<meta property="og:title" content="How the sky dates a tablet">
+<meta property="og:description" content="Follow a Babylonian Astronomical Diary from its cuneiform signs to the years that its sky allows.">
+<meta property="og:url" content="https://tingyuansen.github.io/Babylonian_Dating/">
+<meta property="og:image" content="https://tingyuansen.github.io/Babylonian_Dating/img/scenes/share.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+DW+Pica:ital@0;1&family=Noto+Sans+Cuneiform&family=Roboto:ital,wght@0,300..700;1,400&display=swap">
+<link rel="stylesheet" href="site.css?v=22">
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+</head>
+<body>
+<!--
+  Every value on this page comes from data/*.json, which scripts/site/build_site_data.py
+  writes from the committed results of the repository. The page computes no verdict.
+-->
+<div class="progress" aria-hidden="true"><div class="progress-bar"></div></div>
+
+<header class="hero">
+  <div class="hero-inner">
+    <p class="eyebrow">The Babylonian Astronomical Diaries <span class="badge">ADART I&ndash;III &middot; 417 records</span></p>
+    <h1>How the <em>sky</em> dates a tablet</h1>
+    <p class="dek">For nearly six centuries, scribes in Babylon wrote down the night sky. Many of their tablets have lost
+      their date. Mars, Jupiter and Saturn move on their own cycles, as the hands of a clock do. Lunar eclipses and the
+      solar year do too. These five clocks decide which years stay. The other reports, such as the Moon against the stars,
+      then put those years in order.</p>
+    <div class="cta">
+      <a class="btn primary" href="#ch-text">Follow a tablet</a>
+      <button class="btn ghost open-chooser" type="button">Choose a tablet</button>
+    </div>
+    <p class="byline">A companion to <em>Automated, auditable dating of the Babylonian Astronomical Diaries with language
+      models and astronomical tools</em>, by L. Carrit Delgado Pinheiro, Y.-S. Ting, J. Clindaniel, L. Li, Y. Liang and
+      N. Shroff.</p>
+  </div>
+</header>
+
+<nav class="chooser-bar" aria-label="Choose a tablet">
+  <div class="chooser">
+    <img class="chooser-icon" src="img/sky/leo.webp" alt="">
+    <label class="chooser-label" for="chooser-input">Tablet</label>
+    <div class="combo">
+      <input id="chooser-input" type="text" autocomplete="off" spellcheck="false" role="combobox"
+             aria-expanded="false" aria-controls="chooser-list" placeholder="Record or museum number">
+      <span class="combo-swatch" aria-hidden="true"></span>
+      <ul id="chooser-list" class="combo-list" role="listbox" hidden></ul>
+    </div>
+    <button type="button" class="random" aria-label="A random tablet">&#x21bb; Random</button>
+  </div>
+</nav>
+
+<main>
+<section class="intro">
+  <div class="intro-grid">
+    <div class="intro-text">
+      <p>The diaries report the Moon, the planets, eclipses and the seasons, night after night. The years in which such
+        a report is true repeat on the cycles of the sky. For example, Jupiter comes back to the same sign about every
+        twelve years. Thus the sky alone can narrow the date of a broken tablet that names a few such events.</p>
+      <p>Choose a tablet, or keep the tablet that the page shows. The page follows it in three steps: the words of its
+        scribe, each planet in it as a clock, and the years that all its clocks allow. A rule-based parser reads the
+        text, and a language model checks the parser. Astronomical tools and fixed rules then give the years. Each value
+        comes from the open results of the paper.</p>
+    </div>
+    <div class="zodiac-ring" aria-hidden="true"><div class="orbit"></div><div class="wheel"></div>
+      <div class="core"><img src="img/sky/sun.webp" alt=""></div></div>
+  </div>
+</section>
+
+<header class="chapter" id="ch-text" style="--banner:url(img/scenes/ch1.webp)">
+  <div class="chapter-inner">
+    <span class="numeral" aria-hidden="true">I</span>
+    <div>
+      <p class="chapter-kicker">The scribe</p>
+      <h2>What the tablet says</h2>
+      <p class="chapter-dek rec-line"></p>
+    </div>
+  </div>
+</header>
+<section class="scrolly" id="s-text">
+  <div class="steps">
+    <div class="step"><div class="museum"></div><p class="t-intro"></p></div>
+    <div class="step"><p class="t-clauses"></p></div>
+    <div class="step"><p class="t-decisive"></p></div>
+    <div class="step"><p class="t-model"></p><p class="t-model-2 small"></p></div>
+  </div>
+  <div class="sticky"><figure class="graphic" aria-label="The translation of the tablet"></figure></div>
+</section>
+
+<header class="chapter" id="ch-clock" style="--banner:url(img/scenes/ch2.webp)">
+  <div class="chapter-inner">
+    <span class="numeral" aria-hidden="true">II</span>
+    <div>
+      <p class="chapter-kicker">The clocks</p>
+      <h2>The clocks in the sky</h2>
+      <p class="chapter-dek">A planet that a scribe saw in a sign in a month agrees with each year in which the planet stood there in that month. On a dial, these years line up. When the dial unwinds onto a line of years, they become a row of marks.</p>
+    </div>
+  </div>
+</header>
+<section class="scrolly" id="s-clock">
+  <div class="steps"></div>
+  <div class="sticky"><figure class="graphic" aria-label="Each decisive clause as a dial of candidate years"></figure></div>
+</section>
+
+<header class="chapter" id="ch-sum" style="--banner:url(img/scenes/ch3.webp)">
+  <div class="chapter-inner">
+    <span class="numeral" aria-hidden="true">III</span>
+    <div>
+      <p class="chapter-kicker">The year</p>
+      <h2>The clocks add up</h2>
+      <p class="chapter-dek">Each decisive clause adds weight to the years that it agrees with. The rules also count the
+        clocks that agree with each year. The years that no other year beats stay.</p>
+    </div>
+  </div>
+</header>
+<section class="scrolly" id="s-sum">
+  <div class="steps">
+    <div class="step"><p class="u-bars"></p></div>
+    <div class="step"><p class="u-clocks"></p></div>
+    <div class="step"><p class="u-strict"></p></div>
+    <div class="step"><p class="u-ladder"></p></div>
+    <div class="step"><p class="u-support"></p></div>
+    <div class="step"><p class="u-reveal"></p></div>
+  </div>
+  <div class="sticky"><figure class="graphic" aria-label="Bits of each candidate year"></figure></div>
+</section>
+
+<section class="prose outro">
+  <h2>Check any year</h2>
+  <p>In the last chart, select any year to see the verdict of each clause in that year. The tools also keep a written
+    reason for each verdict in the first 12 years of the ranking, in the years that stay when they are 40 or fewer, and
+    in the published year. Choose another tablet at the top, and the page shows the same steps for it.</p>
+  <h2>Words on this page</h2>
+  <dl class="glossary">
+    <dt>Clause</dt><dd>One claim about the sky, as the parser reads it from the translation.</dd>
+    <dt>Sign</dt><dd>One of the twelve parts of the zodiac, each 30° wide. The scribes put the Moon and the planets in them.</dd>
+    <dt>Station</dt><dd>The time when a planet seems to stop against the stars, before it moves in the other direction.</dd>
+    <dt>Acronychal rising</dt><dd>The rising of a planet at sunset, near the time when it stands opposite the Sun.</dd>
+    <dt>Clock</dt><dd>An event that repeats on its own cycle: Mars, Jupiter, Saturn, lunar eclipses and the solar year.</dd>
+    <dt>Bit</dt><dd>The unit of weight. A clause that agrees with half of the years that the tools can test adds 1 bit.</dd>
+    <dt>Decisive and supporting</dt><dd>Decisive clauses decide which years stay. Supporting clauses only put the years in order.</dd>
+    <dt>The years that stay</dt><dd>The years that no other year beats on clocks and decisive weight. The paper calls them the strict set.</dd>
+  </dl>
+  <h2>Cite</h2>
+  <p>L. Carrit Delgado Pinheiro, Y.-S. Ting, J. Clindaniel, L. Li, Y. Liang and N. Shroff, <em>Automated, auditable
+    dating of the Babylonian Astronomical Diaries with language models and astronomical tools</em> (2026).</p>
+  <h2>Data and code</h2>
+  <p class="data-links"></p>
+  <p>The code is under the MIT License, and the data and figures under CC BY 4.0. The translations of ADART I to
+    III come from Astronomical Diaries Digital (ADsD), released under CC0. Planet positions come from the
+    Development Ephemeris DE441 of the Jet Propulsion Laboratory.</p>
+  <p class="credit">The cuneiform signs come from the ORACC Sign List (CC0), and the page sets them in Noto Sans
+    Cuneiform. We made the paintings, the parchment, the drawings of the signs, the museums and the emblems of the
+    periods of rule, and the pictures of the planets with Gemini 3 Pro Image. They are illustrations, not ancient
+    objects or photographs.</p>
+</section>
+</main>
+
+<aside class="provenance-panel" hidden aria-live="polite"></aside>
+<div class="tooltip" role="tooltip"></div>
+<script src="site.js?v=33"></script>
+</body>
+</html>

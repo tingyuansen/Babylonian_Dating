@@ -1,0 +1,14 @@
+Observation type,Clauses,Testable,Agree,Contradict,Untestable,Not evaluated,Agreement %,kind
+Normal-Star relation,2062,1330,1224,106,732,0,92.0,appulse
+Moon-planet relation,357,219,203,16,138,0,92.7,planet_appulse
+Station-star relation,31,29,14,15,2,0,48.3,station_appulse
+Planet-planet relation,78,32,27,5,46,0,84.4,planet_planet_appulse
+Planet in sign,683,658,643,15,25,0,97.7,in_sign
+Last appearance sign,222,220,207,13,2,0,94.1,last_app
+Sign entry,101,101,98,3,0,0,97.0,entry
+Typed eclipse,95,5,4,1,90,0,80.0,eclipse
+Solstice or equinox,54,35,33,2,19,0,94.3,season
+Sirius scheme date,41,27,27,0,14,0,100.0,sirius
+Acronychal rising,40,19,18,1,21,0,94.7,acronychal
+First appearance sign,229,228,219,9,1,0,96.1,first_app
+Station in sign,17,17,15,2,0,0,88.2,station

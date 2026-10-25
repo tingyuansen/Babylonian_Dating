@@ -1,0 +1,55 @@
+__pycache__/
+*.pyc
+.DS_Store
+
+# A launcher for an unrelated application that lands here when it is run from
+# this directory. Nothing in the project reads it.
+.dsh-app/
+
+# A local Python environment, if one is made inside the checkout.
+.venv/
+venv/
+
+# Credentials. scripts/agent/llm.py reads LITELLM_API_KEY from here or ~/.env.
+.env
+
+# The book scans are under copyright and never enter the repository.
+# data/README.md gives the SHA-256 of each one.
+data/source/**/*.pdf
+
+# Local settings and worktrees of agent sessions.
+.claude/
+
+# Editor, notebook and test caches.
+.ipynb_checkpoints/
+.vscode/
+.idea/
+*.swp
+.pytest_cache/
+
+# Other credential files.
+.env.*
+
+# LaTeX intermediates, if the paper is built inside paper/.
+paper/*.aux
+paper/*.log
+paper/*.bbl
+paper/*.blg
+paper/*.out
+
+# Book scans in other formats, and the old folder of reference books.
+data/source/**/*.djvu
+data/source/**/*.tif
+data/source/**/*.tiff
+/reference/
+
+# The paper is kept outside the public repository.
+/paper/
+
+# The full text read from ADART IV stays local. data/README.md gives the
+# SHA-256 of each file, and the public tree keeps the extracted statements.
+data/source/adart_iv/mathpix_lines.json
+data/corpus/adart_iv_tablets.parquet
+data/corpus/adart_iv_lines.parquet
+data/corpus/adart_iv_addenda_tablets.parquet
+data/corpus/adart_iv_addenda_lines.parquet

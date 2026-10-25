@@ -1,0 +1,17 @@
+{
+  "source": "https://oracc.org/adsd",
+  "licence": "CC0 1.0",
+  "fetched_utc": "2026-08-13T20:36:01+00:00",
+  "files": {
+    "adsd": {
+      "bytes": 9129830,
+      "sha256": "5f0ff8034801d9314c631f747fd06f7f5ad22d876bd031b1d69f079e8dbb40d4",
+      "tls_verified": false
+    },
+    "adsd-adart1": {
+      "bytes": 5068252,
+      "sha256": "ee763d3d0790ea78aa6d27261180cddf6840ea24cea7466c3d1c4e52efab4391",
+      "tls_verified": false
+    }
+  }
+}

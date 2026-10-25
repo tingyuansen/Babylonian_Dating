@@ -1,0 +1,51 @@
+{
+  "active_decisive_facts": 20,
+  "active_median_first_group_size": 45.5,
+  "active_median_first_three_group_union": 591.0,
+  "active_median_safety_set_size": 701.0,
+  "active_median_strict_set_size": 64.5,
+  "active_singleton_first_physical_group": 0,
+  "all_rows_singleton_first_group_diagnostic": 1,
+  "astronomy_bases": {
+    "astronomical_frontier": 14,
+    "no_recognized_evidence": 10,
+    "supporting_only": 28
+  },
+  "astronomy_claims": {
+    "decline": 38,
+    "ranked": 14
+  },
+  "candidate_babylonian_year_labels": [
+    "626 BCE",
+    "AD 75"
+  ],
+  "candidate_babylonian_years_astro": [
+    -625,
+    75
+  ],
+  "candidate_range_limit": "Candidate inference spans the complete implemented Parker--Dubberstein 1956 interval, 626 BCE through AD 75. The dated diary series begins earlier, so claims do not cover 652--627 BCE.",
+  "candidate_year_count": 701,
+  "chronology_relations": {
+    "absent": 51,
+    "lookup_only": 1
+  },
+  "combined_claims": {
+    "decline": 38,
+    "ranked": 14
+  },
+  "entries": 52,
+  "entries_with_at_least_three_facts": 25,
+  "entries_with_decisive_astronomy": 14,
+  "entries_with_recognized_astronomical_facts": 42,
+  "entries_with_translation": 52,
+  "inputs": {
+    "data/corpus/adart_iv_addenda_tablets.parquet": "aa183f991a2c2b59a8f73c4fd3ea7880383bf59fe9c6865765a34c3c42dd556d"
+  },
+  "interpretation": "Prospective candidate support and coverage; no accuracy is implied without independent reference years",
+  "outputs": {
+    "data/results/adart_iv_addenda_dates.parquet": "4a7b26e7d00b1b26b046a3994057940d2ecca1ae34babad88e2f956dbfe7d6b9"
+  },
+  "recognized_facts": 147,
+  "schema": "adart-iv-prospective-summary-v1",
+  "unique_strict_year": 0
+}

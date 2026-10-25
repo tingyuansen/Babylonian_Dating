@@ -1,0 +1,14 @@
+numpy>=1.24
+pandas>=2.0
+scipy>=1.10
+pyarrow>=12
+jplephem>=2.18
+requests>=2.31
+pyswisseph==2.10.3.2
+matplotlib>=3.8
+# Only for a new paid language-model review (scripts/agent/model_review.py).
+# The committed caches rebuild every reported table without it.
+openai>=1.40
+# Only for the MCP server, scripts/agent/mcp_server.py, and its test.
+# Version 2 removed mcp.server.fastmcp, which the server imports.
+mcp>=1.10,<2

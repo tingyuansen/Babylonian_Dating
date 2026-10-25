@@ -1,0 +1,87 @@
+{
+  "schema": "adart-scope-input-manifest-v1",
+  "script_sha256": "9135b5c77d4441598ba47df6815e1b9aa49847ec77451d6badfa794238aa7fc9",
+  "inputs": {
+    "data/benchmark/benchmark_records.parquet": {
+      "sha256": "a0646a122e375a3ac28640e66b7ae0422e4232330f1870bb3d8035da0872599e",
+      "bytes": 23068
+    },
+    "data/benchmark/benchmark_results.parquet": {
+      "sha256": "d200d85fedd011ddda79223ee5990bbc8e36588dd219a8c14f142b9174a0be61",
+      "bytes": 155370
+    },
+    "data/clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_bits.parquet": {
+      "sha256": "6d322eec93ca1b688a9b400327a0a54c362eea841f88752559259073007a778c",
+      "bytes": 320674
+    },
+    "data/clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_verdicts.parquet": {
+      "sha256": "7a4bdf627f4f43aa1ac7c091a6e23d5f526e4d77f8cf57b1636b89fc20bb485b",
+      "bytes": 33728
+    },
+    "data/clauses/parser_clauses.parquet": {
+      "sha256": "a97e4064bd1bab4a876787d1e37e4dfd56700224c294f8a8c1bd3d7dc444f05a",
+      "bytes": 481282
+    },
+    "data/corpus/lines.parquet": {
+      "sha256": "3adfe180ba586b8363ad71344d75665c42d29ce8b65d702f37cb11a0fcb54dfa",
+      "bytes": 1054923
+    },
+    "data/corpus/tablets.parquet": {
+      "sha256": "6a8da35d7b882b5820eae71c89af91bf5385e4745bb788c92c46a8f6faf3422a",
+      "bytes": 442788
+    },
+    "data/physical/calendar.parquet": {
+      "sha256": "43c0df8e49e07188c6cb3f47c3129c9c14d56c10ab630a1c6c6e8cba9f503fe7",
+      "bytes": 26881
+    },
+    "data/physical/eclipses.parquet": {
+      "sha256": "7349a1478d2cfee377714baf0f58cc61215138cfe1eedce63a14f890922c1b17",
+      "bytes": 371496
+    },
+    "data/physical/ephemeris.parquet": {
+      "sha256": "e5ca9ea81e1bcf457f8d9e1517f983f812357ddd5a82ebe387b4dfa6f76b9a78",
+      "bytes": 72735319
+    },
+    "data/physical/normal_stars.parquet": {
+      "sha256": "9876c5442762c3c84931dc6c0a771771d3945ba3170b936ed02a47d49f071ea2",
+      "bytes": 4228
+    },
+    "data/results/tablet_dates.parquet": {
+      "sha256": "55f546a61d5682618a38a85e6f5495d57aef0bace5e4045e8e86e5fe1147ed94",
+      "bytes": 2928186
+    },
+    "scripts/agent/model_review.py": {
+      "sha256": "45b73caa6579bcf6ef453acd1d73a4cc65e8d57b7d9be4567b06ad9a0f99ac45",
+      "bytes": 244673
+    },
+    "scripts/inference/date_all.py": {
+      "sha256": "2c05af63dd7fb568e98c8950f60a5a43799a1d27d68e0edcfd74774027753a47",
+      "bytes": 17299
+    },
+    "skills/dating_protocol.md": {
+      "sha256": "744b2e34ab6dae706725372a79f68e227929c178477ba322224df283f94e2bfd",
+      "bytes": 10590
+    },
+    "tools/cal.py": {
+      "sha256": "370231c111606692b34da9473c1acb42b81d41abfef422dbd6a5da3543f37d66",
+      "bytes": 12404
+    },
+    "tools/eclipses.py": {
+      "sha256": "c88938b300ee6067a0a8263796281242c043b78ccb9f59f0188feb1a59c96bb0",
+      "bytes": 4764
+    },
+    "tools/eras.py": {
+      "sha256": "9d2c14a200fa5d08044004f984be2931e18230e8eb3d956a3df2b51db3277c12",
+      "bytes": 5077
+    },
+    "tools/sky.py": {
+      "sha256": "6578ceb3126ac83d13cbb3cc4ffcddbc2bd12bf8a7ebbe8aa84ab6c2ada98b65",
+      "bytes": 22083
+    },
+    "tools/statements.py": {
+      "sha256": "83d402f06d98f76357235254352d739303c885f4d580ad4a1a7c828d115eb8d6",
+      "bytes": 91084
+    }
+  },
+  "note": "Hashes identify the saved inputs. No model responses or API keys are included."
+}

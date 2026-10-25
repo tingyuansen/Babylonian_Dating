@@ -1,0 +1,59 @@
+{
+  "gpt-6-luna-2026-09-22": {
+    "records": 10,
+    "calls": 945,
+    "cost_usd": 0.25,
+    "parser_clauses": 235,
+    "modified": 6,
+    "dropped": 0,
+    "added": 69,
+    "added_at_published_year": {
+      "agree": 51,
+      "contradict": 7,
+      "untestable": 11
+    },
+    "modified_at_published_year": {
+      "agree": 5,
+      "contradict": 0,
+      "untestable": 1
+    }
+  },
+  "gpt-5.6-luna-2026-07-09": {
+    "records": 10,
+    "calls": 962,
+    "cost_usd": 0.57,
+    "parser_clauses": 235,
+    "modified": 7,
+    "dropped": 0,
+    "added": 76,
+    "added_at_published_year": {
+      "agree": 57,
+      "contradict": 7,
+      "untestable": 12
+    },
+    "modified_at_published_year": {
+      "agree": 6,
+      "contradict": 0,
+      "untestable": 1
+    }
+  },
+  "gpt-5.6-terra-2026-07-09": {
+    "records": 10,
+    "calls": 964,
+    "cost_usd": 4.79,
+    "parser_clauses": 235,
+    "modified": 2,
+    "dropped": 0,
+    "added": 80,
+    "added_at_published_year": {
+      "agree": 57,
+      "contradict": 7,
+      "untestable": 16
+    },
+    "modified_at_published_year": {
+      "agree": 2,
+      "contradict": 0,
+      "untestable": 0
+    }
+  }
+}

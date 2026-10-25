@@ -1,0 +1,21 @@
+{
+  "schema": "adart-iv-addenda-frozen-test-v1",
+  "registered_utc": "2026-10-25T00:51:20+00:00",
+  "frozen_commit": "ac02e3bf5121b02e2d08729f5a9568b0e2f8d640",
+  "frozen_commit_note": "The commit that registers this file adds only this file and its README row.",
+  "question": "How does the frozen system date diaries that carry a published date and that no step of its development used?",
+  "population": "Every entry of the section 'Dated Diaries: Addenda' of ADART IV (printed pages 1 to 92; 46 entries, numbered -477 to -59) that has an English translation. ADsD does not hold these entries, and no rule, setting, test or audit of the system has read them. An entry that ADART IV calls a duplicate or a join of a text in ADART I to III is reported in a separate row.",
+  "published_year": "The astronomical year of the entry number in its heading, so that No. -477 is year -477 (478/477 BCE), as in the benchmark. If the heading gives two years, the entry counts as included when its set holds either year.",
+  "input": "Only the English translation, built and blinded by the rules that scripts/source/build_adart_iv_corpus.py applies to the undated diaries. The entry heading, museum number, date line, ruler and year cells, and the Date and Comments sections leave the input. A line that names a year, a king, a ruler or an era keeps only its parts after the first month heading that name none of these. The table of OCR corrections is not extended for this test.",
+  "dating": "The rules of the frozen commit, applied once, in the way scripts/inference/date_adart_iv.py dates the undated entries. No rule, tolerance, parser rule, tier, window or setting changes after this registration.",
+  "new_code": "Only an input builder for the addenda pages and a scorer. Neither may change how a clause is read, tested or scored.",
+  "scores": [
+    "entries with a translation, and entries with at least one decisive clause",
+    "among entries with a decisive clause: inclusion of the published year in the first group and in the strict set",
+    "median sizes of the first group and of the strict set",
+    "commitments, and how many match the published year",
+    "entries that the system declines"
+  ],
+  "reading": "Descriptive. The rates are reported with their counts beside the benchmark rates (93% first group, 100% strict set). No threshold is set, because the test set is small.",
+  "after_scoring": "An error found in the input builder after scoring is reported, and a corrected run is reported beside the first run, not in its place. No rule of the system changes because of the results."
+}

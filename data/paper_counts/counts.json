@@ -1,0 +1,217 @@
+{
+  "schema": "adart-i-iii-manuscript-scope-v1",
+  "generated_utc": "2026-10-25T02:13:41.249984+00:00",
+  "mode": "filter_and_aggregate_current_saved_outputs",
+  "included_projects": [
+    "adsd/adart1",
+    "adsd/adart2",
+    "adsd/adart3"
+  ],
+  "excluded_projects": [],
+  "candidate_calendar": {
+    "years": 701,
+    "first_astro": -625,
+    "last_astro": 75,
+    "first_label": "626 BCE",
+    "last_label": "AD 75"
+  },
+  "original_inventory": {
+    "catalogue_records": 417,
+    "reviewed_clauses": 4010,
+    "reviewed_records": 321,
+    "deterministic_facts": 3193,
+    "deterministic_records": 316
+  },
+  "adart_i_iii": {
+    "catalogue_records": 417,
+    "records_with_edition_text": 393,
+    "edition_lines": 11356,
+    "reviewed_clauses": 4010,
+    "reviewed_records": 321,
+    "deterministic_facts": 3193,
+    "deterministic_records": 316,
+    "net_clause_inventory_increase": 817,
+    "net_record_coverage_increase": 5
+  },
+  "reviewed_forward": {
+    "agree": 2732,
+    "contradict": 188,
+    "not_evaluated": 0,
+    "untestable": 1090,
+    "clauses": 4010,
+    "records": 321,
+    "testable": 2920,
+    "agreement_percent": 93.56164383561644
+  },
+  "deterministic_forward": {
+    "agree": 2169,
+    "contradict": 144,
+    "not_evaluated": 0,
+    "untestable": 880,
+    "clauses": 3193,
+    "records": 316,
+    "testable": 2313,
+    "agreement_percent": 93.77431906614785
+  },
+  "production": {
+    "records": 417,
+    "astronomy_claims": {
+      "decline": 280,
+      "ranked": 130,
+      "committed": 7
+    },
+    "astronomy_committed_bases": {
+      "independent_astronomy": 6,
+      "secure_lunar_eclipse": 1
+    },
+    "astronomy_decline_bases": {
+      "supporting_only": 179,
+      "unsupported_transliteration": 61,
+      "no_text": 24,
+      "no_recognized_evidence": 16
+    },
+    "chronology_relations": {
+      "absent": 394,
+      "lookup_only": 12,
+      "selects_strict_candidate": 9,
+      "confirms_astronomy": 2
+    },
+    "reference_checked_commitments": 7,
+    "reference_correct_commitments": 7,
+    "method_versions": [
+      "date-all-v6-joint-signs"
+    ],
+    "combined_claims": {
+      "decline": 280,
+      "ranked": 121,
+      "committed": 16
+    },
+    "combined_bases": {
+      "supporting_only": 169,
+      "astronomical_frontier": 121,
+      "unsupported_transliteration": 61,
+      "no_text": 24,
+      "no_recognized_evidence": 14,
+      "chronology_only_not_astronomy": 12,
+      "chronology_adjudicated": 9,
+      "independent_astronomy": 6,
+      "secure_lunar_eclipse": 1
+    }
+  },
+  "existing_benchmark": {
+    "all_eligible": {
+      "records": 179,
+      "truth_in_strict": {
+        "count": 179,
+        "percent": 100.0
+      },
+      "truth_in_safety": {
+        "count": 179,
+        "percent": 100.0
+      },
+      "unique": {
+        "count": 24,
+        "percent": 13.40782122905028
+      },
+      "truth_in_top_evidence_group": {
+        "count": 164,
+        "percent": 91.62011173184358
+      },
+      "display_top1_correct": {
+        "count": 89,
+        "percent": 49.720670391061454
+      },
+      "display_top3_correct": {
+        "count": 101,
+        "percent": 56.42458100558659
+      },
+      "truth_in_first_three_evidence_levels": {
+        "count": 171,
+        "percent": 95.53072625698324
+      },
+      "median_strict_count": 78.0,
+      "median_safety_count": 701.0,
+      "median_top_evidence_group_size": 2.0,
+      "median_top_three_evidence_groups_size": 7.0
+    },
+    "frozen_year_bearing": {
+      "records": 112,
+      "truth_in_strict": {
+        "count": 112,
+        "percent": 100.0
+      },
+      "truth_in_safety": {
+        "count": 112,
+        "percent": 100.0
+      },
+      "unique": {
+        "count": 24,
+        "percent": 21.428571428571427
+      },
+      "truth_in_top_evidence_group": {
+        "count": 104,
+        "percent": 92.85714285714286
+      },
+      "display_top1_correct": {
+        "count": 77,
+        "percent": 68.75
+      },
+      "display_top3_correct": {
+        "count": 89,
+        "percent": 79.46428571428571
+      },
+      "truth_in_first_three_evidence_levels": {
+        "count": 109,
+        "percent": 97.32142857142857
+      },
+      "median_strict_count": 17.5,
+      "median_safety_count": 202.5,
+      "median_top_evidence_group_size": 1.0,
+      "median_top_three_evidence_groups_size": 4.0
+    },
+    "frozen_supporting_only": {
+      "records": 67,
+      "truth_in_strict": {
+        "count": 67,
+        "percent": 100.0
+      },
+      "truth_in_safety": {
+        "count": 67,
+        "percent": 100.0
+      },
+      "unique": {
+        "count": 0,
+        "percent": 0.0
+      },
+      "truth_in_top_evidence_group": {
+        "count": 60,
+        "percent": 89.55223880597015
+      },
+      "display_top1_correct": {
+        "count": 12,
+        "percent": 17.91044776119403
+      },
+      "display_top3_correct": {
+        "count": 12,
+        "percent": 17.91044776119403
+      },
+      "truth_in_first_three_evidence_levels": {
+        "count": 62,
+        "percent": 92.53731343283582
+      },
+      "median_strict_count": 701.0,
+      "median_safety_count": 701.0,
+      "median_top_evidence_group_size": 67.0,
+      "median_top_three_evidence_groups_size": 242.0
+    }
+  },
+  "scope_checks": {
+    "all_scoped_clause_and_production_rows_in_i_iii": true,
+    "reviewed_clause_files_have_identical_keys_and_fields": true,
+    "forward_agreement_counts_unchanged_by_volume_filter": true,
+    "frozen_benchmark_has_no_v_vi_records": true,
+    "candidate_scores_match_current_tools_and_calendar": true,
+    "production_and_deterministic_provenance_match_current_tools": true
+  },
+  "table1_scoring_fingerprint": "e566987630cb4f223ba7754cb4618d44ee2940d7686b933cfcaa130305446c9b"
+}

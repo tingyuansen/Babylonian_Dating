@@ -1,0 +1,20 @@
+{
+  "corrections": 27,
+  "interpretation": "Unincorporated clauses remain a printed-witness/corpus correction ledger; none is silently converted into a scored fact.",
+  "non_label_corrections_changing_current_scores": 0,
+  "output_sha256": "4fa772f7ca4a9ac4e4b45eaf46d8a8679ad66b09a0184243a82e8791378d0ace",
+  "reference_labels_already_incorporated": 3,
+  "schema": "adart-iv-corrigenda-audit-v1",
+  "scope": "all ADART IV pp. LVIII--LXI corrections that may change astronomical dating data",
+  "source_pdf_pages": [
+    83,
+    86
+  ],
+  "source_pdf_sha256": "5c2ca092f1f9a0c4a9a0394b9cc610615a7a53a8220a3b5b0fbaf289512f965c",
+  "status_counts": {
+    "corrected_clause_absent_or_too_broken_in_adsd": 9,
+    "incorporated_in_adsd": 8,
+    "incorporated_reference_label": 3,
+    "stale_or_ambiguous_adsd": 7
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "conversion_failures": {
+    "pdf": "Mathpix reported conversion status error"
+  },
+  "downloaded_utc": "2026-08-14T17:13:15.190667+00:00",
+  "last_status": {
+    "custom_id": null,
+    "destination_basename": null,
+    "destination_uri": null,
+    "file_id": "b6756154-faaf-41e2-b1a3-7931dc6b8f65",
+    "filename": "b6756154-faaf-41e2-b1a3-7931dc6b8f65.pdf",
+    "format_primary": "mmd",
+    "formats": {
+      "mmd.zip": "completed",
+      "pdf": "error"
+    },
+    "num_pages": 669,
+    "num_pages_completed": 669,
+    "percent_done": 100.0,
+    "status": "completed",
+    "version": "SuperNet-200"
+  },
+  "local_searchable_pdf_utc": "2026-08-14T17:15:03.093991+00:00",
+  "mathpix_api": "Files API /files/v1 direct upload",
+  "mathpix_file_id": "b6756154-faaf-41e2-b1a3-7931dc6b8f65",
+  "outputs": {
+    "lines.json": {
+      "bytes": 35051990,
+      "content_type": null,
+      "downloaded_bytes": 35126571,
+      "downloaded_sha256": "7369aaa36009b96adbcb57317d945d1423d6befe6ec957feb51b3cc4189c71c4",
+      "email_addresses_removed": 670,
+      "image_links_removed": 548,
+      "path": "data/adart_iv_ocr/ADART_IV_Hunger_2022_Undated_Diaries_and_Addenda_Mathpix_OCR.lines.json",
+      "sha256": "4b60c8a9876566996d23ce18e9449177e1f48a114447cfc9e1552a4537a6bc31"
+    },
+    "mmd": {
+      "bytes": 2296935,
+      "content_type": null,
+      "path": "data/adart_iv_ocr/ADART_IV_Hunger_2022_Undated_Diaries_and_Addenda_Mathpix_OCR.mmd",
+      "sha256": "e48d0cea86e5e9f8a80f31308be62f15e4f0eaa731784f4e76d38cc1456b440f"
+    },
+    "mmd.zip": {
+      "bytes": 12338972,
+      "content_type": null,
+      "path": "data/adart_iv_ocr/ADART_IV_Hunger_2022_Undated_Diaries_and_Addenda_Mathpix_OCR.mmd.zip",
+      "sha256": "195dcbdda8438e2a3806425fc984e288b7fb921cbf6b85c8b1d77adb80d43982"
+    },
+    "searchable_pdf": {
+      "bytes": 56565989,
+      "construction": "original facsimile plus invisible Unicode overlay from successful Mathpix lines.json; not a Mathpix-rendered PDF",
+      "content_type": "application/pdf",
+      "inserted_ocr_lines": 37618,
+      "pages": 669,
+      "pages_with_extractable_text": 669,
+      "path": "reference/books/ADART_IV_Hunger_2022_Undated_Diaries_and_Addenda_Mathpix_Searchable.pdf",
+      "sha256": "7df2883805ac21a4f7ec97f7885ac2050cc755b17ce69e8af0cbff879704549a"
+    }
+  },
+  "schema": "adart-iv-mathpix-ocr-v1",
+  "source": "reference/books/ADART_IV_Hunger_2022_Undated_Diaries_and_Addenda.pdf",
+  "source_bytes": 31672168,
+  "source_pages": 669,
+  "source_sha256": "5c2ca092f1f9a0c4a9a0394b9cc610615a7a53a8220a3b5b0fbaf289512f965c",
+  "status": "completed",
+  "status_checked_utc": "2026-08-14T17:10:15.427139+00:00",
+  "submission_options": {
+    "conversion_formats": {
+      "mmd.zip": true,
+      "pdf": true
+    },
+    "metadata": {
+      "improve_mathpix": false
+    }
+  },
+  "submitted_utc": "2026-08-14T16:44:57.771447+00:00"
+}

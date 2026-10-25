@@ -1,0 +1,11 @@
+bab_year_astro,year_label,pdf_page,action,corrected_month,corrected_day,note
+-409,410 BCE,49,append_many,,,OCR rendered printed 2/7 and 3/7 without slashes
+-341,342 BCE,51,replace_last,3.0,5.0,OCR misread printed 3/5 as 8/5
+-124,125 BCE,58,replace_row,,,complete row transcribed because Tesseract corrupts the final 2/5 and 3/7
+-99,100 BCE,59,insert_at,1.0,1.0,OCR rendered printed 1/1 as i/1
+-6,7 BCE,61,prepend,4.0,2.0,OCR fused printed 7 and 4/2 as 74/2
+-1,2 BCE,61,prepend,4.0,6.0,OCR fused printed 2 and 4/6 as 24/6
+2,AD 2,61,prepend,4.0,3.0,OCR fused printed AD 2 and 4/3 as 24/3
+4,AD 4,61,replace_row,,,complete AD 4 row transcribed because rollover cells are unstable in OCR
+7,AD 7,62,prepend,4.0,8.0,OCR fused printed AD 7 and 4/8 as 74/8
+61,AD 61,63,replace_row,,,complete AD 61 row transcribed because rollover cells are unstable in OCR

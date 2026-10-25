@@ -1,0 +1,37 @@
+{
+  "astronomy_input_lines": 16151,
+  "editorial_lines_excluded": 11,
+  "entries": 867,
+  "entries_with_internal_chronology": 86,
+  "entries_with_translation": 860,
+  "entries_without_translation": [
+    "BM 32309 + 32402",
+    "BM 35270",
+    "BM 35482",
+    "BM 36653",
+    "BM 40616",
+    "BM 42683",
+    "BM 46061"
+  ],
+  "ocr_corrections": "data/source/adart_iv/ocr_corrections.csv",
+  "ocr_corrections_sha256": "4a4897f67f63af4019c042387f00559a46cae03c8c01009f4bddcc2b3b3fb193",
+  "ocr_lines": "data/source/adart_iv/mathpix_lines.json",
+  "ocr_lines_sha256": "4b60c8a9876566996d23ce18e9449177e1f48a114447cfc9e1552a4537a6bc31",
+  "outputs": {
+    "data/corpus/adart_iv_lines.parquet": "36b48671042c31413c83f76677725438f7a38de9a26183a267336880bcadcffa",
+    "data/corpus/adart_iv_tablets.parquet": "dff212f9047e07fc9408ecdb1a1eada22c3630b19bde5e445bb4d777849b9782"
+  },
+  "pdf_pages": [
+    182,
+    662
+  ],
+  "printed_pages": [
+    95,
+    575
+  ],
+  "schema": "adart-iv-undated-corpus-v2-reflow",
+  "section": "ADART IV Undated Diaries only",
+  "source_pdf": "data/source/adart_iv/scan.pdf",
+  "source_pdf_sha256": "5c2ca092f1f9a0c4a9a0394b9cc610615a7a53a8220a3b5b0fbaf289512f965c",
+  "translation_lines": 16246
+}

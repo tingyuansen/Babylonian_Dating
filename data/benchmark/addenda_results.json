@@ -1,0 +1,554 @@
+{
+  "schema": "adart-iv-addenda-frozen-test-results-v1",
+  "registration": "data/benchmark/addenda_registration.json",
+  "frozen_commit": "ac02e3bf5121b02e2d08729f5a9568b0e2f8d640",
+  "frozen_files_match_commit": true,
+  "segmentation": {
+    "pdf_pages": [
+      88,
+      179
+    ],
+    "printed_pages": [
+      1,
+      92
+    ],
+    "diary_number_headings": 48,
+    "diary_numbers": 47,
+    "first_and_last_number": [
+      "-477",
+      "-59"
+    ],
+    "texts": 52,
+    "texts_with_translation": 52,
+    "texts_without_a_number_heading": [
+      "-362 B: BM 36742 + 37478",
+      "-253 D: BM 45649",
+      "-253 E: BM 34226",
+      "-172 B: BM 35794"
+    ],
+    "numbers_with_several_texts": {
+      "-362": [
+        "A",
+        "B"
+      ],
+      "-253": [
+        "C",
+        "D",
+        "E"
+      ],
+      "-195": [
+        "C",
+        "F"
+      ],
+      "-172": [
+        "A",
+        "B"
+      ]
+    },
+    "numbers_with_two_years": [
+      "-212/1"
+    ]
+  },
+  "input_checks": {
+    "texts_with_the_published_year_number_in_input": [],
+    "bracket_split_chronology_words": [
+      {
+        "tablet": "ADART_IV_ADD_27_BM_35406",
+        "passage": "[Y]ear 11[8. Nig",
+        "clauses_read_from_it": 0
+      },
+      {
+        "tablet": "ADART_IV_ADD_44_BM_45778",
+        "passage": " the sea, Antio[chus...] (smal",
+        "clauses_read_from_it": 0
+      }
+    ]
+  },
+  "scores": {
+    "not_linked_to_adart_i_iii": {
+      "texts": 39,
+      "diary_numbers": 35,
+      "texts_with_translation": 39,
+      "texts_with_a_decisive_clause": 12,
+      "published_year_in_first_group": {
+        "count": 11,
+        "of": 12,
+        "percent": 91.7
+      },
+      "published_year_in_strict_set": {
+        "count": 11,
+        "of": 12,
+        "percent": 91.7
+      },
+      "median_first_group_size": 45.5,
+      "median_strict_set_size": 64.5,
+      "commitments": 0,
+      "commitments_matching_the_published_year": 0,
+      "ranked": 12,
+      "declined": 27,
+      "declined_by_basis": {
+        "no_recognized_evidence": 6,
+        "supporting_only": 21
+      }
+    },
+    "linked_to_adart_i_iii": {
+      "texts": 13,
+      "diary_numbers": 13,
+      "texts_with_translation": 13,
+      "texts_with_a_decisive_clause": 2,
+      "published_year_in_first_group": {
+        "count": 2,
+        "of": 2,
+        "percent": 100.0
+      },
+      "published_year_in_strict_set": {
+        "count": 2,
+        "of": 2,
+        "percent": 100.0
+      },
+      "median_first_group_size": 74.0,
+      "median_strict_set_size": 74.0,
+      "commitments": 0,
+      "commitments_matching_the_published_year": 0,
+      "ranked": 2,
+      "declined": 11,
+      "declined_by_basis": {
+        "no_recognized_evidence": 4,
+        "supporting_only": 7
+      }
+    },
+    "all": {
+      "texts": 52,
+      "diary_numbers": 47,
+      "texts_with_translation": 52,
+      "texts_with_a_decisive_clause": 14,
+      "published_year_in_first_group": {
+        "count": 13,
+        "of": 14,
+        "percent": 92.9
+      },
+      "published_year_in_strict_set": {
+        "count": 13,
+        "of": 14,
+        "percent": 92.9
+      },
+      "median_first_group_size": 45.5,
+      "median_strict_set_size": 64.5,
+      "commitments": 0,
+      "commitments_matching_the_published_year": 0,
+      "ranked": 14,
+      "declined": 38,
+      "declined_by_basis": {
+        "no_recognized_evidence": 10,
+        "supporting_only": 28
+      }
+    }
+  },
+  "benchmark_for_comparison": {
+    "records": 112,
+    "published_year_in_first_group": {
+      "count": 104,
+      "of": 112,
+      "percent": 92.9
+    },
+    "published_year_in_strict_set": {
+      "count": 112,
+      "of": 112,
+      "percent": 100.0
+    },
+    "median_first_group_size": 1.0,
+    "median_strict_set_size": 17.5
+  },
+  "texts_with_a_decisive_clause": [
+    {
+      "tablet": "ADART_IV_ADD_01_BM_47665",
+      "diary_number": "-477",
+      "letter": "",
+      "museum_no": "BM 47665",
+      "published_years_astro": [
+        -477
+      ],
+      "linked_to_adart_i_iii": false,
+      "decisive_clocks": 1,
+      "decisive_statements": 1,
+      "strict_set_size": 59,
+      "first_group_size": 40,
+      "first_group_years_astro": null,
+      "published_year_in_first_group": true,
+      "published_year_in_strict_set": true,
+      "claim": "ranked"
+    },
+    {
+      "tablet": "ADART_IV_ADD_03_BM_77993",
+      "diary_number": "-386",
+      "letter": "",
+      "museum_no": "BM 77993",
+      "published_years_astro": [
+        -386
+      ],
+      "linked_to_adart_i_iii": false,
+      "decisive_clocks": 2,
+      "decisive_statements": 2,
+      "strict_set_size": 10,
+      "first_group_size": 6,
+      "first_group_years_astro": [
+        -591,
+        -386,
+        -356,
+        -179,
+        -149,
+        56
+      ],
+      "published_year_in_first_group": true,
+      "published_year_in_strict_set": true,
+      "claim": "ranked"
+    },
+    {
+      "tablet": "ADART_IV_ADD_04_BM_36488",
+      "diary_number": "-385",
+      "letter": "",
+      "museum_no": "BM 36488",
+      "published_years_astro": [
+        -385
+      ],
+      "linked_to_adart_i_iii": false,
+      "decisive_clocks": 2,
+      "decisive_statements": 2,
+      "strict_set_size": 51,
+      "first_group_size": 51,
+      "first_group_years_astro": null,
+      "published_year_in_first_group": true,
+      "published_year_in_strict_set": true,
+      "claim": "ranked"
+    },
+    {
+      "tablet": "ADART_IV_ADD_06_BM_36774",
+      "diary_number": "-362",
+      "letter": "A",
+      "museum_no": "BM 36774",
+      "published_years_astro": [
+        -362
+      ],
+      "linked_to_adart_i_iii": false,
+      "decisive_clocks": 1,
+      "decisive_statements": 1,
+      "strict_set_size": 121,
+      "first_group_size": 121,
+      "first_group_years_astro": null,
+      "published_year_in_first_group": true,
+      "published_year_in_strict_set": true,
+      "claim": "ranked"
+    },
+    {
+      "tablet": "ADART_IV_ADD_15_BM_32352",
+      "diary_number": "-261",
+      "letter": "",
+      "museum_no": "BM 32352",
+      "published_years_astro": [
+        -261
+      ],
+      "linked_to_adart_i_iii": true,
+      "decisive_clocks": 1,
+      "decisive_statements": 1,
+      "strict_set_size": 136,
+      "first_group_size": 136,
+      "first_group_years_astro": null,
+      "published_year_in_first_group": true,
+      "published_year_in_strict_set": true,
+      "claim": "ranked"
+    },
+    {
+      "tablet": "ADART_IV_ADD_19_BM_41568_42072_42088",
+      "diary_number": "-248",
+      "letter": "B",
+      "museum_no": "BM 41568 + 42072 + 42088",
+      "published_years_astro": [
+        -248
+      ],
+      "linked_to_adart_i_iii": false,
+      "decisive_clocks": 1,
+      "decisive_statements": 1,
+      "strict_set_size": 83,
+      "first_group_size": 7,
+      "first_group_years_astro": [
+        -544,
+        -533,
+        -509,
+        -449,
+        -354,
+        -259,
+        -248
+      ],
+      "published_year_in_first_group": true,
+      "published_year_in_strict_set": true,
+      "claim": "ranked"
+    },
+    {
+      "tablet": "ADART_IV_ADD_21_BM_32365",
+      "diary_number": "-228",
+      "letter": "B",
+      "museum_no": "BM 32365",
+      "published_years_astro": [
+        -228
+      ],
+      "linked_to_adart_i_iii": false,
+      "decisive_clocks": 1,
+      "decisive_statements": 1,
+      "strict_set_size": 134,
+      "first_group_size": 134,
+      "first_group_years_astro": null,
+      "published_year_in_first_group": true,
+      "published_year_in_strict_set": true,
+      "claim": "ranked"
+    },
+    {
+      "tablet": "ADART_IV_ADD_22_BM_30632",
+      "diary_number": "-214",
+      "letter": "B",
+      "museum_no": "BM 30632",
+      "published_years_astro": [
+        -214
+      ],
+      "linked_to_adart_i_iii": false,
+      "decisive_clocks": 1,
+      "decisive_statements": 1,
+      "strict_set_size": 70,
+      "first_group_size": 70,
+      "first_group_years_astro": null,
+      "published_year_in_first_group": true,
+      "published_year_in_strict_set": true,
+      "claim": "ranked"
+    },
+    {
+      "tablet": "ADART_IV_ADD_30_BM_32506_32521_32695",
+      "diary_number": "-183",
+      "letter": "E",
+      "museum_no": "BM 32506 + 32521 + 32695",
+      "published_years_astro": [
+        -183
+      ],
+      "linked_to_adart_i_iii": false,
+      "decisive_clocks": 1,
+      "decisive_statements": 1,
+      "strict_set_size": 123,
+      "first_group_size": 123,
+      "first_group_years_astro": null,
+      "published_year_in_first_group": true,
+      "published_year_in_strict_set": true,
+      "claim": "ranked"
+    },
+    {
+      "tablet": "ADART_IV_ADD_35_BM_35794",
+      "diary_number": "-172",
+      "letter": "B",
+      "museum_no": "BM 35794",
+      "published_years_astro": [
+        -172
+      ],
+      "linked_to_adart_i_iii": false,
+      "decisive_clocks": 1,
+      "decisive_statements": 1,
+      "strict_set_size": 424,
+      "first_group_size": 424,
+      "first_group_years_astro": null,
+      "published_year_in_first_group": true,
+      "published_year_in_strict_set": true,
+      "claim": "ranked"
+    },
+    {
+      "tablet": "ADART_IV_ADD_37_BM_46023_46027",
+      "diary_number": "-149",
+      "letter": "C",
+      "museum_no": "BM 46023 + 46027",
+      "published_years_astro": [
+        -149
+      ],
+      "linked_to_adart_i_iii": false,
+      "decisive_clocks": 1,
+      "decisive_statements": 1,
+      "strict_set_size": 49,
+      "first_group_size": 27,
+      "first_group_years_astro": null,
+      "published_year_in_first_group": true,
+      "published_year_in_strict_set": true,
+      "claim": "ranked"
+    },
+    {
+      "tablet": "ADART_IV_ADD_41_BM_41580",
+      "diary_number": "-131",
+      "letter": "C",
+      "museum_no": "BM 41580",
+      "published_years_astro": [
+        -131
+      ],
+      "linked_to_adart_i_iii": false,
+      "decisive_clocks": 3,
+      "decisive_statements": 4,
+      "strict_set_size": 14,
+      "first_group_size": 14,
+      "first_group_years_astro": null,
+      "published_year_in_first_group": true,
+      "published_year_in_strict_set": true,
+      "claim": "ranked"
+    },
+    {
+      "tablet": "ADART_IV_ADD_45_BM_34926",
+      "diary_number": "-105",
+      "letter": "",
+      "museum_no": "BM 34926",
+      "published_years_astro": [
+        -105
+      ],
+      "linked_to_adart_i_iii": true,
+      "decisive_clocks": 1,
+      "decisive_statements": 1,
+      "strict_set_size": 12,
+      "first_group_size": 12,
+      "first_group_years_astro": null,
+      "published_year_in_first_group": true,
+      "published_year_in_strict_set": true,
+      "claim": "ranked"
+    },
+    {
+      "tablet": "ADART_IV_ADD_50_WML_1963_118_3",
+      "diary_number": "-69",
+      "letter": "",
+      "museum_no": "WML 1963-118-3",
+      "published_years_astro": [
+        -69
+      ],
+      "linked_to_adart_i_iii": false,
+      "decisive_clocks": 1,
+      "decisive_statements": 2,
+      "strict_set_size": 15,
+      "first_group_size": 3,
+      "first_group_years_astro": [
+        -520,
+        -354,
+        -259
+      ],
+      "published_year_in_first_group": false,
+      "published_year_in_strict_set": false,
+      "claim": "ranked"
+    }
+  ],
+  "texts_linked_to_adart_i_iii": [
+    {
+      "tablet": "ADART_IV_ADD_11_BM_46260",
+      "diary_number": "-284",
+      "letter": "",
+      "museum_no": "BM 46260",
+      "adsd_museum_matches": []
+    },
+    {
+      "tablet": "ADART_IV_ADD_12_BM_34887",
+      "diary_number": "-278",
+      "letter": "B",
+      "museum_no": "BM 34887",
+      "adsd_museum_matches": []
+    },
+    {
+      "tablet": "ADART_IV_ADD_15_BM_32352",
+      "diary_number": "-261",
+      "letter": "",
+      "museum_no": "BM 32352",
+      "adsd_museum_matches": []
+    },
+    {
+      "tablet": "ADART_IV_ADD_25_BM_36141",
+      "diary_number": "-195",
+      "letter": "C",
+      "museum_no": "BM 36141",
+      "adsd_museum_matches": []
+    },
+    {
+      "tablet": "ADART_IV_ADD_27_BM_35406",
+      "diary_number": "-193",
+      "letter": "E",
+      "museum_no": "BM 35406",
+      "adsd_museum_matches": []
+    },
+    {
+      "tablet": "ADART_IV_ADD_28_BM_41530",
+      "diary_number": "-189",
+      "letter": "D",
+      "museum_no": "BM 41530",
+      "adsd_museum_matches": []
+    },
+    {
+      "tablet": "ADART_IV_ADD_39_BM_34410",
+      "diary_number": "-140",
+      "letter": "C",
+      "museum_no": "BM 34410",
+      "adsd_museum_matches": []
+    },
+    {
+      "tablet": "ADART_IV_ADD_40_BM_35170",
+      "diary_number": "-134",
+      "letter": "B",
+      "museum_no": "BM 35170",
+      "adsd_museum_matches": []
+    },
+    {
+      "tablet": "ADART_IV_ADD_44_BM_45778",
+      "diary_number": "-107",
+      "letter": "D",
+      "museum_no": "BM 45778",
+      "adsd_museum_matches": []
+    },
+    {
+      "tablet": "ADART_IV_ADD_45_BM_34926",
+      "diary_number": "-105",
+      "letter": "",
+      "museum_no": "BM 34926",
+      "adsd_museum_matches": []
+    },
+    {
+      "tablet": "ADART_IV_ADD_47_BM_34736",
+      "diary_number": "-93",
+      "letter": "C",
+      "museum_no": "BM 34736",
+      "adsd_museum_matches": []
+    },
+    {
+      "tablet": "ADART_IV_ADD_48_BM_41479_Rm_710",
+      "diary_number": "-88",
+      "letter": "",
+      "museum_no": "BM 41479 + Rm 710",
+      "adsd_museum_matches": [
+        "Rm 710 = -88A"
+      ]
+    },
+    {
+      "tablet": "ADART_IV_ADD_49_BM_35065",
+      "diary_number": "-85",
+      "letter": "D",
+      "museum_no": "BM 35065",
+      "adsd_museum_matches": []
+    }
+  ],
+  "inputs": {
+    "data/benchmark/addenda_registration.json": "063348e68387b688c14659a9075c2343b488bdcd6c35c1e0ccf2fee07976bbef",
+    "data/benchmark/addenda_published_years.parquet": "64dbf8566763e3496b4388d1ce29debd689ab04622d25edc7f021a8cac34fec9",
+    "data/results/adart_iv_addenda_dates.parquet": "3f4c06495427cc6eafb936499687c22f4cb26ac94a5d43f3ef47af1839258f8b",
+    "data/results/adart_iv_addenda_summary.json": "27f0a4552990b01d93c666e5564bfe73bd5dde1b57f04bdb31dde2f9a32b523f",
+    "data/corpus/adart_iv_addenda_tablets.parquet": "aa183f991a2c2b59a8f73c4fd3ea7880383bf59fe9c6865765a34c3c42dd556d",
+    "data/corpus/adart_iv_addenda_summary.json": "30971e1d302077aa8cf4ff13e42b05cbfd0d143efe013271982c644324efdcdd",
+    "data/paper_counts/counts.json": "70fca873e67073ca5e793bacde62d8f1072b7be7f8b7520610c244134ed9dfa9"
+  },
+  "code": {
+    "scripts/source/build_adart_iv_addenda.py": "fd5231ddd610478446fef0999d615a22e12f273c436ecd5cca91f91f7333fb14",
+    "scripts/inference/date_adart_iv_addenda.py": "785c3086d78eeceb6b7de55c06816a9174801c2460614ec55cabdf46db3d5e4e",
+    "scripts/audit/score_adart_iv_addenda.py": "faf204e0e516d2e61ff6dd10559e001ca1c519d4d648bcf81f7e675ceef9fc2b",
+    "scripts/source/build_adart_iv_corpus.py": "881822b1b7f1dfd48699738dd7c85b9ae44b4812a150e51de89bb2446bac9d77",
+    "scripts/inference/date_adart_iv.py": "4f09095781374610a83273abb628dc1fcf6427716583c7c65dd4bbea272773d2",
+    "scripts/inference/date_all.py": "2c05af63dd7fb568e98c8950f60a5a43799a1d27d68e0edcfd74774027753a47",
+    "tools/statements.py": "771a3ac7750a2b9691f6ca92ee1bd83d61e17fca485854371cccf9c1fe14b4ab",
+    "tools/cal.py": "370231c111606692b34da9473c1acb42b81d41abfef422dbd6a5da3543f37d66",
+    "tools/sky.py": "f64cf1c928e1a4c7e8cf2ec86097e0839969c27759f1f035f16f913c325bca49",
+    "tools/eclipses.py": "c88938b300ee6067a0a8263796281242c043b78ccb9f59f0188feb1a59c96bb0",
+    "tools/eras.py": "9d2c14a200fa5d08044004f984be2931e18230e8eb3d956a3df2b51db3277c12",
+    "tools/years.py": "66d594d88deca728dc4d46bbcb7cc17c7429281c20b0489c510226def57261bb",
+    "skills/dating_protocol.md": "744b2e34ab6dae706725372a79f68e227929c178477ba322224df283f94e2bfd"
+  }
+}
