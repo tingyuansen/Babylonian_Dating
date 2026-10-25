@@ -83,14 +83,14 @@ CHUNK_RECORDS = 6
 # The main-text values for the committed code. They move when tools/ changes,
 # so the criterion for the all-volume round is the unmodified pipeline rerun on
 # the same code, not these numbers; they are reported for orientation only.
-MAIN_TEXT = {"records": 112, "first_group": 108, "first_three_groups": 110,
-             "strict_set": 112, "median_strict_set": 16.5}
+MAIN_TEXT = {"records": 120, "first_group": 115, "first_three_groups": 119,
+             "strict_set": 119, "median_strict_set": 15.0}
 
 # --- The reading of the test, fixed before any held-out round was scored. ---
 # The pooled row of the three held-out rounds is close to the all-volume round
 # if its inclusion rate drops by at most this many percentage points, for the
 # first group and for the strict set. The rows of single volumes are
-# descriptive only: one record of ADART II is 6.7 points.
+# descriptive only: one record of ADART II is about 4 points.
 CLOSE_POINTS = 5.0
 
 # --- The gate of SI section S5, shared by decisive types and parser rules. ---
@@ -406,12 +406,20 @@ def published_years(tablets: list[str]) -> dict[str, int]:
 
 
 def benchmark() -> pd.DataFrame:
-    """The frozen 179 records and their 112 / 67 labels."""
+    """The 179 benchmark records, and whether each has decisive clauses.
+
+    A record has decisive clauses when the main results keep at least one for
+    it. Every round scores the same records.
+    """
     population = pd.read_parquet(
         HERE / "data" / "benchmark" / "benchmark_records.parquet",
-        columns=["tablet", "project", "tool_benchmark_eligible",
-                 "tool_year_bearing"])
-    return population[population.tool_benchmark_eligible].reset_index(drop=True)
+        columns=["tablet", "project", "tool_benchmark_eligible"])
+    population = population[population.tool_benchmark_eligible].reset_index(drop=True)
+    decisive = (pd.read_parquet(HERE / "data" / "results" / "tablet_dates.parquet",
+                                columns=["tablet", "n_decisive_statements"])
+                .set_index("tablet").n_decisive_statements.fillna(0).gt(0))
+    population["decisive"] = population.tablet.map(decisive).astype(bool)
+    return population
 
 
 # ---------------------------------------------------------------- settings
@@ -658,7 +666,7 @@ def exposure(choices: dict, records: pd.DataFrame) -> dict:
     No candidate year and no published year enters.
     """
     counts = {"records": len(records),
-              "records_with_decisive_clauses": int(records.tool_year_bearing.sum()),
+              "records_with_decisive_clauses": int(records.decisive.sum()),
               "clauses": 0, "clauses_kept": 0, "decisive_repo": 0,
               "decisive_round": 0, "records_with_changed_decisive_clauses": 0,
               "moon_relations": 0, "planet_relations": 0}
@@ -706,7 +714,7 @@ def evaluate(rows: pd.DataFrame) -> pd.DataFrame:
 
 def table_row(label: str, rows: pd.DataFrame) -> dict:
     """One row of Table S6, for the records with decisive clauses."""
-    active = rows[rows.frozen_active]
+    active = rows[rows.decisive]
     n = len(active)
 
     def rate(mask) -> dict:
@@ -897,18 +905,15 @@ def main() -> int:
         rows = pd.DataFrame(scored[entry["round"]]["rows"])
         entry["scoring_cpu_seconds"] = round(
             scored[entry["round"]]["cpu_seconds"], 1)
-        rows = rows.merge(records[["tablet", "volume", "tool_year_bearing"]],
-                          on="tablet", validate="one_to_one").rename(
-            columns={"tool_year_bearing": "frozen_active"})
+        rows = rows.merge(records[["tablet", "volume", "decisive"]],
+                          on="tablet", validate="one_to_one")
         rows.insert(0, "round", entry["round"])
         if entry["round"] == "all volumes" and REPO_JOB in scored:
             repo = pd.DataFrame(scored[REPO_JOB]["rows"])
             entry["repo_check"] = compare_with_repo(rows, repo)
             entry["repo_check"]["cpu_seconds"] = round(
                 scored[REPO_JOB]["cpu_seconds"], 1)
-            repo = evaluate(repo.merge(
-                records[["tablet", "tool_year_bearing"]], on="tablet").rename(
-                columns={"tool_year_bearing": "frozen_active"}))
+            repo = evaluate(repo.merge(records[["tablet", "decisive"]], on="tablet"))
             entry["repo_table_row"] = table_row(REPO_JOB, repo)
         rows = evaluate(rows)
         entry["scored"] = True

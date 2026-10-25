@@ -786,7 +786,7 @@ benchmark/benchmark_records.parquet,n_semantic_decisive,integer,count,"Number of
 benchmark/benchmark_records.parquet,n_active_decisive,integer,count,"Number of source statements with a decisive clause that carries bits. The value comes from the parser of selection_version, when the authors fixed the benchmark."
 benchmark/benchmark_records.parquet,regex_cohort,string,,Cohort computed again from the regex columns by the rule of corpus/cohorts.parquet. It equals coarse_cohort.
 benchmark/benchmark_records.parquet,tool_benchmark_eligible,boolean,,True if the record is one of the 179 benchmark records.
-benchmark/benchmark_records.parquet,tool_year_bearing,boolean,,True if the record is one of the 112 benchmark records with decisive clauses. The label stays fixed over later rule changes. The other 67 benchmark records are the supporting-only records.
+benchmark/benchmark_records.parquet,tool_year_bearing,boolean,,"True if the record had a decisive clause when the benchmark was fixed, 112 records. The benchmark rates use the decisive column of benchmark_results.parquet."
 benchmark/benchmark_records.parquet,selection_reason,string,,Why the record is in the benchmark or not. Values are three_or_more_extractable_statements and fewer_than_three_extractable_statements.
 benchmark/benchmark_records.parquet,human_comparison_label,string,,Always not_independently_expert_labeled. No expert labeled the records for this benchmark.
 benchmark/benchmark_records.parquet,selection_uses_backward_success,boolean,,Always False. The selection did not use any result of dating.
@@ -797,7 +797,7 @@ benchmark/benchmark_results.parquet,n,integer,count,"Number of parser clauses of
 benchmark/benchmark_results.parquet,omitted_eclipses,integer,count,Number of eclipse clauses that the scribe marks as unobserved.
 benchmark/benchmark_results.parquet,semantic_decisive,integer,count,Number of clauses in the decisive tier.
 benchmark/benchmark_results.parquet,active_decisive,integer,count,Number of decisive clauses that carry bits.
-benchmark/benchmark_results.parquet,frozen_active,boolean,,"True if the record is one of the 112 records with decisive clauses, as fixed with the benchmark. Copy of tool_year_bearing of benchmark_records.parquet."
+benchmark/benchmark_results.parquet,decisive,boolean,,"True if the record has decisive clauses: its result in results/tablet_dates.parquet keeps at least one. 120 of the 179 benchmark records do, and the benchmark reports its rates for them."
 benchmark/benchmark_results.parquet,weighting,string,,"Scoring mode of the run. Always skill, the method of the paper."
 benchmark/benchmark_results.parquet,best,float,bits,Highest decisive bits I_D over all candidate years.
 benchmark/benchmark_results.parquet,best_bodies,integer,count,Highest number of clocks K over all candidate years.
@@ -853,7 +853,7 @@ benchmark/ranking_candidates.parquet,strict_count,integer,count,Number of years 
 benchmark/ranking_candidates.parquet,safety_count,integer,count,Number of years in the safety set of the record.
 benchmark/ranking_candidates.parquet,n_statements,integer,count,Number of parser clauses of the record.
 benchmark/ranking_candidates.parquet,active_decisive,integer,count,Number of decisive clauses of the record that carry bits.
-benchmark/ranking_candidates.parquet,frozen_active,boolean,,"True if the record is one of the 112 records with decisive clauses, as fixed with the benchmark."
+benchmark/ranking_candidates.parquet,decisive,boolean,,"True if the record has decisive clauses: its result in results/tablet_dates.parquet keeps at least one. 120 of the 179 benchmark records do, and the benchmark reports its rates for them."
 benchmark/ranking_candidates.parquet,decisive_families,integer,count,"Clocks K of the year, the number of clocks whose decisive clauses agree with it."
 benchmark/ranking_candidates.parquet,primary_bits,float,bits,Decisive bits I_D of the year.
 benchmark/ranking_candidates.parquet,support_bits,float,bits,Supporting bits I_S of the year.
@@ -872,7 +872,7 @@ benchmark/sensitivity_runs.parquet,tablet,string,,ADsD identifier of the benchma
 benchmark/sensitivity_runs.parquet,leading_group_size,integer,count,Number of years in the first group L1.
 benchmark/sensitivity_runs.parquet,n_statements,integer,count,Number of clauses that the configuration keeps.
 benchmark/sensitivity_runs.parquet,active_decisive,integer,count,Number of decisive clauses that carry bits in this configuration.
-benchmark/sensitivity_runs.parquet,frozen_active,boolean,,"True if the record is one of the 112 records with decisive clauses, as fixed with the benchmark."
+benchmark/sensitivity_runs.parquet,decisive,boolean,,"True if the record has decisive clauses: its result in results/tablet_dates.parquet keeps at least one. 120 of the 179 benchmark records do, and the benchmark reports its rates for them."
 benchmark/sensitivity_runs.parquet,strict_years_astro,list of integers,astronomical year,Strict set in this configuration.
 benchmark/sensitivity_runs.parquet,safety_years_astro,list of integers,astronomical year,Safety set in this configuration.
 benchmark/sensitivity_runs.parquet,display_top10_years_astro,list of integers,astronomical year,"First ten years of the display order in this configuration. The display order is the ranking with tied years in calendar order, earliest first, so this order is partly arbitrary."
@@ -895,8 +895,8 @@ benchmark/sensitivity_runs.parquet,display_top3_min_abs_error,integer,years,Smal
 benchmark/sensitivity_runs.parquet,chronology_band,string,,"Century band of the published year, such as 201-300 BCE. Values run from 1-100 BCE to 501-700 BCE."
 benchmark/sensitivity_summary.parquet,config,string,,"Name of the configuration of the sensitivity audit, one of 32, such as baseline, tolerance_narrow or no_mars_family. Each configuration has one row."
 benchmark/sensitivity_summary.parquet,dated_tablets,integer,count,"Number of benchmark records scored, 179."
-benchmark/sensitivity_summary.parquet,active_year_bearing,integer,count,"Number of records with decisive clauses as fixed with the benchmark, 112. The rates of this row use them."
-benchmark/sensitivity_summary.parquet,current_active_year_bearing,integer,count,Number of those 112 records that keep a decisive clause with bits in this configuration.
+benchmark/sensitivity_summary.parquet,decisive_records,integer,count,"Number of records with decisive clauses in the results, 120. The rates of every row use the same records."
+benchmark/sensitivity_summary.parquet,decisive_records_in_config,integer,count,Number of those 120 records that keep a decisive clause with bits in this configuration.
 benchmark/sensitivity_summary.parquet,truth_strict,integer,count,Number of records whose strict set holds the published year. It counts only the 112 records with decisive clauses.
 benchmark/sensitivity_summary.parquet,strict_recall,float,fraction,"truth_strict divided by 112, the inclusion rate of the strict set."
 benchmark/sensitivity_summary.parquet,median_strict_count,float,count,Median number of years in the strict set. It counts only the 112 records with decisive clauses.
@@ -924,7 +924,7 @@ benchmark/held_out_runs.parquet,evidence_group_count,integer,count,Number of gro
 benchmark/held_out_runs.parquet,level_years_json,JSON,,"Years of every group, as a list of lists in rank order."
 benchmark/held_out_runs.parquet,level_years_json[],list of integers,astronomical year,Years of one group.
 benchmark/held_out_runs.parquet,volume,string,,"ADART volume of the record, ADART I, ADART II or ADART III."
-benchmark/held_out_runs.parquet,frozen_active,boolean,,"True if the record is one of the 112 records with decisive clauses, as fixed with the benchmark."
+benchmark/held_out_runs.parquet,decisive,boolean,,"True if the record has decisive clauses: its result in results/tablet_dates.parquet keeps at least one. 120 of the 179 benchmark records do, and the benchmark reports its rates for them."
 benchmark/held_out_runs.parquet,truth_astro,integer,astronomical year,"Published year of the record, joined after scoring."
 benchmark/held_out_runs.parquet,truth_in_strict,boolean,,True if the strict set holds the published year.
 benchmark/held_out_runs.parquet,truth_in_safety,boolean,,True if the safety set holds the published year.

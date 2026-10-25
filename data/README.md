@@ -108,7 +108,7 @@ The book scans, and the full text that the project read from ADART IV, are under
 
 | File | What it holds | Made by |
 |---|---|---|
-| `benchmark_records.parquet` | The frozen benchmark: the 417 records, 179 of them in the benchmark and 112 with decisive clauses | `audit/build_benchmark.py --rebuild-population` only |
+| `benchmark_records.parquet` | The frozen benchmark: the 417 records, of which 179 are in the benchmark | `audit/build_benchmark.py --rebuild-population` only |
 | `benchmark_results.parquet` | The 179 benchmark records, scored against the published year | `audit/score_benchmark.py` |
 | `benchmark_clause_bits.parquet` | Bits and tier of each clause of the 179 benchmark records | `audit/score_benchmark.py` |
 | `ranking_candidates.parquet` | Every candidate year of every benchmark record, with its scores and rank | `audit/rank_candidates.py` |
@@ -116,7 +116,7 @@ The book scans, and the full text that the project read from ADART IV, are under
 | `held_out_runs.parquet`, `held_out_summary.json` | The choices and the records of each held-out round | `audit/audit_held_out.py` |
 | `addenda_registration.json` | The registration of the frozen test on the dated addenda of ADART IV: the frozen commit, the input, the blinding and the scores, fixed before any addendum was read | Written by hand before the test |
 | `addenda_published_years.parquet` | The published year of each text of the addenda, from its diary number, and whether ADART IV links the text to a text of ADART I to III. The public copy leaves out the quoted notes of the volume. Only the scorer reads it | `source/build_adart_iv_addenda.py` |
-| `addenda_results.json` | The scores of the addenda test as registered, for the texts not linked to ADART I to III and, in a separate row, for the linked texts, with the benchmark rates beside them, every text with a decisive clause, and the hashes of the inputs and the code. The public copy leaves out the quoted notes of the volume | `audit/score_adart_iv_addenda.py` |
+| `addenda_results.json` | The scores of the addenda test as registered, for the texts not linked to ADART I to III and, in a separate row, for the linked texts, with the benchmark rates at registration beside them, every text with a decisive clause, and the hashes of the inputs and the code. The public copy leaves out the quoted notes of the volume | `audit/score_adart_iv_addenda.py` |
 | `adart_iv_corrigenda.parquet`, `adart_iv_corrigenda_summary.json` | The corrections that ADART IV prints to Volumes I to III, traced into the digital edition | `audit/audit_adart_iv_corrigenda.py` |
 | `era_readings.parquet` | The era and regnal years stated in the texts, checked at the published years | `audit/audit_era_readings.py` |
 

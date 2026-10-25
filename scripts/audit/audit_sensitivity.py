@@ -100,8 +100,8 @@ CONFIGS = [
      "planet_tol": 2.0, "weighting": "skill", "ablation": "sun"},
     {"config": "no_lunar_eclipse_family", "moon_tol": 3.0,
      "planet_tol": 2.0, "weighting": "skill", "ablation": "lunar_eclipse"},
-    # Not a defensive check but a bridge to ADART IV, where 68 of 867 entries
-    # preserve a month heading against 106 of the 112 active I--III tablets.
+    # Not a defensive check but a bridge to ADART IV, where few entries keep a
+    # month heading, unlike most records of ADART I to III with decisive clauses.
     # Stripping the calendar context from I--III asks what those undated
     # fragments would look like if they were otherwise as rich.
     {"config": "no_month_context", "moon_tol": 3.0,
@@ -278,7 +278,7 @@ def infer(config: dict, population: list[tuple]) -> list[dict]:
     rows = []
     try:
         for (tablet, text, baseline_statements, origins,
-             legacy_month_statements, frozen_active) in population:
+             legacy_month_statements, decisive) in population:
             statements = retained(
                 text, baseline_statements, legacy_month_statements,
                 config["ablation"], origins)
@@ -309,7 +309,7 @@ def infer(config: dict, population: list[tuple]) -> list[dict]:
                 "n_statements": len(statements),
                 "active_decisive": int(
                     (scores.decisive & (scores.weights > 0)).sum()),
-                "frozen_active": bool(frozen_active),
+                "decisive": bool(decisive),
                 "strict_years_astro": strict,
                 "safety_years_astro": safety,
                 "display_top10_years_astro": display_top10,
@@ -330,13 +330,14 @@ def infer(config: dict, population: list[tuple]) -> list[dict]:
 def summarize(results: pd.DataFrame) -> pd.DataFrame:
     rows = []
     for config, group in results.groupby("config", sort=False):
-        active = group.frozen_active
-        strong = group[active]
+        # The records with decisive clauses under the baseline rules, the same
+        # records in every configuration.
+        strong = group[group.decisive]
         rows.append({
             "config": config,
             "dated_tablets": len(group),
-            "active_year_bearing": len(strong),
-            "current_active_year_bearing": int(
+            "decisive_records": len(strong),
+            "decisive_records_in_config": int(
                 strong.active_decisive.gt(0).sum()),
             "truth_strict": int(strong.truth_strict.sum()),
             "strict_recall": (float(strong.truth_strict.mean())
@@ -382,13 +383,14 @@ def main() -> int:
         HERE / "data" / "corpus" / "tablets.parquet", columns=["tablet", "text"])
     frozen_population = pd.read_parquet(
         HERE / "data" / "benchmark" / "benchmark_records.parquet",
-        columns=[
-            "tablet", "tool_benchmark_eligible", "tool_year_bearing",
-            "n_frozen_extractable_facts",
-        ])
+        columns=["tablet", "tool_benchmark_eligible"])
     frozen_population = frozen_population.set_index("tablet")
     eligible_ids = set(frozen_population.loc[
         frozen_population.tool_benchmark_eligible].index)
+    # A record has decisive clauses when its result keeps at least one.
+    decisive = (pd.read_parquet(HERE / "data" / "results" / "tablet_dates.parquet",
+                                columns=["tablet", "n_decisive_statements"])
+                .set_index("tablet").n_decisive_statements.fillna(0).gt(0).to_dict())
     reviewed = clauses.load(clauses.REVIEWED, provenance=True)
     population = []
     for tablet in texts.itertuples(index=False):
@@ -400,8 +402,7 @@ def main() -> int:
                 tablet.tablet, tablet.text, [item[0] for item in items],
                 [item[1] for item in items],
                 without_restored_month_context(tablet.text, items),
-                bool(frozen_population.loc[
-                    tablet.tablet, "tool_year_bearing"]),
+                bool(decisive[tablet.tablet]),
             ))
     print(f"fixed text-defined population: {len(population)} tablets")
 

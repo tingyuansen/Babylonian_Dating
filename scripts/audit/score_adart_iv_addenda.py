@@ -10,7 +10,7 @@ links. It changes no candidate set.
 
 A text counts as included when its first group, or its strict set, holds the
 published year, or one of the two years of a heading such as No. -212/1. The
-benchmark rates beside them are those of the 112 benchmark records with
+benchmark rates beside them are those of the benchmark records with
 decisive clauses, from data/paper_counts/counts.json.
 
 Output:
@@ -181,7 +181,7 @@ def main() -> int:
             })
 
     benchmark = json.loads(COUNTS.read_text(encoding="utf-8"))[
-        "existing_benchmark"]["frozen_year_bearing"]
+        "existing_benchmark"]["decisive"]
     corpus_summary = json.loads(CORPUS_SUMMARY.read_text(encoding="utf-8"))
     numbers = years.drop_duplicates("entry_no").entry_no.tolist()
     result = {

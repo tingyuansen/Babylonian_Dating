@@ -546,12 +546,12 @@
           2,
           3
         ],
-        "seconds": 1.6,
+        "seconds": 1.5,
         "same_choices_as_all_volumes": false
       },
       "exposure": {
         "records": 43,
-        "records_with_decisive_clauses": 31,
+        "records_with_decisive_clauses": 33,
         "clauses": 893,
         "clauses_kept": 893,
         "decisive_repo": 132,
@@ -563,22 +563,22 @@
       "scored": true,
       "table_row": {
         "test_volume": "ADART I",
-        "records": 31,
+        "records": 33,
         "first_group": {
-          "n": 30,
-          "percent": 96.8
+          "n": 31,
+          "percent": 93.9
         },
         "first_three_groups": {
-          "n": 31,
+          "n": 33,
           "percent": 100.0
         },
         "strict_set": {
-          "n": 31,
+          "n": 33,
           "percent": 100.0
         },
         "median_strict_set": 9.0
       },
-      "scoring_cpu_seconds": 15.0
+      "scoring_cpu_seconds": 14.1
     },
     {
       "round": "ADART II",
@@ -1073,12 +1073,12 @@
           2,
           12
         ],
-        "seconds": 1.7,
+        "seconds": 1.6,
         "same_choices_as_all_volumes": false
       },
       "exposure": {
         "records": 40,
-        "records_with_decisive_clauses": 15,
+        "records_with_decisive_clauses": 26,
         "clauses": 508,
         "clauses_kept": 508,
         "decisive_repo": 53,
@@ -1090,22 +1090,22 @@
       "scored": true,
       "table_row": {
         "test_volume": "ADART II",
-        "records": 15,
+        "records": 26,
         "first_group": {
-          "n": 15,
-          "percent": 100.0
+          "n": 25,
+          "percent": 96.2
         },
         "first_three_groups": {
-          "n": 15,
+          "n": 26,
           "percent": 100.0
         },
         "strict_set": {
-          "n": 15,
+          "n": 26,
           "percent": 100.0
         },
-        "median_strict_set": 49.0
+        "median_strict_set": 49.5
       },
-      "scoring_cpu_seconds": 8.7
+      "scoring_cpu_seconds": 8.2
     },
     {
       "round": "ADART III",
@@ -1580,12 +1580,12 @@
           2,
           5
         ],
-        "seconds": 1.2,
+        "seconds": 1.1,
         "same_choices_as_all_volumes": false
       },
       "exposure": {
         "records": 96,
-        "records_with_decisive_clauses": 66,
+        "records_with_decisive_clauses": 61,
         "clauses": 2107,
         "clauses_kept": 2107,
         "decisive_repo": 224,
@@ -1597,22 +1597,22 @@
       "scored": true,
       "table_row": {
         "test_volume": "ADART III",
-        "records": 66,
+        "records": 61,
         "first_group": {
-          "n": 63,
-          "percent": 95.5
+          "n": 59,
+          "percent": 96.7
         },
         "first_three_groups": {
-          "n": 64,
-          "percent": 97.0
+          "n": 60,
+          "percent": 98.4
         },
         "strict_set": {
-          "n": 66,
-          "percent": 100.0
+          "n": 60,
+          "percent": 98.4
         },
-        "median_strict_set": 19.0
+        "median_strict_set": 17.0
       },
-      "scoring_cpu_seconds": 76.2
+      "scoring_cpu_seconds": 73.6
     },
     {
       "round": "all volumes",
@@ -2113,7 +2113,7 @@
       },
       "exposure": {
         "records": 179,
-        "records_with_decisive_clauses": 112,
+        "records_with_decisive_clauses": 120,
         "clauses": 3508,
         "clauses_kept": 3508,
         "decisive_repo": 409,
@@ -2125,44 +2125,44 @@
       "scored": true,
       "table_row": {
         "test_volume": "all volumes",
-        "records": 112,
+        "records": 120,
         "first_group": {
-          "n": 108,
-          "percent": 96.4
+          "n": 115,
+          "percent": 95.8
         },
         "first_three_groups": {
-          "n": 110,
-          "percent": 98.2
+          "n": 119,
+          "percent": 99.2
         },
         "strict_set": {
-          "n": 112,
-          "percent": 100.0
+          "n": 119,
+          "percent": 99.2
         },
-        "median_strict_set": 16.5
+        "median_strict_set": 15.0
       },
-      "scoring_cpu_seconds": 99.3,
+      "scoring_cpu_seconds": 97.1,
       "repo_check": {
         "records": 179,
         "identical": true,
         "differing_records": [],
-        "cpu_seconds": 98.6
+        "cpu_seconds": 96.2
       },
       "repo_table_row": {
         "test_volume": "unmodified pipeline",
-        "records": 112,
+        "records": 120,
         "first_group": {
-          "n": 108,
-          "percent": 96.4
+          "n": 115,
+          "percent": 95.8
         },
         "first_three_groups": {
-          "n": 110,
-          "percent": 98.2
+          "n": 119,
+          "percent": 99.2
         },
         "strict_set": {
-          "n": 112,
-          "percent": 100.0
+          "n": 119,
+          "percent": 99.2
         },
-        "median_strict_set": 16.5
+        "median_strict_set": 15.0
       }
     }
   ],
@@ -2171,7 +2171,7 @@
     "cal": "370231c111606692b34da9473c1acb42b81d41abfef422dbd6a5da3543f37d66",
     "sky": "6578ceb3126ac83d13cbb3cc4ffcddbc2bd12bf8a7ebbe8aa84ab6c2ada98b65",
     "eclipses": "c88938b300ee6067a0a8263796281242c043b78ccb9f59f0188feb1a59c96bb0",
-    "audit_held_out": "9209cfc7272bcc67db7c853642e7f9f5e5f09a6b8c78daeb5051acc440ed3bf2",
+    "audit_held_out": "86786ef817eec39569a1badf238da9806b08ae9e696b04e6729ac0aff41e4987",
     "reviewed_clauses": "2d85cad107cc16da5b123140e7205a66fca9287adaabdcdc5978d90d633d4eba"
   },
   "all_volumes_reproduces_repo_choices": {
@@ -2179,44 +2179,44 @@
     "parser_rules": true,
     "decisive_types": true
   },
-  "scoring_wall_seconds": 51.1,
+  "scoring_wall_seconds": 49.8,
   "all_three_rounds": {
     "test_volume": "all three rounds",
-    "records": 112,
+    "records": 120,
     "first_group": {
-      "n": 108,
-      "percent": 96.4
+      "n": 115,
+      "percent": 95.8
     },
     "first_three_groups": {
-      "n": 110,
-      "percent": 98.2
+      "n": 119,
+      "percent": 99.2
     },
     "strict_set": {
-      "n": 112,
-      "percent": 100.0
+      "n": 119,
+      "percent": 99.2
     },
-    "median_strict_set": 17.5
+    "median_strict_set": 15.5
   },
   "reading": {
     "first_group": {
-      "all_volumes_percent": 96.4,
-      "held_out_percent": 96.4,
+      "all_volumes_percent": 95.8,
+      "held_out_percent": 95.8,
       "drop_points": 0.0,
       "close": true
     },
     "strict_set": {
-      "all_volumes_percent": 100.0,
-      "held_out_percent": 100.0,
+      "all_volumes_percent": 99.2,
+      "held_out_percent": 99.2,
       "drop_points": 0.0,
       "close": true
     }
   },
   "main_text": {
-    "records": 112,
-    "first_group": 108,
-    "first_three_groups": 110,
-    "strict_set": 112,
-    "median_strict_set": 16.5
+    "records": 120,
+    "first_group": 115,
+    "first_three_groups": 119,
+    "strict_set": 119,
+    "median_strict_set": 15.0
   },
-  "seconds": 54.1
+  "seconds": 52.7
 }

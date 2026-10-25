@@ -65,14 +65,15 @@ def main() -> int:
 
     frozen_population = pd.read_parquet(
         HERE / "data" / "benchmark" / "benchmark_records.parquet",
-        columns=[
-            "tablet", "tool_benchmark_eligible", "tool_year_bearing",
-            "n_frozen_extractable_facts",
-        ])
+        columns=["tablet", "tool_benchmark_eligible", "n_frozen_extractable_facts"])
     frozen_population = frozen_population.set_index("tablet")
     eligible_ids = set(frozen_population.loc[
         frozen_population.tool_benchmark_eligible].index)
-    frozen_active = frozen_population.tool_year_bearing.to_dict()
+    # A record has decisive clauses when its result keeps at least one, under
+    # the final rules. The results hold no published year.
+    decisive = (pd.read_parquet(HERE / "data" / "results" / "tablet_dates.parquet",
+                                columns=["tablet", "n_decisive_statements"])
+                .set_index("tablet").n_decisive_statements.fillna(0).gt(0).to_dict())
     reviewed = clauses.load(clauses.REVIEWED)
     cand = []
     for _, r in tb.iterrows():
@@ -125,7 +126,7 @@ def main() -> int:
             "semantic_decisive": int(scores.decisive.sum()),
             "active_decisive": int(
                 (scores.decisive & (scores.weights > 0)).sum()),
-            "frozen_active": bool(frozen_active[tablet]),
+            "decisive": bool(decisive[tablet]),
             "weighting": args.weighting,
             "best": float(scores.score.max()),
             "best_bodies": int(scores.priority.max()),
@@ -248,7 +249,7 @@ def main() -> int:
           f"({d.truth_in_strict.mean()*100:.0f}%)")
     print(f"  published year in safety set : {int(d.truth_in_safety.sum()):3d}/{n} "
           f"({d.truth_in_safety.mean()*100:.0f}%)")
-    active = d.frozen_active
+    active = d.decisive
     print(f"  forced display top 1, active : "
           f"{int(d.loc[active, 'display_top1_correct'].sum()):3d}/"
           f"{int(active.sum())} "
@@ -277,11 +278,9 @@ def main() -> int:
     print(f"  published year outside safety: {int((~d.truth_in_safety).sum())}, "
           f"which is where evidence is wrongly outranking the right year")
     if args.weighting == "skill":
-        weak = ~d.frozen_active
-        strong = d.frozen_active
-        print(f"\n  frozen year-bearing tablets  : {int(strong.sum())}")
-        print(f"  currently year-bearing       : "
-              f"{int(d.active_decisive.gt(0).sum())} (diagnostic only)")
+        weak = ~d.decisive
+        strong = d.decisive
+        print(f"\n  records with decisive clauses: {int(strong.sum())}")
         if strong.any():
             print(f"    published year on Pareto set: "
                   f"{int(d.loc[strong, 'truth_in_strict'].sum())}/"
@@ -297,7 +296,7 @@ def main() -> int:
         print(f"  supporting-only tablets      : {int(weak.sum())} "
               "(declined; full candidate set retained)")
 
-        print("\n  year-bearing results by join status")
+        print("\n  records with decisive clauses, by join status")
         for joined, group in d.loc[strong].groupby("joined"):
             label = "physical joins" if joined else "not joins"
             print(f"    {label:<14} n={len(group):3d}  strict "
@@ -305,7 +304,7 @@ def main() -> int:
                   f"{group.truth_in_safety.mean()*100:5.1f}%  median sets "
                   f"{group.strict_count.median():.0f}/{group.safety_count.median():.0f}")
 
-        print("\n  year-bearing results by cohort")
+        print("\n  records with decisive clauses, by cohort")
         for cohort, group in d.loc[strong].groupby("cohort"):
             print(f"    {cohort:<18} n={len(group):3d}  strict "
                   f"{group.truth_in_strict.mean()*100:5.1f}%  safety "

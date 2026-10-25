@@ -49,7 +49,7 @@ class PaperNumbersTest(unittest.TestCase):
         cls.dated = set(cls.population.tablet)
         cls.tablets = pd.read_parquet(DATA / "corpus" / "tablets.parquet").set_index("tablet")
         cls.scores = pd.read_parquet(DATA / "benchmark" / "benchmark_results.parquet")
-        cls.active = cls.scores[cls.scores.frozen_active]
+        cls.active = cls.scores[cls.scores.decisive]
         cls.results = pd.read_parquet(DATA / "results" / "tablet_dates.parquet").set_index("tablet")
         cls.facts = pd.read_parquet(DATA / "clauses" / "parser_clauses.parquet")
         cls.scope = json.loads((DATA / "paper_counts" / "counts.json").read_text())
@@ -91,48 +91,47 @@ class PaperNumbersTest(unittest.TestCase):
         self.says("the reviewed clauses agree in 93.6\\% of the cases that the tools can test and the parser clauses in 93.8\\%")
 
     def test_benchmark_population(self):
-        self.assertEqual((len(self.scores), len(self.active)), (179, 112))
-        self.says("Of these, 112 then had at least one decisive clause")
-        self.says("The other 67 are supporting-only records")
+        self.assertEqual((len(self.scores), len(self.active)), (179, 120))
+        self.says("Of these, 120 have at least one decisive clause")
+        self.says("The other 59 are supporting-only records")
         self.assertEqual(len(self.dated - set(self.scores.tablet)), 238)
         self.says("The same rules date the 238 dated records outside the benchmark")
         outside = self.results.loc[sorted(self.dated - set(self.scores.tablet))]
         ranked = outside[outside.claim.eq("ranked")]
         self.assertEqual((len(ranked), ranked.strict_years_astro.map(len).median()), (29, 87))
         self.assertFalse(outside.claim.eq("committed").any())
-        self.says("and 29 of them have a decisive clause. The median strict set of these 29 holds 87 years")
+        self.says("and 29 of them have a decisive clause.")
+        self.says("The median strict set of these 29 holds 87 years")
 
     def test_first_groups(self):
         first = int(self.active.truth_in_top_evidence_group.sum())
         three = int(self.active.truth_evidence_group_rank.le(3).sum())
-        self.assertEqual((first, pct(first, 112)), (108, "96"))
-        self.says("it contains the published year in 108 (96\\%")
-        self.assertEqual(int(self.active.top_evidence_group_size.eq(1).sum()), 84)
-        self.says("For 84 of the 112, it pins down a single year, and in 83 this is the published year")
-        self.says("For 84 of them, the ranking pins down one year, the published year in 83")
-        now = self.active.active_decisive.astype(float).gt(0)
-        self.assertEqual((int((~now).sum()), self.active[now].strict_count.median()), (11, 14))
-        self.says("11 of these records no longer have a decisive clause, and their strict set holds all 701 years")
-        first_now = int(self.active[now].truth_in_top_evidence_group.sum())
-        self.assertEqual((first_now, pct(first_now, int(now.sum()))), (99, "98"))
-        self.says("and the first group holds the published year in 99 (98\\%)")
-        self.assertEqual((three, pct(three, 112)), (110, "98"))
-        self.says("contain it in 110 (98\\%)")
-        supporting = self.scores[~self.scores.frozen_active]
-        self.assertEqual(pct(int(supporting.truth_in_top_evidence_group.sum()), len(supporting)), "87")
-        self.says("The supporting-only records also reach 87\\% for the first group")
+        self.assertEqual((first, pct(first, 120)), (115, "96"))
+        self.says("it contains the published year in 115 (96\\%")
+        self.assertEqual(int(self.active.top_evidence_group_size.eq(1).sum()), 86)
+        self.says("For 86 of the 120, it pins down a single year, and in 84 this is the published year")
+        self.says("For 86 of them, the ranking pins down one year, the published year in 84")
+        self.assertTrue(self.active.active_decisive.astype(float).gt(0).all())
+        self.assertEqual((three, pct(three, 120)), (119, "99"))
+        self.says("contain it in 119 (99\\%)")
+        supporting = self.scores[~self.scores.decisive]
+        self.assertEqual(pct(int(supporting.truth_in_top_evidence_group.sum()), len(supporting)), "86")
+        self.says("The supporting-only records also reach 86\\% for the first group")
 
     def test_candidate_years_in_ranked_order(self):
         candidates = pd.read_parquet(DATA / "benchmark" / "ranking_candidates.parquet")
-        places = fig4_benchmark.positions(candidates[candidates.frozen_active])
-        self.assertEqual(pct(sum(1 for p in places if p <= 1), 112), "74")
-        self.says("one year suffices in 74\\%")
+        places = fig4_benchmark.positions(candidates[candidates.decisive])
+        self.assertEqual(pct(sum(1 for p in places if p <= 1), 120), "70")
+        self.says("one year suffices in 70\\%")
 
     def test_strict_sets(self):
         strict = int(self.active.truth_in_strict.sum())
-        self.assertEqual((strict, pct(strict, 112), self.active.strict_count.median()), (112, "100", 16.5))
-        self.says("It contains the published year in all 112 records with decisive clauses, "
-                  "with a median size of 16.5 years")
+        self.assertEqual((strict, pct(strict, 120), self.active.strict_count.median()), (119, "99", 15))
+        self.says("It contains the published year in 119 of the 120 records with decisive clauses (99\\%), "
+                  "with a median size of 15 years. In the one miss, X301582, the published year stays in the safety set")
+        miss = self.active[~self.active.truth_in_strict.astype(bool)]
+        self.assertEqual(list(miss.tablet), ["X301582"])
+        self.assertTrue(bool(miss.truth_in_safety.iloc[0]))
 
     def test_commitments_and_stated_years(self):
         dated = self.results.loc[sorted(self.dated)]
@@ -223,7 +222,10 @@ class PaperNumbersTest(unittest.TestCase):
         runs = [json.loads((DATA / "clauses" / name / "run_summary.json").read_text())
                 for name in ("model_review_gpt-6-luna-2026-09-22", "model_review_gpt-6-luna-2026-09-22_adart_iv")]
         self.assertEqual(round(sum(run["all_cached_record_calls"]["cost_usd"] for run in runs)), 5)
-        self.says("All review and search calls with gpt-6-luna, for ADART I to III and ADART IV, superseded ones included, cost about \\$5")
+        translated = int(self.tablets.text.fillna("").str.strip().ne("").sum())
+        adart_iv = json.loads((DATA / "corpus" / "adart_iv_corpus_summary.json").read_text())["entries_with_translation"]
+        self.assertEqual((translated, adart_iv, round(translated + adart_iv, -2)), (332, 860, 1200))
+        self.says("All calls to the language model, for the review and the search of about 1,200 texts, cost about \\$5")
         iv = runs[1]["review"]["final_actions"]
         self.assertEqual((runs[1]["review"]["clauses"], iv["KEEP"], iv["MODIFY"], runs[1]["recall"]["added"]),
                          (539, 533, 6, 179))
@@ -235,17 +237,17 @@ class PaperNumbersTest(unittest.TestCase):
         self.says("most of the 31 alternative settings of the method")
         self.says("The sensitivity audit tests 32 fixed configurations, including the baseline")
         baseline = self.sensitivity.loc["baseline"]
-        self.assertEqual((pct(baseline.truth_in_leading_group, 112), pct(baseline.truth_strict, 112)), ("96", "100"))
-        rate = lambda config, column: pct(self.sensitivity.loc[config, column], 112)
+        self.assertEqual((pct(baseline.truth_in_leading_group, 120), pct(baseline.truth_strict, 120)), ("96", "99"))
+        rate = lambda config, column: pct(self.sensitivity.loc[config, column], 120)
         self.assertEqual((rate("no_sun_family", "truth_in_leading_group"),
                           self.sensitivity.loc["no_sun_family", "median_leading_group"],
-                          rate("no_sun_family", "truth_strict")), ("96", 1, "100"))
+                          rate("no_sun_family", "truth_strict")), ("96", 1, "99"))
         self.says("Without this clock, the benchmark values stay as in the baseline")
         for config in ("contradictions_before_information", "equal_weighting_with_tiers"):
-            self.assertEqual((rate(config, "truth_in_leading_group"), rate(config, "truth_strict")), ("96", "100"))
+            self.assertEqual((rate(config, "truth_in_leading_group"), rate(config, "truth_strict")), ("96", "99"))
         self.says("and they give the same rates as the baseline")
         self.assertEqual((rate("contradictions_bound_the_leading_set", "truth_strict"),
-                          rate("information_weighting", "truth_strict")), ("96", "96"))
+                          rate("information_weighting", "truth_strict")), ("96", "95"))
         self.assertEqual((self.sensitivity.loc["contradictions_bound_the_leading_set", "median_strict_count"],
                           self.sensitivity.loc["information_weighting", "median_strict_count"]), (1, 1))
         self.says("The strict set then shrinks to about one year, which is more often wrong")
@@ -255,10 +257,10 @@ class PaperNumbersTest(unittest.TestCase):
         self.assertTrue(summary["held_out_scored"])
         self.assertEqual(summary["settings"]["close_points"], 5.0)
         pooled = summary["all_three_rounds"]
-        self.assertEqual((pooled["first_group"]["n"], pooled["strict_set"]["n"]), (108, 112))
+        self.assertEqual((pooled["first_group"]["n"], pooled["strict_set"]["n"]), (115, 119))
         self.assertTrue(all(reading["close"] for reading in summary["reading"].values()))
-        self.says("Over the three rounds, the first group holds the published year in 96\\% and the strict set in 100\\%")
-        self.says("All three rounds & 112 & 108 (96\\%) & 110 (98\\%) & 112 (100\\%) & 17.5 years")
+        self.says("Over the three rounds, the first group holds the published year in 96\\% and the strict set in 99\\%")
+        self.says("All three rounds & 120 & 115 (96\\%) & 119 (99\\%) & 119 (99\\%) & 15.5 years")
 
     def test_corrigenda(self):
         corrigenda = json.loads((DATA / "benchmark" / "adart_iv_corrigenda_summary.json").read_text())

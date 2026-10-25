@@ -769,9 +769,10 @@ def audit(t0: float, scratch: Path) -> int:
                 for year in level["years_astro"]
             }) == list(row.top_three_evidence_groups_years_astro)
         ), axis=1)
-    active_ids = set(pd.read_parquet(
-        HERE / "data" / "benchmark" / "benchmark_records.parquet").loc[
-            lambda frame: frame.tool_year_bearing, "tablet"])
+    frozen_records = pd.read_parquet(HERE / "data" / "benchmark" / "benchmark_records.parquet")
+    # The benchmark records with decisive clauses: their result keeps at least one.
+    active_ids = (set(frozen_records.loc[frozen_records.tool_benchmark_eligible, "tablet"])
+                  & set(dated.loc[dated.n_decisive_statements.fillna(0).gt(0), "tablet"]))
     active_public = dated[dated.tablet.isin(active_ids)]
     ok("public results expose complete score levels and exact physical subgroups",
        bool(evidence_outputs_are_complete.all())
@@ -881,7 +882,7 @@ def audit(t0: float, scratch: Path) -> int:
        and population.cohort_source.eq("regex").all()
        and int(population.tool_benchmark_eligible.sum()) == 179
        and int(population.tool_year_bearing.sum()) == 112)
-    ok("the frozen benchmark is the same 179 and 112 records",
+    ok("the frozen benchmark file holds the same 179 records and labels",
        ids_sha256(population.loc[population.tool_benchmark_eligible, "tablet"])
        == FROZEN_ELIGIBLE_IDS_SHA256
        and ids_sha256(population.loc[population.tool_year_bearing, "tablet"])
@@ -892,9 +893,11 @@ def audit(t0: float, scratch: Path) -> int:
     sensitivity = pd.read_parquet(
         HERE / "data" / "benchmark" / "sensitivity_summary.parquet").set_index("config")
     backward = pd.read_parquet(HERE / "data" / "benchmark" / "benchmark_results.parquet")
-    active_backward = backward[backward.frozen_active]
+    active_backward = backward[backward.decisive]
+    ok("the benchmark's records with decisive clauses are those of the results",
+       set(active_backward.tablet) == active_ids and len(active_ids) == 120)
     ok("sensitivity baseline matches the current backward run",
-       int(sensitivity.loc["baseline", "active_year_bearing"]) == len(active_backward)
+       int(sensitivity.loc["baseline", "decisive_records"]) == len(active_backward)
        and int(sensitivity.loc["baseline", "truth_strict"]) == int(active_backward.truth_in_strict.sum())
        and int(sensitivity.loc["baseline", "truth_safety"]) == int(active_backward.truth_in_safety.sum())
        and int(sensitivity.loc["baseline", "display_top1_correct"]) == int(active_backward.display_top1_correct.sum())
@@ -903,7 +906,7 @@ def audit(t0: float, scratch: Path) -> int:
        and len(SENSITIVITY_CONFIGS) == 32
        and sorted(sensitivity.index) == sorted(c["config"] for c in SENSITIVITY_CONFIGS))
     ok("default backward runner writes the full evaluation population",
-       len(backward) == 179 and int(backward.frozen_active.sum()) == 112
+       len(backward) == 179 and int(backward.decisive.sum()) == len(active_ids)
        and set(backward.tablet) == set(population.loc[population.tool_benchmark_eligible, "tablet"])
        and backward.top_evidence_group_size.between(1, len(years)).all()
        and backward.top_three_evidence_groups_size.between(1, len(years)).all())
@@ -1124,7 +1127,7 @@ def audit(t0: float, scratch: Path) -> int:
                                    "candidate_year_astro"]) == top3
                 and int(group.evidence_group_rank.max()) == row.evidence_group_count
                 and [int(year) for year in in_order[:10]] == display
-                and group.frozen_active.eq(row.frozen_active).all()
+                and group.decisive.eq(row.decisive).all()
                 and group.active_decisive.eq(row.active_decisive).all()
                 and group.truth.eq(truth).all()
                 and group.correct.eq(group.candidate_year_astro.eq(truth)).all()):
@@ -1139,7 +1142,7 @@ def audit(t0: float, scratch: Path) -> int:
                 and base.leading_group_size == len(top)
                 and base.strict_count == len(strict) and base.safety_count == len(safety)
                 and base.active_decisive == row.active_decisive
-                and base.frozen_active == row.frozen_active
+                and base.decisive == row.decisive
                 # The sensitivity audit keeps four levels and ranks a year
                 # below them as 99.
                 and base.truth_group_rank == (row.truth_evidence_group_rank
@@ -1293,8 +1296,7 @@ def audit(t0: float, scratch: Path) -> int:
     ok("each round dates exactly the benchmark records of its test volumes",
        members_ok
        and rescored.groupby("round").tablet.apply(lambda s: s.is_unique).all()
-       and rescored.frozen_active.eq(
-           rescored.tablet.map(eligible.tool_year_bearing)).all()
+       and rescored.decisive.eq(rescored.tablet.isin(active_ids)).all()
        and rescored.volume.eq(
            rescored.tablet.map(eligible.project).map(volume_of)).all())
     ok("the held-out rows score their sets against the catalogue",
@@ -1507,12 +1509,12 @@ def audit(t0: float, scratch: Path) -> int:
         dated_ids = set(population.tablet)
         in_dated = public.loc[sorted(dated_ids)]
         n_bench, n_act, n_dated, n_years = len(backward), len(active_backward), len(dated_ids), len(years)
-        supporting = backward[~backward.frozen_active]
+        supporting = backward[~backward.decisive]
         first = int(active_backward.truth_in_top_evidence_group.sum())
         three = int(active_backward.truth_evidence_group_rank.le(3).sum())
         strict_in = int(active_backward.truth_in_strict.sum())
         safety_in = int(active_backward.truth_in_safety.sum())
-        places = fig4_benchmark.positions(ranking_candidates[ranking_candidates.frozen_active])
+        places = fig4_benchmark.positions(ranking_candidates[ranking_candidates.decisive])
         reach = {n: pct(int((places <= n).sum()), len(places)) for n in (1, 3, 10)}
         parser = facts[facts.tablet.isin(dated_ids)]
         span = scope["adart_i_iii"]
@@ -1546,9 +1548,9 @@ def audit(t0: float, scratch: Path) -> int:
 
         # The partial checks that the reviews asked about, recounted from the committed tables.
         benchmark_now = pd.read_parquet(HERE / "data" / "benchmark" / "benchmark_results.parquet")
-        frozen_active = set(benchmark_now[benchmark_now.frozen_active.astype(bool)].tablet)
+        decisive_ids = set(benchmark_now[benchmark_now.decisive.astype(bool)].tablet)
         parser_now = pd.read_parquet(HERE / "data" / "clauses" / "parser_clauses.parquet")
-        latitude = parser_now[parser_now.tablet.isin(frozen_active) & parser_now.semantic_tier.eq("decisive")
+        latitude = parser_now[parser_now.tablet.isin(decisive_ids) & parser_now.semantic_tier.eq("decisive")
                               & parser_now.direction.isin(["above", "below"])]
         lat_decisive, lat_records = len(latitude), latitude.tablet.nunique()
         verdicts_now = pd.read_parquet(HERE / "data" / "clauses" / "model_review_gpt-6-luna-2026-09-22"
@@ -1625,7 +1627,7 @@ def audit(t0: float, scratch: Path) -> int:
             "X301492 bits": "the decisive bits $I_D$ total "
                             f"{float(public.at['X301492', 'primary_bits']):.1f}",
             "benchmark size": f"we fixed a benchmark of {n_bench} dated records",
-            "decisive records": f"Of these, {n_act} then had at least one decisive clause",
+            "decisive records": f"Of these, {n_act} have at least one decisive clause",
             "supporting-only records": f"The other {n_bench - n_act} are supporting-only records",
             "first group": f"For the {n_act} records with decisive clauses, it contains the "
                            f"published year in {first} ({pct(first, n_act)}\\%",
@@ -1633,13 +1635,6 @@ def audit(t0: float, scratch: Path) -> int:
                                 f"and in {int((active_backward.top_evidence_group_size.eq(1) & active_backward.truth_in_top_evidence_group.astype(bool)).sum())} this is the published year",
             "first group size (abstract)": f"For {int(active_backward.top_evidence_group_size.eq(1).sum())} of them, the ranking pins down one year, "
                                            f"the published year in {int((active_backward.top_evidence_group_size.eq(1) & active_backward.truth_in_top_evidence_group.astype(bool)).sum())}",
-            "no decisive clause now": "Under the current rules, "
-                                      f"{int((~active_backward.active_decisive.astype(float).gt(0)).sum())} "
-                                      "of these records no longer have a decisive clause, and their strict set holds "
-                                      f"all {n_years} years. For the other "
-                                      f"{int(active_backward.active_decisive.astype(float).gt(0).sum())}, the "
-                                      "median size is "
-                                      f"{num(active_backward[active_backward.active_decisive.astype(float).gt(0)].strict_count.median())} years",
             "first two groups": (lambda rank: f"The first two groups contain it in {int(rank(active_backward).le(2).sum())} "
                                  f"({pct(int(rank(active_backward).le(2).sum()), n_act)}\\%), and the third and fourth add none"
                                  if all(int(rank(part).le(2).sum()) == int(rank(part).le(4).sum())
@@ -1651,9 +1646,12 @@ def audit(t0: float, scratch: Path) -> int:
                                            "\\% for the first group",
             "ranked order": f"one year suffices in {reach[1]}\\%",
             "ties": f"Ties explain the gap to the {pct(first, n_act)}\\% of the first group",
-            "strict set": f"It contains the published year in {everyone(strict_in, n_act)} records "
-                          "with decisive clauses, with a median size of "
-                          f"{num(active_backward.strict_count.median())} years",
+            "strict set": (lambda missed: f"It contains the published year in {everyone(strict_in, n_act)} records "
+                           f"with decisive clauses ({pct(strict_in, n_act)}\\%), with a median size of "
+                           f"{num(active_backward.strict_count.median())} years"
+                           + (f". In the one miss, {missed.tablet.iloc[0]}, the published year stays in the safety set"
+                              if len(missed) == 1 and bool(missed.truth_in_safety.iloc[0]) else ""))(
+                active_backward[~active_backward.truth_in_strict.astype(bool)]),
             "alternative settings": f"most of the {len(SENSITIVITY_CONFIGS) - 1} alternative settings",
             "outside the benchmark": f"The same rules date the {len(outside)} dated records "
                                      "outside the benchmark. They had fewer than three parser "
@@ -1698,8 +1696,6 @@ def audit(t0: float, scratch: Path) -> int:
                       f"{span['records_with_edition_text']} have edition text and "
                       f"{int(catalogue.loc[sorted(dated_ids), 'text'].fillna('').str.strip().ne('').sum())}"
                       " an English translation",
-            "current rules": f"so {int(supporting.active_decisive.gt(0).sum())} of the {len(supporting)} "
-                             "supporting-only records now also have a decisive clause",
             "corrigenda": f"ADART IV makes {len(corrigenda_rows)} corrections",
             "calendar corrections": f"We corrected the {len(pd.read_csv(HERE / 'data' / 'physical' / 'calendar_ocr_corrections.csv'))} "
                                     "transcription errors that this comparison found",
@@ -1724,9 +1720,12 @@ def audit(t0: float, scratch: Path) -> int:
                                        else "without the solar year: a value changes"),
             "commitment bases": f"{word(int(bases.get('independent_astronomy', 0))).capitalize()} rest on two "
                                 f"or more clocks and {word(int(bases.get('secure_lunar_eclipse', 0)))} on a lunar eclipse",
-            "approximation runs": ("Both leave each rate within one point of the baseline"
-                                   if within_point("longitude_only_distances_supporting") and within_point("moon_night_window")
-                                   else "approximation runs: a rate moves by more than one point"),
+            "approximation runs": (lambda most: "Testing the distances in longitude only moves each rate by at most "
+                                   f"{word(most('longitude_only_distances_supporting'))} point"
+                                   + ("" if most("longitude_only_distances_supporting") == 1 else "s")
+                                   + ", and a window of one night for the Moon by at most "
+                                   f"{word(most('moon_night_window'))}")(
+                lambda name: max(abs(shift(name, column)) for column in ("truth_in_leading_group", "truth_strict"))),
             "strict set protected": ("The strict set then shrinks to about one year, which is more often wrong"
                                      if all(float(sensitivity.loc[name, "median_strict_count"]) <= 1.5
                                             and shift(name, "truth_strict") < 0
@@ -1742,10 +1741,12 @@ def audit(t0: float, scratch: Path) -> int:
                                     and all(abs(shift(name, column)) <= 8 for name in alternatives
                                             for column in ("truth_in_leading_group", "truth_strict"))
                                     else "sensitivity: a rate changes by more than eight points"),
-            "clocks widen": ("Removing one planet about triples the median strict set"
-                             if all(2.5 <= float(sensitivity.loc[name, "median_strict_count"]) / base_strict <= 4
-                                    for name in ("no_mars_family", "no_jupiter_family", "no_saturn_family"))
-                             else "clocks: removing one does not about triple the strict set"),
+            "clocks widen": (lambda ratios: "Removing one planet "
+                             + ("more than triples" if all(3 <= r <= 4 for r in ratios)
+                                else "about triples" if all(2.5 <= r <= 3.5 for r in ratios)
+                                else "changes otherwise") + " the median strict set")(
+                [float(sensitivity.loc[name, "median_strict_count"]) / base_strict
+                 for name in ("no_mars_family", "no_jupiter_family", "no_saturn_family")]),
             "month context ranks": ("The month context sets the width of the sets and the ranking"
                                     if float(sensitivity.loc["no_month_context", "median_strict_count"])
                                     > max(float(sensitivity.loc[name, "median_strict_count"])
@@ -1758,8 +1759,8 @@ def audit(t0: float, scratch: Path) -> int:
                     for column in ("truth_in_leading_group", "truth_strict"))),
             "no agent rules": (lambda growth: (
                 "Without the agent rules, each rate falls by at most two points, and the median strict set "
-                + ("about doubles" if 1.7 <= growth <= 2.5 else "grows by about half" if 1.3 <= growth < 1.7
-                   else "changes otherwise"))
+                + ("about doubles" if 1.7 <= growth <= 2.5 else "grows by about half" if 1.4 <= growth < 1.7
+                   else "grows by about a third" if 1.2 <= growth < 1.4 else "changes otherwise"))
                 if all(-2 <= shift("no_agent_suggested_rules", column) <= 0
                        for column in ("truth_in_leading_group", "truth_strict"))
                 else "agent rules: a rate falls by more than two points")(

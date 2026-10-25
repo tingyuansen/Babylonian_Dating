@@ -89,12 +89,12 @@ def dress(ax, candidate_count: int) -> None:
 def panel_groups(ax, sample) -> None:
     """How many distinct physical explanations must be considered."""
     groups = [
-        (f"decisive clauses, {int(sample.frozen_active.sum())}",
-         sample.frozen_active, fs.BLUE),
+        (f"decisive clauses, {int(sample.decisive.sum())}",
+         sample.decisive, fs.BLUE),
         (f"all, {len(sample)}",
          pd.Series(True, index=sample.index), fs.GREY),
-        (f"supporting only, {int((~sample.frozen_active).sum())}",
-         ~sample.frozen_active, fs.FAINT),
+        (f"supporting only, {int((~sample.decisive).sum())}",
+         ~sample.decisive, fs.FAINT),
     ]
     # Later groups add no record, so the panel stops at two.
     ranks, width = [1, 2], 0.26
@@ -129,14 +129,10 @@ def main() -> Path:
         ROOT / "data" / "benchmark" / "benchmark_results.parquet")
     candidates = pd.read_parquet(
         ROOT / "data" / "benchmark" / "ranking_candidates.parquet")
-    population = pd.read_parquet(
-        ROOT / "data" / "benchmark" / "benchmark_records.parquet",
-        columns=["tablet", "tool_year_bearing"])
-    candidates = candidates.merge(population, on="tablet", how="left")
 
-    active = positions(candidates[candidates.frozen_active])
+    active = positions(candidates[candidates.decisive])
     eligible = positions(candidates)
-    supporting = positions(candidates[~candidates.frozen_active])
+    supporting = positions(candidates[~candidates.decisive])
 
     fig, axes = plt.subplots(
         1, 2, figsize=(fs.FULL_WIDTH, 2.85),

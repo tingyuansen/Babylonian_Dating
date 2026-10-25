@@ -1,14 +1,14 @@
 {
   "schema": "adart-scope-input-manifest-v1",
-  "script_sha256": "9135b5c77d4441598ba47df6815e1b9aa49847ec77451d6badfa794238aa7fc9",
+  "script_sha256": "d7cae365356a805e02f92cdd01d00bf4360fc62f906385a8c2a06ebdc1a8f3dd",
   "inputs": {
     "data/benchmark/benchmark_records.parquet": {
       "sha256": "a0646a122e375a3ac28640e66b7ae0422e4232330f1870bb3d8035da0872599e",
       "bytes": 23068
     },
     "data/benchmark/benchmark_results.parquet": {
-      "sha256": "5f71f3a40deea47c43b50159b28e749c9fcda11649fe56ff9375fefa8334b7f4",
-      "bytes": 124777
+      "sha256": "8db5a34f4332058e460e0f22c479c20b000dab1455f92b42f468221b0e2be5e9",
+      "bytes": 124745
     },
     "data/clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_bits.parquet": {
       "sha256": "2fdf027fd741eaa4b1a30bca04f54a9a3bcfb8853a2b4be9c74468fb19bc4cd9",

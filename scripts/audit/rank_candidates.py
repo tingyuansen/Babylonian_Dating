@@ -43,11 +43,12 @@ def infer_candidates() -> pd.DataFrame:
         HERE / "data" / "corpus" / "tablets.parquet", columns=["tablet", "text"])
     frozen = pd.read_parquet(
         HERE / "data" / "benchmark" / "benchmark_records.parquet",
-        columns=[
-            "tablet", "tool_benchmark_eligible", "tool_year_bearing",
-        ])
+        columns=["tablet", "tool_benchmark_eligible"])
     eligible = set(frozen.loc[frozen.tool_benchmark_eligible, "tablet"])
-    frozen_active = frozen.set_index("tablet").tool_year_bearing.to_dict()
+    # A record has decisive clauses when its result keeps at least one.
+    decisive = (pd.read_parquet(HERE / "data" / "results" / "tablet_dates.parquet",
+                                columns=["tablet", "n_decisive_statements"])
+                .set_index("tablet").n_decisive_statements.fillna(0).gt(0).to_dict())
     years = cal.candidate_years()
     reviewed = clauses.load(clauses.REVIEWED)
     rows: list[dict] = []
@@ -81,7 +82,7 @@ def infer_candidates() -> pd.DataFrame:
                 "safety_count": int(scores.safety.sum()),
                 "n_statements": len(statements),
                 "active_decisive": active,
-                "frozen_active": bool(frozen_active[tablet.tablet]),
+                "decisive": bool(decisive[tablet.tablet]),
                 "decisive_families": int(scores.priority[i]),
                 "primary_bits": float(scores.score[i]),
                 "support_bits": float(scores.support[i]),

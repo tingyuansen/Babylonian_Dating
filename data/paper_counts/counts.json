@@ -1,6 +1,6 @@
 {
   "schema": "adart-i-iii-manuscript-scope-v1",
-  "generated_utc": "2026-10-25T08:59:27.271539+00:00",
+  "generated_utc": "2026-10-25T10:03:31.906703+00:00",
   "mode": "filter_and_aggregate_current_saved_outputs",
   "included_projects": [
     "adsd/adart1",
@@ -134,75 +134,75 @@
       "median_top_evidence_group_size": 1.0,
       "median_top_three_evidence_groups_size": 5.0
     },
-    "frozen_year_bearing": {
-      "records": 112,
+    "decisive": {
+      "records": 120,
       "truth_in_strict": {
-        "count": 112,
-        "percent": 100.0
+        "count": 119,
+        "percent": 99.16666666666667
       },
       "truth_in_safety": {
-        "count": 112,
+        "count": 120,
         "percent": 100.0
       },
       "unique": {
-        "count": 24,
-        "percent": 21.428571428571427
+        "count": 26,
+        "percent": 21.666666666666668
       },
       "truth_in_top_evidence_group": {
-        "count": 108,
-        "percent": 96.42857142857143
+        "count": 115,
+        "percent": 95.83333333333333
       },
       "display_top1_correct": {
-        "count": 86,
-        "percent": 76.78571428571429
+        "count": 88,
+        "percent": 73.33333333333333
       },
       "display_top3_correct": {
-        "count": 95,
-        "percent": 84.82142857142857
+        "count": 99,
+        "percent": 82.5
       },
       "truth_in_first_three_evidence_levels": {
-        "count": 110,
-        "percent": 98.21428571428571
+        "count": 119,
+        "percent": 99.16666666666667
       },
-      "median_strict_count": 16.5,
-      "median_safety_count": 196.5,
+      "median_strict_count": 15.0,
+      "median_safety_count": 174.0,
       "median_top_evidence_group_size": 1.0,
       "median_top_three_evidence_groups_size": 3.0
     },
-    "frozen_supporting_only": {
-      "records": 67,
+    "supporting_only": {
+      "records": 59,
       "truth_in_strict": {
-        "count": 66,
-        "percent": 98.50746268656717
+        "count": 59,
+        "percent": 100.0
       },
       "truth_in_safety": {
-        "count": 67,
+        "count": 59,
         "percent": 100.0
       },
       "unique": {
-        "count": 2,
-        "percent": 2.985074626865672
+        "count": 0,
+        "percent": 0.0
       },
       "truth_in_top_evidence_group": {
-        "count": 58,
-        "percent": 86.56716417910448
+        "count": 51,
+        "percent": 86.44067796610169
       },
       "display_top1_correct": {
-        "count": 16,
-        "percent": 23.880597014925375
+        "count": 14,
+        "percent": 23.728813559322035
       },
       "display_top3_correct": {
-        "count": 21,
-        "percent": 31.34328358208955
+        "count": 17,
+        "percent": 28.8135593220339
       },
       "truth_in_first_three_evidence_levels": {
-        "count": 61,
-        "percent": 91.04477611940298
+        "count": 52,
+        "percent": 88.13559322033899
       },
       "median_strict_count": 701.0,
       "median_safety_count": 701.0,
-      "median_top_evidence_group_size": 27.0,
-      "median_top_three_evidence_groups_size": 51.0
+      "median_top_evidence_group_size": 47.0,
+      "median_top_three_evidence_groups_size": 64.0
     }
   },
   "scope_checks": {

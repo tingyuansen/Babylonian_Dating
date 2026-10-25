@@ -358,26 +358,25 @@ def year_label(year):
     return f"AD {year}" if year > 0 else f"{1 - year} BCE"
 
 
-def benchmark_summary(benchmark, frozen):
+def benchmark_summary(benchmark, frozen, production):
     unique(benchmark, ["tablet"], "saved benchmark")
     unique(frozen, ["tablet"], "frozen population")
-    columns(frozen, ["tool_benchmark_eligible", "tool_year_bearing"],
-            "frozen population")
-    columns(benchmark, ["frozen_active"], "saved benchmark")
+    columns(frozen, ["tool_benchmark_eligible"], "frozen population")
+    columns(benchmark, ["decisive"], "saved benchmark")
     eligible = frozen[bools(frozen.tool_benchmark_eligible, "benchmark eligibility")]
     require(set(benchmark.tablet) == set(eligible.tablet),
             "Saved benchmark IDs differ from the complete frozen population.")
     require(benchmark._in_scope.all() and eligible._in_scope.all(),
             "The frozen dating benchmark contains a record outside ADART I--III.")
-    active = bools(benchmark.frozen_active, "frozen_active")
-    expected = eligible.set_index("tablet").tool_year_bearing
-    require(active.eq(bools(benchmark.tablet.map(expected),
-                           "frozen year-bearing membership")).all(),
-            "Saved benchmark membership differs from the frozen ledger.")
+    # A record has decisive clauses when its result keeps at least one.
+    active = bools(benchmark.decisive, "decisive")
+    expected = production.set_index("tablet").n_decisive_statements.fillna(0).gt(0)
+    require(active.eq(benchmark.tablet.map(expected).astype(bool)).all(),
+            "The benchmark's records with decisive clauses differ from the results.")
     report = {}
     for name, part in (("all_eligible", benchmark),
-                       ("frozen_year_bearing", benchmark[active]),
-                       ("frozen_supporting_only", benchmark[~active])):
+                       ("decisive", benchmark[active]),
+                       ("supporting_only", benchmark[~active])):
         record = {"records": len(part)}
         for col in ("truth_in_strict", "truth_in_safety", "unique",
                     "truth_in_top_evidence_group", "display_top1_correct",
@@ -519,7 +518,7 @@ def build(root, output, files=FILES):
     table1 = information_table(scoped["information"], len(years))
     table3 = forward_table(scoped["reviewed_facts"])
     production, _ = production_summary(scoped["production"], catalogue)
-    benchmark = benchmark_summary(frames["benchmark"], frames["frozen"])
+    benchmark = benchmark_summary(frames["benchmark"], frames["frozen"], frames["production"])
     deterministic = forward_counts(scoped["deterministic_facts"])
     scope_counts = {
         "catalogue_records": len(metadata),
