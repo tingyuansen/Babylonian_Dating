@@ -1631,9 +1631,9 @@ def audit(t0: float, scratch: Path) -> int:
             "supporting-only records": f"The other {n_bench - n_act} are supporting-only records",
             "first group": f"For the {n_act} records with decisive clauses, it contains the "
                            f"published year in {first} ({pct(first, n_act)}\\%",
-            "first group size": f"For {int(active_backward.top_evidence_group_size.eq(1).sum())} of the {n_act}, it pins down a single year, "
+            "first group size": f"For {int(active_backward.top_evidence_group_size.eq(1).sum())} of the {n_act}, it holds a single year, "
                                 f"and in {int((active_backward.top_evidence_group_size.eq(1) & active_backward.truth_in_top_evidence_group.astype(bool)).sum())} this is the published year",
-            "first group size (abstract)": f"For {int(active_backward.top_evidence_group_size.eq(1).sum())} of them, the ranking pins down one year, "
+            "first group size (abstract)": f"For {int(active_backward.top_evidence_group_size.eq(1).sum())} of them, this top group is a single year, "
                                            f"the published year in {int((active_backward.top_evidence_group_size.eq(1) & active_backward.truth_in_top_evidence_group.astype(bool)).sum())}",
             "first two groups": (lambda rank: f"The first two groups contain it in {int(rank(active_backward).le(2).sum())} "
                                  f"({pct(int(rank(active_backward).le(2).sum()), n_act)}\\%), and the third and fourth add none"
@@ -1644,7 +1644,7 @@ def audit(t0: float, scratch: Path) -> int:
             "supporting-only first group": "The supporting-only records also reach "
                                            f"{pct(supporting.truth_in_top_evidence_group.sum(), len(supporting))}"
                                            "\\% for the first group",
-            "ranked order": f"one year suffices in {reach[1]}\\%",
+            "ranked order": f"the first candidate year alone is the published year in {reach[1]}\\%",
             "ties": f"Ties explain the gap to the {pct(first, n_act)}\\% of the first group",
             "strict set": (lambda missed: f"It contains the published year in {everyone(strict_in, n_act)} records "
                            f"with decisive clauses ({pct(strict_in, n_act)}\\%), with a median size of "
@@ -1654,10 +1654,13 @@ def audit(t0: float, scratch: Path) -> int:
                 active_backward[~active_backward.truth_in_strict.astype(bool)]),
             "alternative settings": f"most of the {len(SENSITIVITY_CONFIGS) - 1} alternative settings",
             "outside the benchmark": f"The same rules date the {len(outside)} dated records "
-                                     "outside the benchmark. They had fewer than three parser "
-                                     "clauses, and "
+                                     "outside the benchmark, and "
                                      f"{int(outside.n_decisive_statements.gt(0).sum())} of them "
                                      "have a decisive clause",
+            "outside inclusion": (lambda truth: "and it holds the published year in "
+                                  f"{sum(yr.bce_to_astro(int(truth[t])) in {int(y) for y in years_in} for t, years_in in zip(outside_ranked.index, outside_ranked.strict_years_astro))}")(
+                pd.read_parquet(HERE / "data" / "corpus" / "tablets.parquet",
+                                columns=["tablet", "bce_first"]).set_index("tablet").bce_first),
             "outside median": f"The median strict set of these {len(outside_ranked)} holds "
                               f"{num(outside_ranked.strict_count.median())} years, against "
                               f"{num(active_backward.strict_count.median())} in the benchmark",
@@ -1720,7 +1723,7 @@ def audit(t0: float, scratch: Path) -> int:
                                        else "without the solar year: a value changes"),
             "commitment bases": f"{word(int(bases.get('independent_astronomy', 0))).capitalize()} rest on two "
                                 f"or more clocks and {word(int(bases.get('secure_lunar_eclipse', 0)))} on a lunar eclipse",
-            "approximation runs": (lambda most: "Testing the distances in longitude only moves each rate by at most "
+            "approximation runs": (lambda most: "Making the distances tested only in longitude supporting moves each rate by at most "
                                    f"{word(most('longitude_only_distances_supporting'))} point"
                                    + ("" if most("longitude_only_distances_supporting") == 1 else "s")
                                    + ", and a window of one night for the Moon by at most "

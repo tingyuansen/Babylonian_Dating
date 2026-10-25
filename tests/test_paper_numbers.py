@@ -101,6 +101,7 @@ class PaperNumbersTest(unittest.TestCase):
         self.assertEqual((len(ranked), ranked.strict_years_astro.map(len).median()), (29, 87))
         self.assertFalse(outside.claim.eq("committed").any())
         self.says("and 29 of them have a decisive clause.")
+        self.says("and it holds the published year in 28")
         self.says("The median strict set of these 29 holds 87 years")
 
     def test_first_groups(self):
@@ -109,8 +110,8 @@ class PaperNumbersTest(unittest.TestCase):
         self.assertEqual((first, pct(first, 120)), (115, "96"))
         self.says("it contains the published year in 115 (96\\%")
         self.assertEqual(int(self.active.top_evidence_group_size.eq(1).sum()), 86)
-        self.says("For 86 of the 120, it pins down a single year, and in 84 this is the published year")
-        self.says("For 86 of them, the ranking pins down one year, the published year in 84")
+        self.says("For 86 of the 120, it holds a single year, and in 84 this is the published year")
+        self.says("For 86 of them, this top group is a single year, the published year in 84")
         self.assertTrue(self.active.active_decisive.astype(float).gt(0).all())
         self.assertEqual((three, pct(three, 120)), (119, "99"))
         self.says("contain it in 119 (99\\%)")
@@ -122,7 +123,7 @@ class PaperNumbersTest(unittest.TestCase):
         candidates = pd.read_parquet(DATA / "benchmark" / "ranking_candidates.parquet")
         places = fig4_benchmark.positions(candidates[candidates.decisive])
         self.assertEqual(pct(sum(1 for p in places if p <= 1), 120), "70")
-        self.says("one year suffices in 70\\%")
+        self.says("the first candidate year alone is the published year in 70\\%")
 
     def test_strict_sets(self):
         strict = int(self.active.truth_in_strict.sum())
@@ -216,9 +217,9 @@ class PaperNumbersTest(unittest.TestCase):
         share = lambda row: round(100 * row["added_at_published_year"]["agree"] / tested(row))
         earlier = pilot["gpt-5.6-luna-2026-07-09"]
         self.assertEqual((share(large), share(earlier), share(small)), (89, 89, 88))
-        self.says("The added clauses of both agree at the published year in 89\\% of testable cases, against 88\\% for gpt-6-luna")
-        self.assertEqual((round(large["cost_usd"] * 10, -1), small["cost_usd"] * 10), (50.0, 2.5))
-        self.says("Scaled to 100 records, the larger model would cost about \\$50, against about \\$2.50 for gpt-6-luna")
+        self.says("The added clauses of both agree at the published year in 89\\% of testable cases, against 88\\% for GPT-6-Luna")
+        self.assertEqual(round(large["cost_usd"] / small["cost_usd"], -1), 20)
+        self.says("GPT-5.6-Terra cost about 20 times as much as GPT-6-Luna")
         runs = [json.loads((DATA / "clauses" / name / "run_summary.json").read_text())
                 for name in ("model_review_gpt-6-luna-2026-09-22", "model_review_gpt-6-luna-2026-09-22_adart_iv")]
         self.assertEqual(round(sum(run["all_cached_record_calls"]["cost_usd"] for run in runs)), 5)
