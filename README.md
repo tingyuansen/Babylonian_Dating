@@ -24,7 +24,7 @@ The committed results were made with Python 3.13, numpy 2.3.5, pandas 2.3.3, sci
 | How does each benchmark record score against its published year? | `data/benchmark/benchmark_results.parquet`, and the frozen benchmark in `data/benchmark/benchmark_records.parquet` |
 | Where does the published year fall among all 701 candidates? | `data/benchmark/ranking_candidates.parquet` |
 | What does the language model change or add? | `data/clauses/model_review_gpt-6-luna-2026-09-22/` |
-| What do the undated entries of ADART IV give? | `data/results/adart_iv_ranked.csv` (the 52 ranked entries), `data/results/adart_iv_dates.parquet` (all 867) |
+| What do the undated entries of ADART IV give? | `data/results/adart_iv_dates.parquet` |
 | Which calendar, positions, stars and eclipses do the tools use? | `data/physical/` |
 | Which counts and tables does the paper quote? | `data/paper_counts/` |
 

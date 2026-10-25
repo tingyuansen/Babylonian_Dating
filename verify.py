@@ -283,6 +283,14 @@ def word(n: int) -> str:
     return NUMBER_WORDS[n] if 0 <= n < len(NUMBER_WORDS) else str(n)
 
 
+def wilson(part: int, whole: int, z: float = 1.959963984540054) -> tuple[int, int]:
+    """The 95% Wilson score interval of a rate, in whole percent."""
+    p, d = part / whole, 1 + z * z / whole
+    centre = (p + z * z / (2 * whole)) / d
+    half = z * ((p * (1 - p) / whole + z * z / (4 * whole * whole)) ** 0.5) / d
+    return round(100 * (centre - half)), round(100 * (centre + half))
+
+
 def everyone(part: int, whole: int) -> str:
     return f"all {whole}" if part == whole else f"{part} of the {whole}"
 
@@ -409,19 +417,15 @@ def audit(t0: float, scratch: Path) -> int:
          ["scripts/audit/audit_era_readings.py", "--out", "{0}"]),
         (["data/clauses/parser_clauses.parquet"],
          ["scripts/audit/build_parser_clauses.py", "--out", "{0}"]),
-        # The table builder writes to fixed paths, so it runs with its
-        # outputs, and the root it names in its message, moved to scratch.
-        # It writes the LaTeX rows only when the paper is present.
-        (["data/results/adart_iv_ranked.csv"]
-         + (["paper/tableS7_adart_iv.tex"] if PAPER.is_file() else []),
-         ["-c", "import sys; from pathlib import Path; "
-                "from scripts.paper import build_adart_iv_table as table; "
-                "table.CSV = Path(sys.argv[1]); table.HERE = table.CSV.parent; "
-                "table.OUT = Path(sys.argv[2]) if len(sys.argv) > 2 "
-                "else table.CSV.parent / 'no_paper' / 'table.tex'; "
-                "raise SystemExit(table.main())", "{0}"]
-         + (["{1}"] if PAPER.is_file() else [])),
     ]
+    # The table builder writes to a fixed path, so it runs with its output, and
+    # the root it names in its message, moved to scratch. It needs the paper.
+    if PAPER.is_file():
+        rebuilds.append((["paper/tableS7_adart_iv.tex"],
+                     ["-c", "import sys; from pathlib import Path; "
+                            "from scripts.paper import build_adart_iv_table as table; "
+                            "table.OUT = Path(sys.argv[1]); table.HERE = table.OUT.parent; "
+                            "raise SystemExit(table.main())", "{0}"]))
     running = [
         (outputs, subprocess.Popen(
             [sys.executable, *(argument.format(*(str(scratch / Path(rel).name)
@@ -1558,6 +1562,19 @@ def audit(t0: float, scratch: Path) -> int:
         def config(name: str, column: str) -> int:
             return int(sensitivity.loc[name, column])
 
+        def shift(name: str, column: str) -> int:
+            """Change from the baseline, in whole percent of the records with decisive clauses."""
+            return int(pct(config(name, column), n_act)) - int(pct(config("baseline", column), n_act))
+
+        def within_point(name: str) -> bool:
+            return all(abs(shift(name, column)) <= 1 for column in ("truth_in_leading_group", "truth_strict"))
+
+        conventions = ("cubit_at_2_2_degrees", "britton_offset_minus_half", "britton_offset_plus_half",
+                       "delta_t_applied", "tolerance_narrow", "tolerance_wide", "moon_night_window")
+        alternatives = [name for name in sensitivity.index if name != "baseline"]
+        base_strict = float(sensitivity.loc["baseline", "median_strict_count"])
+        base_first = float(sensitivity.loc["baseline", "median_leading_group"])
+
         def years_word(value) -> str:
             return f"{num(value)} year" + ("" if float(value) == 1 else "s")
 
@@ -1591,8 +1608,7 @@ def audit(t0: float, scratch: Path) -> int:
                                  f"{100 * reviewed_fw['agree'] / reviewed_fw['testable']:.1f}\\% "
                                  "of the cases that the tools can test and the parser clauses in "
                                  f"{100 * parser_fw['agree'] / parser_fw['testable']:.1f}\\%",
-            "Normal Star clauses": f"Of these clauses, the {num(normal3['Testable across candidate years'])} that the tools can test "
-                                   f"agree with a median of {num(normal3['Median years allowed'])} of the "
+            "Normal Star clauses": f"Such clauses agree with a median of {num(normal3['Median years allowed'])} of the "
                                    f"{n_years} years, or {normal3.Bits:.1f} bits",
             "station against a star": "A station against a star carries a median of "
                                       f"{station3.Bits:.1f} bits. However, it agrees with the published "
@@ -1662,11 +1678,9 @@ def audit(t0: float, scratch: Path) -> int:
             "ADART IV heading": f"Ranked candidate years for {len(ranked_iv)} undated entries",
             "ADART IV entries": f"which gives {corpus_summary['entries']} entries. Of these, "
                                 f"{corpus_summary['entries_with_translation']} have an English translation",
-            "ADART IV clauses": f"The {int(adart_iv_dates.n_statements.gt(0).sum())} entries with "
-                                f"parser clauses hold {num(adart_iv_dates.n_statements.sum())} clauses, "
-                                f"and the {len(ranked_iv)} ranked entries hold "
-                                f"{int(ranked_iv.n_decisive_statements.sum())} decisive clauses",
-            "ADART IV first group": "The median first group of the ranked entries holds "
+            "ADART IV first group": f"Of the {len(ranked_iv)} ranked entries, "
+                                    f"{int(ranked_iv.n_decisive_statements.eq(1).sum())} hold a single decisive "
+                                    "clause. One clock leaves many years, and their first groups have a median of "
                                     f"{num(ranked_iv.top_evidence_group_size.median())} years",
             "ADART IV passages": f"The other {int(ranked_iv.n_decisive_statements.sum())} "
                                  "passages agree with the page",
@@ -1676,11 +1690,8 @@ def audit(t0: float, scratch: Path) -> int:
                       f"{span['records_with_edition_text']} have edition text and "
                       f"{int(catalogue.loc[sorted(dated_ids), 'text'].fillna('').str.strip().ne('').sum())}"
                       " an English translation",
-            "volumes": f"Its {n_dated} dated records split into {volumes.get('adsd/adart1', 0)}, "
-                       f"{volumes.get('adsd/adart2', 0)} and {volumes.get('adsd/adart3', 0)} "
-                       "records in Volumes I to III",
-            "current rules": f"Under the current rules, {int(supporting.active_decisive.gt(0).sum())} of the "
-                             f"{len(supporting)} supporting-only records also have a decisive clause",
+            "current rules": f"so {int(supporting.active_decisive.gt(0).sum())} of the {len(supporting)} "
+                             "supporting-only records now also have a decisive clause",
             "corrigenda": f"ADART IV makes {len(corrigenda_rows)} corrections",
             "calendar corrections": f"Only the {len(pd.read_csv(HERE / 'data' / 'physical' / 'calendar_ocr_corrections.csv'))} "
                                     "transcription errors found were corrected",
@@ -1694,66 +1705,73 @@ def audit(t0: float, scratch: Path) -> int:
                                     f"records, {num(parser_fw['agree'])} of "
                                     f"{num(parser_fw['testable'])} testable clauses agree "
                                     f"({100 * parser_fw['agree'] / parser_fw['testable']:.1f}\\%)",
-            "station agreement": "The station against a star of the main text agrees in "
-                                 f"{int(station4.Agree)} of {int(station4.Testable)} testable cases",
-            "scheme types": "The solstice and equinox type agrees in "
-                            f"{int(scheme4.at['season', 'Agree'])} of {int(scheme4.at['season', 'Testable'])} "
-                            f"testable cases, and the Sirius type in all {int(scheme4.at['sirius', 'Testable'])}"
-                            if scheme4.at["sirius", "Agree"] == scheme4.at["sirius", "Testable"]
-                            else "the Sirius type has a contradiction",
-            "without the solar year": "Without this clock, the three benchmark values are "
-                                      f"{pct(config('no_sun_family', 'truth_in_leading_group'), n_act)}\\%, "
-                                      f"{years_word(sensitivity.loc['no_sun_family', 'median_leading_group'])} "
-                                      f"and {pct(config('no_sun_family', 'truth_strict'), n_act)}\\%",
+            "station agreement": ("The station against a star of the main text agrees in about half of its testable cases"
+                                  if 0.4 <= station4.Agree / station4.Testable <= 0.6 else "station: not about half"),
+            "scheme types": ("The solstice, equinox and Sirius types agree in nearly all of theirs"
+                             if min(scheme4.at[k, "Agree"] / scheme4.at[k, "Testable"] for k in ("season", "sirius")) >= 0.9
+                             else "scheme types: not nearly all"),
+            "without the solar year": ("Without this clock, the benchmark values stay as in the baseline"
+                                       if all(shift("no_sun_family", column) == 0 for column in ("truth_in_leading_group", "truth_strict"))
+                                       and sensitivity.loc["no_sun_family", "median_leading_group"] == sensitivity.loc["baseline", "median_leading_group"]
+                                       else "without the solar year: a value changes"),
             "commitment bases": f"{word(int(bases.get('independent_astronomy', 0))).capitalize()} rest on two "
                                 f"or more clocks and {word(int(bases.get('secure_lunar_eclipse', 0)))} on a lunar eclipse",
-            "longitude-only distances": f"Making supporting the {lat_decisive} decisive distances in "
-                                        f"{lat_records} records that the rules test only in longitude leaves "
-                                        "the three values at "
-                                        f"{pct(config('longitude_only_distances_supporting', 'truth_in_leading_group'), n_act)}\\%, "
-                                        f"{years_word(sensitivity.loc['longitude_only_distances_supporting', 'median_leading_group'])} "
-                                        f"and {pct(config('longitude_only_distances_supporting', 'truth_strict'), n_act)}\\%",
-            "Moon on the night": "Testing the Moon only over these two nights gives "
-                                 f"{pct(config('moon_night_window', 'truth_in_leading_group'), n_act)}\\%, "
-                                 f"{years_word(sensitivity.loc['moon_night_window', 'median_leading_group'])} "
-                                 f"and {pct(config('moon_night_window', 'truth_strict'), n_act)}\\%",
-            "no agent rules": "Without the agent rules, the first group holds the published year in "
-                              f"{pct(config('no_agent_suggested_rules', 'truth_in_leading_group'), n_act)}\\% of the "
-                              "records with decisive clauses, and the strict set in "
-                              f"{pct(config('no_agent_suggested_rules', 'truth_strict'), n_act)}\\%",
-            "no agent rules, median": "The median strict set then widens from "
-                                      f"{num(sensitivity.loc['baseline', 'median_strict_count'])} to "
-                                      f"{num(sensitivity.loc['no_agent_suggested_rules', 'median_strict_count'])} years",
-            "equal weights with tiers": "Equal weights that keep the tiers and clocks raise it to "
-                                        f"{pct(config('equal_weighting_with_tiers', 'truth_in_leading_group'), n_act)}\\%",
+            "approximation runs": ("Both leave each rate within one point of the baseline"
+                                   if within_point("longitude_only_distances_supporting") and within_point("moon_night_window")
+                                   else "approximation runs: a rate moves by more than one point"),
+            "strict set protected": ("The strict set then shrinks to about one year, which is more often wrong"
+                                     if all(float(sensitivity.loc[name, "median_strict_count"]) <= 1.5
+                                            and shift(name, "truth_strict") < 0
+                                            for name in ("contradictions_bound_the_leading_set", "information_weighting"))
+                                     else "strict-set runs: the strict set does not shrink as stated"),
+            "a few points": ("raise first-group inclusion by a few points"
+                             if all(1 <= shift(name, "truth_in_leading_group") <= 5
+                                    for name in ("contradictions_before_information", "equal_weighting_with_tiers"))
+                             else "ordering runs: the gain is not a few points"),
+            "rates change little": ("Across the 31 settings, the rates change little"
+                                    if len(alternatives) == 31
+                                    and all(abs(shift(name, column)) <= 8 for name in alternatives
+                                            for column in ("truth_in_leading_group", "truth_strict"))
+                                    else "sensitivity: a rate changes by more than eight points"),
+            "clocks widen": ("The clocks matter most for the width of the sets"
+                             if all(float(sensitivity.loc[name, "median_strict_count"]) >= 2 * base_strict
+                                    for name in ("no_mars_family", "no_jupiter_family", "no_saturn_family"))
+                             else "clocks: removing one does not widen the strict set"),
+            "month context ranks": ("The month context matters most for the ranking"
+                                    if float(sensitivity.loc["no_month_context", "median_leading_group"]) >= 10 * base_first
+                                    else "month context: the first group does not widen"),
+            "conventions matter least": ("The conventions matter least"
+                                         if all(within_point(name) for name in conventions)
+                                         else "conventions: a rate moves by more than one point"),
+            "no agent rules": ("Without the agent rules, each rate falls by at most two points, and the median strict set about doubles"
+                               if all(-2 <= shift("no_agent_suggested_rules", column) <= 0
+                                      for column in ("truth_in_leading_group", "truth_strict"))
+                               and 1.7 <= float(sensitivity.loc["no_agent_suggested_rules", "median_strict_count"]) / base_strict <= 2.5
+                               else "agent rules: the stated change does not hold"),
             "eclipses untestable": f"Of {len(eclipse_rows)} eclipse clauses, the scribes mark "
                                    f"{int(eclipse_untestable_reasons.get('unobserved', 0))} as unobserved, and "
                                    f"{int(eclipse_untestable_reasons.get('no date', 0))} lack a secure month and day",
-            "station contradictions": f"In {station_window_misses} of its {len(station_contradictions)} "
-                                      "contradictions, the computed station lies outside the window of the clause",
+            "station contradictions": ("Most of its contradictions fall outside the window of the clause"
+                                       if station_window_misses > len(station_contradictions) / 2
+                                       else "station: most contradictions lie inside the window"),
             "calendar lag": f"fall a median of {med:.1f} days after the computed new moons",
             "sensitivity configurations": f"The sensitivity audit tests {len(SENSITIVITY_CONFIGS)} "
                                           "fixed configurations, including the baseline, on the "
                                           f"same {n_bench} records",
-            "contradictions first": "Ranking contradictions before bits raises first-group "
-                                    f"inclusion from {pct(config('baseline', 'truth_in_leading_group'), n_act)}\\% "
-                                    f"to {pct(config('contradictions_before_information', 'truth_in_leading_group'), n_act)}\\%, "
-                                    "and it leaves the strict set unchanged"
-                                    if config("contradictions_before_information", "truth_strict")
-                                    == config("baseline", "truth_strict")
-                                    else "contradictions first: the strict set changes",
-            "contradictions in the strict set": "Counting contradictions in the strict set lowers "
-                                                "strict-set inclusion from "
-                                                f"{pct(config('baseline', 'truth_strict'), n_act)}\\% to "
-                                                f"{pct(config('contradictions_bound_the_leading_set', 'truth_strict'), n_act)}\\%, "
-                                                "and removing the tiers lowers it to "
-                                                f"{pct(config('information_weighting', 'truth_strict'), n_act)}\\%",
             "held-out tolerances": f"Round I chose a planet tolerance of ${num(tolerances.get('ADART I', 0))}^\\circ$ "
                                    f"and Round III one of ${num(tolerances.get('ADART III', 0))}^\\circ$",
             "held-out reading": "counts as close if it lies at most "
                                 f"{word(int(held.CLOSE_POINTS))} percentage points",
             "one record of ADART II": "because single volumes hold few records, such as "
                                       f"{held_rows.get('ADART II', {}).get('records')} in ADART II",
+            "Wilson intervals": (lambda held_ci, full_ci: f"{held_ci[0]}--{held_ci[1]}\\% for the held-out test and "
+                                 f"{full_ci[0]}--{full_ci[1]}\\% for the full benchmark")(
+                                     wilson(pooled["first_group"]["n"], pooled["records"]), wilson(first, n_act)),
+            "addenda interval": (lambda ci: f"the 95\\% interval of their first-group rate, {ci[0]}--{ci[1]}\\%, is wide, "
+                                 "and it holds the benchmark rate"
+                                 if ci[0] <= int(pct(first, n_act)) <= ci[1] else "addenda: the interval misses the benchmark rate")(
+                                     wilson(addenda["published_year_in_first_group"]["count"],
+                                            addenda["texts_with_a_decisive_clause"])),
             "held-out result": (f"With settings chosen on the other volumes, both pooled rates lie within the "
                                 f"{word(int(held.CLOSE_POINTS))} points"
                                 if all(r["close"] for r in reading.values())

@@ -934,15 +934,3 @@ source/parker_dubberstein/intercalary_slots.csv,year_label,string,,"The same yea
 source/parker_dubberstein/intercalary_slots.csv,pdf_page,integer,,Page of the Parker and Dubberstein scan that prints the year.
 source/parker_dubberstein/intercalary_slots.csv,printed_slot,string,,"Extra month that the table prints for the year, VI2 or XII2."
 source/parker_dubberstein/intercalary_slots.csv,established,string,,"How the slot was read, from the position of the printed column, and in some years also checked by eye."
-results/adart_iv_ranked.csv,entry,integer,,Entry number of the undated ADART IV entry.
-results/adart_iv_ranked.csv,tablet,string,,"Identifier of the entry, as in results/adart_iv_dates.parquet."
-results/adart_iv_ranked.csv,printed_page,integer,,Printed page of ADART IV on which the entry begins.
-results/adart_iv_ranked.csv,museum_no,string,,Museum number of the tablet.
-results/adart_iv_ranked.csv,clocks,string,,Clocks of the decisive clauses that carry bits.
-results/adart_iv_ranked.csv,month_known,boolean,,True if a decisive clause has a month. Otherwise the clauses are tested over the whole year.
-results/adart_iv_ranked.csv,strict_set_size,integer,years,Number of years in the strict set.
-results/adart_iv_ranked.csv,first_group_size,integer,years,Number of years in the first group.
-results/adart_iv_ranked.csv,strict_set_years_astro,string,astronomical year,"Years of the strict set, separated by spaces."
-results/adart_iv_ranked.csv,group_1_years_astro,string,astronomical year,"Years of the first group, separated by spaces."
-results/adart_iv_ranked.csv,group_2_years_astro,string,astronomical year,"Years of the second group, separated by spaces."
-results/adart_iv_ranked.csv,group_3_years_astro,string,astronomical year,"Years of the third group, separated by spaces."

@@ -93,7 +93,6 @@ The book scans, and the full text that the project read from ADART IV, are under
 |---|---|---|
 | `tablet_dates.parquet` | One row per ADART I to III record: its decision, strict and safety sets, groups of tied years, and the verdicts of its clauses in those years | `inference/date_all.py` |
 | `adart_iv_dates.parquet` | The same for the 867 ADART IV entries. Each clause keeps its extracted statement | `inference/date_adart_iv.py` |
-| `adart_iv_ranked.csv` | The 52 ranked ADART IV entries of SI Table S7, with every year of the strict set and of the first three groups | `paper/build_adart_iv_table.py` |
 | `adart_iv_summary.json` | Counts and hashes of the ADART IV run | `inference/date_adart_iv.py` |
 | `adart_iv_addenda_dates.parquet` | The same for the 52 texts of the dated addenda of ADART IV | `inference/date_adart_iv_addenda.py` |
 | `adart_iv_addenda_summary.json` | Counts and hashes of the addenda run | `inference/date_adart_iv_addenda.py` |

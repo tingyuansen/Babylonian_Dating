@@ -69,7 +69,6 @@ class PaperNumbersTest(unittest.TestCase):
         by_volume = self.population.project.map(VOLUMES).value_counts()
         self.assertEqual(len(self.dated), 417)
         self.assertEqual([by_volume[v] for v in ("I", "II", "III")], [94, 161, 162])
-        self.says("split into 94, 161 and 162 records in Volumes I to III")
         with_text = int(self.tablets.loc[sorted(self.dated)].n_lines.gt(0).sum())
         self.assertEqual(with_text, 393)
         self.says("of which 393 have edition text")
@@ -181,12 +180,11 @@ class PaperNumbersTest(unittest.TestCase):
         self.says("which gives 867 entries. Of these, 860 have an English translation")
         self.assertEqual((int(self.adart_iv.n_statements.gt(0).sum()), int(self.adart_iv.n_statements.sum())),
                          (321, 539))
-        self.says("The 321 entries with parser clauses hold 539 clauses")
-        self.assertEqual((len(ranked), int(ranked.n_decisive_statements.sum())), (52, 61))
-        self.says("the 52 ranked entries hold 61 decisive clauses")
+        self.assertEqual((len(ranked), int(ranked.n_decisive_statements.eq(1).sum())), (52, 44))
+        self.says("Of the 52 ranked entries, 44 hold a single decisive clause")
         self.assertEqual((ranked.strict_count.median(), ranked.top_evidence_group_size.median()), (101, 100))
         self.says("cut the 701 candidate years to a median of 101")
-        self.says("The median first group of the ranked entries holds 100 years")
+        self.says("their first groups have a median of 100 years")
         self.assertFalse(self.adart_iv.claim.eq("committed").any())
 
     def test_clauses_without_a_month(self):
@@ -235,12 +233,15 @@ class PaperNumbersTest(unittest.TestCase):
         self.assertEqual((rate("no_sun_family", "truth_in_leading_group"),
                           self.sensitivity.loc["no_sun_family", "median_leading_group"],
                           rate("no_sun_family", "truth_strict")), ("93", 1, "100"))
-        self.says("Without this clock, the three benchmark values are 93\\%, 1 year and 100\\%")
+        self.says("Without this clock, the benchmark values stay as in the baseline")
         self.assertEqual(rate("contradictions_before_information", "truth_in_leading_group"), "95")
-        self.says("Ranking contradictions before bits raises first-group inclusion from 93\\% to 95\\%")
+        self.assertEqual(rate("equal_weighting_with_tiers", "truth_in_leading_group"), "96")
+        self.says("raise first-group inclusion by a few points")
         self.assertEqual((rate("contradictions_bound_the_leading_set", "truth_strict"),
                           rate("information_weighting", "truth_strict")), ("96", "92"))
-        self.says("lowers strict-set inclusion from 100\\% to 96\\%, and removing the tiers lowers it to 92\\%")
+        self.assertEqual((self.sensitivity.loc["contradictions_bound_the_leading_set", "median_strict_count"],
+                          self.sensitivity.loc["information_weighting", "median_strict_count"]), (1, 1))
+        self.says("The strict set then shrinks to about one year, which is more often wrong")
 
     def test_held_out(self):
         summary = json.loads((DATA / "benchmark" / "held_out_summary.json").read_text())
@@ -280,7 +281,7 @@ class PaperNumbersTest(unittest.TestCase):
         total = self.scope["reviewed_forward"]
         self.assertEqual(tex_rows("tab:forward") - {(total["clauses"], total["testable"], total["agree"], total["contradict"],
                                                      total["untestable"], round(total["agreement_percent"], 1))}, forward)
-        self.says("The station against a star of the main text agrees in 14 of 29 testable cases")
+        self.says("The station against a star of the main text agrees in about half of its testable cases")
 
 
 if __name__ == "__main__":

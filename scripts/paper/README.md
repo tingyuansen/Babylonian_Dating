@@ -13,7 +13,7 @@ make arxiv     # pack paper/ with its .bbl files for arXiv
 | Script | What it does |
 |---|---|
 | `build_paper_counts.py` | Filter the saved outputs to ADART I to III and write the counts and SI tables the paper quotes into `data/paper_counts/`. It runs no model, extraction or inference |
-| `build_adart_iv_table.py` | Write the 52 ranked ADART IV entries into `data/results/adart_iv_ranked.csv`, and, where the paper is present, the rows of SI Table S7 into `paper/tableS7_adart_iv.tex`. It reads only the committed results |
+| `build_adart_iv_table.py` | Write the rows of SI Table S7, the ranked ADART IV entries, into `paper/tableS7_adart_iv.tex`. It reads only the committed results |
 | `build_bibliography.py` | Write `paper/Bibliography.bib` from Crossref, NASA ADS, arXiv and other APIs, using the identifiers in `paper/bibliography.json`. Only cited keys are written. `--check` fails if the APIs no longer give the same entries. Outside the rebuild order |
 
 `build_paper_counts.py` reads the reviewed clauses written by `agent/rescore_model_review.py`, the parser clauses, the committed results, the benchmark and the calendar. It refuses to run if a saved score no longer matches the current tools and physical tables, or if an input changes while it runs. It writes four files.
