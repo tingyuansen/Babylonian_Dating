@@ -14,7 +14,7 @@ venv/
 .env
 
 # The book scans are under copyright and never enter the repository.
-# data/README.md gives the SHA-256 of each one.
+# data/source/not_distributed.csv gives the SHA-256 of each one.
 data/source/**/*.pdf
 
 # Local settings and worktrees of agent sessions.
@@ -46,7 +46,7 @@ data/source/**/*.tiff
 # The paper is kept outside the public repository.
 /paper/
 
-# The full text read from ADART IV stays local. data/README.md gives the
+# The full text read from ADART IV stays local. data/source/not_distributed.csv gives the
 # SHA-256 of each file, and the public tree keeps the extracted statements.
 data/source/adart_iv/mathpix_lines.json
 data/corpus/adart_iv_tablets.parquet

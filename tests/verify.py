@@ -12,15 +12,16 @@ a tablet whose answer is known. Then it audits the tree.
   baseline and the held-out test must be one run, record by record.
 - Where paper/ is present, every number the paper prints must follow from the
   data, and Tables S3, S4, S6 and S7 must be the tables the code writes.
-- The repository holds only what its READMEs describe.
+- The repository holds only what README.md, the Makefile and data/columns.csv
+  describe.
 
 It does not run the tests. ``make check`` runs them, then this file. The book
-scans and the full text read from ADART IV are not distributed. data/README.md
-names where a reader puts each file, and records its SHA-256. A file that is
-there is checked against that value. When it is absent, the checks use the
-recorded value, and say so.
+scans and the full text read from ADART IV are not distributed.
+data/source/not_distributed.csv names where a reader puts each file, and records
+its SHA-256. A file that is there is checked against that value. When it is
+absent, the checks use the recorded value, and say so.
 
-    python3 verify.py
+    python3 tests/verify.py
 
 Exit code 0 means the directory is sound.
 Anything else means stop and read the failure before working.
@@ -29,6 +30,7 @@ Anything else means stop and read the failure before working.
 from __future__ import annotations
 
 import ast
+import csv
 import fnmatch
 import importlib
 import hashlib
@@ -42,7 +44,7 @@ import tempfile
 import time
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
+HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE))
 
 REQUIRED = ["numpy", "pandas", "scipy", "pyarrow", "swisseph", "requests",
@@ -50,7 +52,7 @@ REQUIRED = ["numpy", "pandas", "scipy", "pyarrow", "swisseph", "requests",
 OPTIONAL = {"jplephem": "only needed to rebuild the ephemeris from a kernel"}
 # The paper is kept outside the public repository. Checks that read it run
 # only when paper/PNAS_Paper.tex is present.
-PAPER = Path(__file__).resolve().parent / "paper" / "PNAS_Paper.tex"
+PAPER = HERE / "paper" / "PNAS_Paper.tex"
 
 # Row counts are kept only where they are a fixed property of the sources or
 # of the design. Every other table is checked below against the code that
@@ -90,7 +92,7 @@ FROZEN_YEAR_BEARING_IDS_SHA256 = (
 
 # What may sit at the top of the tree, and in paper/, which goes to Overleaf
 # as it is.
-TOP_LEVEL = {"README.md", "LICENSE", "CITATION.cff", "Makefile", "requirements.txt", "verify.py",
+TOP_LEVEL = {"README.md", "LICENSE", "CITATION.cff", "Makefile", "requirements.txt",
              ".gitignore", "data", "docs", "paper", "scripts", "skills",
              "tests", "tools"}
 PAPER_SUFFIXES = {".tex", ".bib", ".cls", ".bst", ".sty", ".ldf", ".pdf"}
@@ -98,7 +100,7 @@ PAPER_PDFS = {"PNAS_Paper.pdf", "PNAS_Logo.pdf"}
 FIGURE_SUFFIXES = {".pdf", ".png"}
 TRANSIENT_DIRS = {"tmp", "output", ".pytest_cache", ".mypy_cache",
                   ".ruff_cache", ".ipynb_checkpoints", ".cache"}
-# Markdown files that are not a directory's README.
+# Markdown files besides the README at the root.
 DOCUMENTS = {"skills/dating_protocol.md"}
 FILE_TOKEN = re.compile(
     r"[\w./+-]+\.(?:py|parquet|jsonl?|csv|md|tex|pdf|png|jpg|ttf|txt|zip|bib"
@@ -125,17 +127,14 @@ def not_distributed() -> dict[str, str]:
     """The files the public tree leaves out, with their recorded SHA-256.
 
     These are the book scans and the full text read from ADART IV. Each is a
-    row of the table "Not distributed" in data/README.md, which names the file
-    by its path inside data/ in its first cell and gives its SHA-256 in its last.
+    row of data/source/not_distributed.csv, which names the file by its path
+    from the root and gives its SHA-256.
     """
-    readme = HERE / "data" / "README.md"
-    files = {}
-    for line in (readme.read_text(encoding="utf-8").splitlines()
-                 if readme.exists() else []):
-        row = re.match(r"^\|\s*`([^`]+\.(?:pdf|json|parquet))`\s*\|.*\|\s*`([0-9a-f]{64})`\s*\|\s*$", line)
-        if row:
-            files[f"data/{row.group(1)}"] = row.group(2)
-    return files
+    table = HERE / "data" / "source" / "not_distributed.csv"
+    if not table.exists():
+        return {}
+    with table.open(encoding="utf-8", newline="") as handle:
+        return {row["path"]: row["sha256"] for row in csv.DictReader(handle)}
 
 
 NOT_DISTRIBUTED = not_distributed()
@@ -146,7 +145,7 @@ def digest(rel: str) -> str:
     """SHA-256 of a file in the tree, by its path from the root.
 
     A file that is not distributed gives the value that
-    data/README.md records for it, so every hash recorded elsewhere is
+    data/source/not_distributed.csv records for it, so every hash recorded elsewhere is
     still checked against one fixed value. Any other missing file gives
     "missing", which matches no recorded hash.
     """
@@ -1027,7 +1026,7 @@ def audit(t0: float, scratch: Path) -> int:
     ok("every recorded SHA-256 matches the file it names", not stale,
        "; ".join(stale[:4]) if stale else f"{len(recorded)} hashes")
     present = [rel for rel in NOT_DISTRIBUTED if (HERE / rel).is_file()]
-    ok("each file that is not distributed matches the SHA-256 that data/README.md records",
+    ok("each file that is not distributed matches the SHA-256 that data/source/not_distributed.csv records",
        adart_iv_pdf in NOT_DISTRIBUTED
        and all(digest(rel) == value for rel, value in NOT_DISTRIBUTED.items()),
        f"{len(present)} of {len(NOT_DISTRIBUTED)} present")
@@ -1924,40 +1923,20 @@ def audit(t0: float, scratch: Path) -> int:
     head("repository layout")
     files, dirs = tree()
     names = {Path(rel).name for rel in files}
-    readmes = [rel for rel in files if Path(rel).name == "README.md"]
-    scripts_readme = (HERE / "scripts" / "README.md").read_text(encoding="utf-8")
-    packages = sorted(p.parent.name for p in (HERE / "scripts").glob("*/__init__.py"))
     python_files = [rel for rel in files if rel.endswith(".py")]
     undeclared = [rel for rel in python_files
                   if not ast.get_docstring(ast.parse(
                       (HERE / rel).read_text(encoding="utf-8")))]
     ok("every Python file declares its purpose in a module docstring",
        not undeclared, ", ".join(undeclared[:4]))
-    code_dirs = ["tools", "tests", *(f"scripts/{p}" for p in packages)]
-    unlisted = []
-    for folder in code_dirs:
-        readme = HERE / folder / "README.md"
-        listed = readme.read_text(encoding="utf-8") if readme.exists() else ""
-        unlisted += [rel for rel in python_files
-                     if rel.startswith(folder + "/") and Path(rel).name != "__init__.py"
-                     and f"`{Path(rel).name}`" not in listed]
-    ok("every script, tool and test is listed in its directory's README",
-       not unlisted, ", ".join(unlisted[:4]))
-    # The run order is the text block of scripts/README.md and the Makefile.
-    # A module that another script imports is a library. Anything else is
-    # named in scripts/README.md as an exception, by its path under scripts/.
-    block = re.search(r"```text\n(.*?)```", scripts_readme, re.S)
-    scheduled = set()
-    for line in (block.group(1).splitlines() if block else []):
-        step = re.match(r"^(\w+)/\s+(.*)$", line)
-        if step:
-            scheduled.update(f"{step.group(1)}/{name}.py" for name in step.group(2).split()
-                             if not name.startswith("-"))
+    # The Makefile names every script that runs: the rebuild, the figures, the
+    # site, and the scripts outside the rebuild. A module that another script
+    # imports is a library.
     makefile = "\n".join(line.split("#", 1)[0] for line in
                          (HERE / "Makefile").read_text(encoding="utf-8").splitlines())
     figures_line = re.search(r"^FIGURES\s*:=\s*(.+)$", makefile, re.M)
     make_figures = figures_line.group(1).split() if figures_line else []
-    scheduled |= {f"paper/figures/{name}.py" for name in make_figures}
+    scheduled = {f"paper/figures/{name}.py" for name in make_figures}
     scheduled |= {path[len("scripts/"):] for path in re.findall(r"scripts/[\w/]+\.py", makefile)}
     imported = set()
     for rel in python_files:
@@ -1972,67 +1951,42 @@ def audit(t0: float, scratch: Path) -> int:
     unscheduled = [rel for rel in python_files if rel.startswith("scripts/")
                    and Path(rel).name != "__init__.py"
                    and rel[len("scripts/"):] not in scheduled
-                   and Path(rel).stem not in imported
-                   and f"`{rel[len('scripts/'):]}`" not in scripts_readme]
+                   and Path(rel).stem not in imported]
     vanished = sorted(name for name in scheduled if not (HERE / "scripts" / name).is_file())
-    ok("every script is in the run order or named in scripts/README.md as an exception",
-       bool(block) and not unscheduled and not vanished,
-       ", ".join(unscheduled + [f"{name} (scheduled, absent)" for name in vanished]))
+    ok("every script runs from the Makefile or is imported by another script",
+       not unscheduled and not vanished,
+       ", ".join(unscheduled + [f"{name} (in the Makefile, absent)" for name in vanished]))
     patterns = ignore_patterns()
     scans = {Path(rel).name for rel in NOT_DISTRIBUTED}
     # Files in paper/ belong to the paper, which is kept outside the repository.
     ghosts = []
-    for rel in readmes:
-        folder = Path(rel).parent
-        text = (HERE / rel).read_text(encoding="utf-8")
-        for token in re.findall(r"`([^`\s]+)`", text):
-            if (not FILE_TOKEN.fullmatch(token) or token.startswith((".", "/", "~"))
-                    or not re.search(r"[A-Za-z]", Path(token).stem)):
-                continue
-            if (any((HERE / base / token).exists()
-                    for base in (Path("."), folder, Path("scripts"), Path("data")))
-                    or Path(token).name in names or Path(token).name in scans
-                    or token.startswith("paper/")
-                    or any(fnmatch.fnmatch(Path(token).name, Path(p.strip("/")).name)
-                           for p in patterns)):
-                continue
-            ghosts.append(f"{rel}: {token}")
-    ok("no README names a file that is gone", not ghosts, ", ".join(ghosts[:4]))
+    text = (HERE / "README.md").read_text(encoding="utf-8")
+    for token in re.findall(r"`([^`\s]+)`", text):
+        if (not FILE_TOKEN.fullmatch(token) or token.startswith((".", "/", "~"))
+                or not re.search(r"[A-Za-z]", Path(token).stem)):
+            continue
+        if ((HERE / token).exists() or Path(token).name in names or Path(token).name in scans
+                or token.startswith("paper/")
+                or any(fnmatch.fnmatch(Path(token).name, Path(p.strip("/")).name)
+                       for p in patterns)):
+            continue
+        ghosts.append(token)
+    ok("the README names no file that is gone", not ghosts, ", ".join(ghosts[:4]))
 
-    # data/README.md has a section per folder, headed "## <folder>/", whose
-    # tables name each file by its path inside that folder. A file of a run
-    # directory may be named without the directory, and a placeholder such
-    # as model_review_<model> stands for any name.
-    named: dict[str, set[str]] = {}
-    folder = ""
-    readme = HERE / "data" / "README.md"
-    for line in (readme.read_text(encoding="utf-8").splitlines()
-                 if readme.exists() else []):
-        heading = re.match(r"^## (\S+)/\s*$", line)
-        if heading:
-            folder = heading.group(1)
-            continue
-        named.setdefault(folder, set()).update(
-            re.sub(r"<[^>]+>", "*", token)
-            for token in re.findall(r"`([^`\s]+)`", line) if not token.endswith("/"))
-    undocumented = []
-    for rel in files:
-        parts = rel.split("/")
-        if parts[0] != "data" or rel == "data/README.md":
-            continue
-        section, inside = (parts[1], "/".join(parts[2:])) if len(parts) > 2 else ("", parts[1])
-        if not any(fnmatch.fnmatchcase(inside, token)
-                   or fnmatch.fnmatchcase(inside, "*/" + token)
-                   for token in named.get(section, ())):
-            undocumented.append(rel)
+    # data/columns.csv describes each data file in a row with no column, and
+    # each column of a table in a row of its own.
+    described = set()
+    dictionary = HERE / "data" / "columns.csv"
+    if dictionary.exists():
+        with dictionary.open(encoding="utf-8", newline="") as handle:
+            described = {row["file"] for row in csv.DictReader(handle) if not row["column"]}
+    undocumented = [rel for rel in files if rel.startswith("data/")
+                    and rel[len("data/"):] not in described]
     markdown = [rel for rel in files if rel.endswith(".md")
-                and Path(rel).name != "README.md" and rel not in DOCUMENTS]
-    undocumented_dirs = [folder for folder in ("data", "scripts", "skills",
-                                               *code_dirs)
-                         if not (HERE / folder / "README.md").is_file()]
-    ok("every data file is described in data/README.md",
-       not undocumented and not markdown and not undocumented_dirs,
-       ", ".join((undocumented + markdown + undocumented_dirs)[:4]))
+                and rel != "README.md" and rel not in DOCUMENTS]
+    ok("every data file is described in data/columns.csv, and the only Markdown "
+       "files are the README and the protocol",
+       not undocumented and not markdown, ", ".join((undocumented + markdown)[:4]))
     top = {rel.split("/")[0] for rel in files + dirs}
     transient = [rel for rel in dirs if Path(rel).name in TRANSIENT_DIRS]
     ok("the top level holds only the documented files and directories, and no "

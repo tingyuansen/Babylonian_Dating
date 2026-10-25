@@ -1,0 +1,13 @@
+path,what,sha256
+data/source/adart_i/scan.pdf,"The introduction to ADART I (Sachs and Hunger 1988), with the Normal Star table",d26df90c2937affed7e36e1e35153c4cdf39732bb7144ac6182b0766273335cc
+data/source/adart_iv/scan.pdf,"ADART IV (Hunger 2022), with the corrections to Volumes I to III and the 867 undated entries",5c2ca092f1f9a0c4a9a0394b9cc610615a7a53a8220a3b5b0fbaf289512f965c
+data/source/parker_dubberstein/scan.pdf,"Parker and Dubberstein, Babylonian Chronology 626 B.C.–A.D. 75 (Brown University Press, 1956)",787be98b6ac7d8b43b22d8665033a528d038d4583b2e35d299500e09bff0073f
+data/source/adart_iv/mathpix_lines.json,"The Mathpix reading of the ADART IV scan, line by line, from scripts/source/ocr_adart_iv_mathpix.py",4b60c8a9876566996d23ce18e9449177e1f48a114447cfc9e1552a4537a6bc31
+data/corpus/adart_iv_tablets.parquet,"One row per undated ADART IV entry, with its translation, from scripts/source/build_adart_iv_corpus.py",dff212f9047e07fc9408ecdb1a1eada22c3630b19bde5e445bb4d777849b9782
+data/corpus/adart_iv_lines.parquet,"One row per line of the translation column of ADART IV, from scripts/source/build_adart_iv_corpus.py",36b48671042c31413c83f76677725438f7a38de9a26183a267336880bcadcffa
+data/corpus/adart_iv_addenda_tablets.parquet,"One row per text of the dated addenda, with its blind translation, from scripts/source/build_adart_iv_addenda.py",aa183f991a2c2b59a8f73c4fd3ea7880383bf59fe9c6865765a34c3c42dd556d
+data/corpus/adart_iv_addenda_lines.parquet,"One row per line of the addenda pages, from scripts/source/build_adart_iv_addenda.py",564b03836886f49fa50c388c1e1fe85ab592d4583f943a6da74335a8a8a43e7d
+data/clauses/model_review_gpt-6-luna-2026-09-22_adart_iv/review_cache.jsonl,"Every model response of the review of the ADART IV parser clauses, from scripts/agent/model_review.py --scope adart-iv",90f5dade68b736586d936dc367034cf2a1fabed44f520e99e31123e170864f99
+data/clauses/model_review_gpt-6-luna-2026-09-22_adart_iv/recall_cache.jsonl,Every model response of the search of ADART IV for missed clauses,b509859436f22098ed8897dadf42f6089e2f85006a9869ee58acb7296054436c
+data/clauses/model_review_gpt-6-luna-2026-09-22_adart_iv/review_changes.csv,"Every change the model proposed to an ADART IV parser clause, and its checks",379ddf0b6390895ea6812a1ba5983d5d46238e1b72a86f3416240fddae1bf754
+data/clauses/model_review_gpt-6-luna-2026-09-22_adart_iv/search_proposals.csv,"Every observation the search of ADART IV proposed, and what became of it",9d50017a53bfa90c3d584848e0ae04e867c7fbfbef08c0b12150d0c183292d22
