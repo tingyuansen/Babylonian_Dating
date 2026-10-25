@@ -101,8 +101,8 @@ class PaperNumbersTest(unittest.TestCase):
         self.assertEqual((len(ranked), ranked.strict_years_astro.map(len).median()), (29, 87))
         self.assertFalse(outside.claim.eq("committed").any())
         self.says("and 29 of them have a decisive clause.")
-        self.says("and it holds the published year in 28")
-        self.says("The median strict set of these 29 holds 87 years")
+        self.says("and 28 of them hold the published year")
+        self.says("Their strict sets hold a median of 87 years")
 
     def test_first_groups(self):
         first = int(self.active.truth_in_top_evidence_group.sum())

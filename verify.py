@@ -1657,11 +1657,12 @@ def audit(t0: float, scratch: Path) -> int:
                                      "outside the benchmark, and "
                                      f"{int(outside.n_decisive_statements.gt(0).sum())} of them "
                                      "have a decisive clause",
-            "outside inclusion": (lambda truth: "and it holds the published year in "
-                                  f"{sum(yr.bce_to_astro(int(truth[t])) in {int(y) for y in years_in} for t, years_in in zip(outside_ranked.index, outside_ranked.strict_years_astro))}")(
+            "outside inclusion": (lambda truth: "and "
+                                  f"{sum(yr.bce_to_astro(int(truth[t])) in {int(y) for y in years_in} for t, years_in in zip(outside_ranked.index, outside_ranked.strict_years_astro))}"
+                                  " of them hold the published year")(
                 pd.read_parquet(HERE / "data" / "corpus" / "tablets.parquet",
                                 columns=["tablet", "bce_first"]).set_index("tablet").bce_first),
-            "outside median": f"The median strict set of these {len(outside_ranked)} holds "
+            "outside median": "Their strict sets hold a median of "
                               f"{num(outside_ranked.strict_count.median())} years, against "
                               f"{num(active_backward.strict_count.median())} in the benchmark",
             "commitments": f"In the whole corpus of {n_dated} dated records, the commitment rule "
@@ -1788,6 +1789,14 @@ def audit(t0: float, scratch: Path) -> int:
                                    "ADART III": ["distance to Normal Star|outer|compound", "sign entry|outer|-"]}
                                and not any(rounds[name]["choices"]["promoted_types"] for name in held.HELD_OUT)
                                else "held-out: the rounds change other decisive types"),
+            "outer pairs and eclipses": (lambda types: (
+                lambda pairs, lunar: f"Distances between two outer planets, for example, agree in only {pairs[0]} of "
+                                     f"{pairs[1]} testable cases. Lunar eclipses agree in all {lunar[1]} of theirs"
+                                     if lunar[0] == lunar[1] else "lunar eclipses: a testable case disagrees")(
+                    [sum(row[k] for row in types if row["type"].startswith("planet distance to planet|outer|"))
+                     for k in ("agree", "testable")],
+                    [sum(row[k] for row in types if row["type"] == "eclipse|lunar|-") for k in ("agree", "testable")]))(
+                rounds["all volumes"]["choices"]["types"]),
             "held-out reading": "passes if it lies at most "
                                 f"{word(int(held.CLOSE_POINTS))} percentage points",
             "one record of ADART II": "because single volumes hold few records, such as "
