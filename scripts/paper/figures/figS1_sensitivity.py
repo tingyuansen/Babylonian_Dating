@@ -59,7 +59,7 @@ CONFIGS = [
      "Reading rules removed"),
     ("no_acronychal_rising", "No acronychal risings", "Reading rules removed"),
     ("no_scorpius_alias", "No Scorpius as Scorpio", "Reading rules removed"),
-    ("no_agent_suggested_rules", "No agent-proposed rules",
+    ("no_agent_suggested_rules", "No rules from the coding agent",
      "Reading rules removed"),
     ("no_station_relative_to_star", "No station-against-star rule",
      "Reading rules removed"),

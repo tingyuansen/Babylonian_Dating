@@ -1739,7 +1739,7 @@ def audit(t0: float, scratch: Path) -> int:
             "approximation runs": (lambda most: "Making the distances tested only in longitude supporting moves each rate by at most "
                                    f"{word(most('longitude_only_distances_supporting'))} point"
                                    + ("" if most("longitude_only_distances_supporting") == 1 else "s")
-                                   + ". A window of one night for the Moon moves each by at most "
+                                   + ". Testing the Moon over two nights in place of two and a half days moves each by at most "
                                    f"{word(most('moon_night_window'))}")(
                 lambda name: max(abs(shift(name, column)) for column in ("truth_in_leading_group", "truth_strict"))),
             "strict set protected": ("The strict set then shrinks to about one year, which is more often wrong"
@@ -1774,7 +1774,7 @@ def audit(t0: float, scratch: Path) -> int:
                 max(abs(shift(name, column)) for name in conventions
                     for column in ("truth_in_leading_group", "truth_strict"))),
             "no agent rules": (lambda growth: (
-                "Without the agent rules, each rate falls by at most two points, and the median strict set "
+                "Without the rules from the coding agent, each rate falls by at most two points, and the median strict set "
                 + ("about doubles" if 1.7 <= growth <= 2.5 else "grows by about half" if 1.4 <= growth < 1.7
                    else "grows by about a third" if 1.2 <= growth < 1.4 else "changes otherwise"))
                 if all(-2 <= shift("no_agent_suggested_rules", column) <= 0
