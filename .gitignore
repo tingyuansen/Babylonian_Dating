@@ -43,8 +43,9 @@ data/source/**/*.tif
 data/source/**/*.tiff
 /reference/
 
-# The paper is kept outside the public repository.
-/paper/
+# The paper is kept outside the public repository. A local folder or link
+# named paper/ is ignored.
+/paper
 
 # The full text read from ADART IV stays local. data/source/not_distributed.csv gives the
 # SHA-256 of each file, and the public tree keeps the extracted statements.
