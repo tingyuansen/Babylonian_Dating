@@ -1738,9 +1738,10 @@ def audit(t0: float, scratch: Path) -> int:
                                 f"or more clocks and {word(int(bases.get('secure_lunar_eclipse', 0)))} on a lunar eclipse",
             "approximation runs": (lambda most: "Making the distances tested only in longitude supporting moves each rate by at most "
                                    f"{word(most('longitude_only_distances_supporting'))} point"
-                                   + ("" if most("longitude_only_distances_supporting") == 1 else "s")
-                                   + ". Testing the Moon over two nights in place of two and a half days moves each by at most "
-                                   f"{word(most('moon_night_window'))}")(
+                                   + ("" if most("longitude_only_distances_supporting") == 1 else "s"))(
+                lambda name: max(abs(shift(name, column)) for column in ("truth_in_leading_group", "truth_strict"))),
+            "Moon window run": (lambda most: "Testing the Moon over two nights in place of two and a half days moves each by at most "
+                                f"{word(most('moon_night_window'))}")(
                 lambda name: max(abs(shift(name, column)) for column in ("truth_in_leading_group", "truth_strict"))),
             "strict set protected": ("The strict set then shrinks to about one year, which is more often wrong"
                                      if all(float(sensitivity.loc[name, "median_strict_count"]) <= 1.5
