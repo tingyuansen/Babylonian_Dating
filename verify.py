@@ -1699,8 +1699,11 @@ def audit(t0: float, scratch: Path) -> int:
                                     f"{int(ranked_iv.n_decisive_statements.eq(1).sum())} hold a single decisive "
                                     "clause. One clock leaves many years, and the first groups of all "
                                     f"{len(ranked_iv)} have a median of {num(ranked_iv.top_evidence_group_size.median())} years",
-            "ADART IV passages": f"The other {int(ranked_iv.n_decisive_statements.sum())} "
-                                 "passages agree with the page",
+            "ADART IV passages": (lambda fixes: "corrected one passage in which the scan had lost a question mark"
+                                  if len(fixes) == 1 and fixes.printed_text.str.endswith("?").all()
+                                  and not fixes.ocr_text.str.endswith("?").any()
+                                  else "ADART IV: the OCR corrections differ from the paper")(
+                pd.read_csv(HERE / "data" / "source" / "adart_iv" / "ocr_corrections.csv")),
             "Fig. S2": f"Strict candidate sets of the {len(ranked_iv)} ADART IV entries",
             "Table S7": f"Ranked candidate years of the {len(ranked_iv)} ADART IV entries",
             "corpus": f"We use its {n_dated} records of ADART I to III with a published date. Of these, "
@@ -1708,8 +1711,8 @@ def audit(t0: float, scratch: Path) -> int:
                       f"{int(catalogue.loc[sorted(dated_ids), 'text'].fillna('').str.strip().ne('').sum())}"
                       " an English translation",
             "corrigenda": f"ADART IV makes {len(corrigenda_rows)} corrections",
-            "calendar corrections": f"We corrected the {len(pd.read_csv(HERE / 'data' / 'physical' / 'calendar_ocr_corrections.csv'))} "
-                                    "transcription errors that this comparison found",
+            "calendar corrections": f"we corrected the {len(pd.read_csv(HERE / 'data' / 'physical' / 'calendar_ocr_corrections.csv'))} "
+                                    "transcription errors that checks against the computed new moons and the printed table found",
             "solar eclipses": "Solar eclipses stay supporting, because the dated corpus has only "
                               f"{word(len(solar_usable))} unrestored, observed report",
             "Table S3 caption": f"for {num(span['reviewed_clauses'])} clauses from "
@@ -1786,11 +1789,10 @@ def audit(t0: float, scratch: Path) -> int:
             "sensitivity configurations": f"The sensitivity audit tests {len(SENSITIVITY_CONFIGS)} "
                                           "fixed configurations, including the baseline, on the "
                                           f"same {n_bench} records",
-            "held-out tolerances": (f"Round I chose a planet tolerance of ${num(tolerances.get('ADART I', 0))}^\\circ$."
+            "held-out tolerances": (f"such as a planet tolerance of ${num(tolerances.get('ADART I', 0))}^\\circ$ in Round I."
                                     if tolerances.get("ADART II") == tolerances.get("ADART III") == S.TOL_PLANET
                                     else "held-out: rounds II or III change the planet tolerance"),
-            "held-out types": ("the distances of the outer planets to Normal Stars in compound "
-                               "units supporting, and Round III also made the sign entries of the outer planets supporting"
+            "held-out types": ("so the choices differ a little between rounds"
                                if {name: sorted(rounds[name]["choices"]["demoted_types"]) for name in held.HELD_OUT}
                                == {"ADART I": [], "ADART II": ["distance to Normal Star|outer|compound"],
                                    "ADART III": ["distance to Normal Star|outer|compound", "sign entry|outer|-"]}
@@ -1899,7 +1901,7 @@ def audit(t0: float, scratch: Path) -> int:
                        "first_three_groups": {"n": sum(addenda_in(t, "top_three_evidence_groups_years_astro") for t in addenda_new)},
                        "strict_set": {"n": sum(t["published_year_in_strict_set"] for t in addenda_new)},
                        "median_strict_set": addenda_json["scores"]["not_linked_to_adart_i_iii"]["median_strict_set_size"]}
-        want_s6.append(s6("Frozen rules, ADART IV addenda", addenda_row))
+        want_s6.append(s6("ADART IV addenda", addenda_row))
         for name, label, want in (("S3", "tab:information", want_s3),
                                   ("S4", "tab:forward", want_s4),
                                   ("S6", "tab:heldout", want_s6)):
