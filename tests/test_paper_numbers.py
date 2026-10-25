@@ -228,11 +228,17 @@ class PaperNumbersTest(unittest.TestCase):
         self.says("GPT-5.6-Terra cost about 20 times as much as GPT-6-Luna")
         runs = [json.loads((DATA / "clauses" / name / "run_summary.json").read_text())
                 for name in ("model_review_gpt-6-luna-2026-09-22", "model_review_gpt-6-luna-2026-09-22_adart_iv")]
-        self.assertEqual(round(sum(run["all_cached_record_calls"]["cost_usd"] for run in runs)), 5)
-        translated = int(self.tablets.text.fillna("").str.strip().ne("").sum())
-        adart_iv = json.loads((DATA / "corpus" / "adart_iv_corpus_summary.json").read_text())["entries_with_translation"]
-        self.assertEqual((translated, adart_iv, round(translated + adart_iv, -2)), (332, 860, 1200))
-        self.says("The review and the search of about 1,200 tablets cost about \\$5 in calls to the language model")
+        # The cost of the benchmark records, from the calls of the final prompts.
+        run = DATA / "clauses" / "model_review_gpt-6-luna-2026-09-22"
+        final = set(runs[0]["prompt_versions"].values())
+        benchmark, cost = set(self.scores.tablet), 0.0
+        for name in ("review_cache.jsonl", "recall_cache.jsonl"):
+            for line in (run / name).read_text().splitlines():
+                record = json.loads(line)
+                if record["tablet"] in benchmark and record.get("prompt_version") in final:
+                    cost += sum(call.get("cost_usd") or 0.0 for call in record.get("calls") or [])
+        self.assertEqual((len(benchmark), round(cost)), (179, 3))
+        self.says("The review and the search of the 179 benchmark records cost about \\$3 in calls to the language model")
         iv = runs[1]["review"]["final_actions"]
         self.assertEqual((runs[1]["review"]["clauses"], iv["KEEP"], iv["MODIFY"], runs[1]["recall"]["added"]),
                          (539, 533, 6, 179))
