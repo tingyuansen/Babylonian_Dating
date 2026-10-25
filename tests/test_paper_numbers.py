@@ -238,7 +238,7 @@ class PaperNumbersTest(unittest.TestCase):
                 if record["tablet"] in benchmark and record.get("prompt_version") in final:
                     cost += sum(call.get("cost_usd") or 0.0 for call in record.get("calls") or [])
         self.assertEqual((len(benchmark), round(cost)), (179, 3))
-        self.says("The review and the search of the 179 benchmark records cost about \\$3 in calls to the language model")
+        self.says("The review, the search and the dating of the 179 benchmark records cost about \\$3.")
         iv = runs[1]["review"]["final_actions"]
         self.assertEqual((runs[1]["review"]["clauses"], iv["KEEP"], iv["MODIFY"], runs[1]["recall"]["added"]),
                          (539, 533, 6, 179))
