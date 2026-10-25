@@ -89,8 +89,10 @@ MAIN_TEXT = {"records": 120, "first_group": 115, "first_three_groups": 119,
 # --- The reading of the test, fixed before any held-out round was scored. ---
 # The pooled row of the three held-out rounds is close to the all-volume round
 # if its inclusion rate drops by at most this many percentage points, for the
-# first group and for the strict set. The rows of single volumes are
-# descriptive only: one record of ADART II is about 4 points.
+# first group and for the strict set. Five points is about the distance from
+# the benchmark's first-group rate to the lower end of its 95% Wilson
+# interval. The rows of single volumes are descriptive only: one record of
+# ADART II is about 4 points.
 CLOSE_POINTS = 5.0
 
 # --- The gate of SI section S5, shared by decisive types and parser rules. ---
@@ -145,9 +147,9 @@ ELIGIBILITY_REASONS = {
     "lunar eclipse": (
         "fixed_decisive",
         "the verdict comes from catalogued eclipses and computed visibility "
-        "at Babylon in three Delta T trials, with no distance tolerance; the "
-        "dated corpus has too few testable reports (two parser clauses) for "
-        "any count gate"),
+        "at Babylon in three Delta T trials, with no distance tolerance; its "
+        "three testable reports in the dated corpus come from one tablet, so "
+        "a round that holds out that volume has none"),
     "moon": (
         "fixed_supporting",
         "the Moon's place on a given day of a lunar month is set mostly by the "

@@ -34,7 +34,7 @@
     "eligibility_reasons": {
       "lunar eclipse": {
         "status": "fixed_decisive",
-        "reason": "the verdict comes from catalogued eclipses and computed visibility at Babylon in three Delta T trials, with no distance tolerance; the dated corpus has too few testable reports (two parser clauses) for any count gate"
+        "reason": "the verdict comes from catalogued eclipses and computed visibility at Babylon in three Delta T trials, with no distance tolerance; its three testable reports in the dated corpus come from one tablet, so a round that holds out that volume has none"
       },
       "moon": {
         "status": "fixed_supporting",
@@ -546,7 +546,7 @@
           2,
           3
         ],
-        "seconds": 1.5,
+        "seconds": 1.4,
         "same_choices_as_all_volumes": false
       },
       "exposure": {
@@ -578,7 +578,7 @@
         },
         "median_strict_set": 9.0
       },
-      "scoring_cpu_seconds": 14.1
+      "scoring_cpu_seconds": 13.3
     },
     {
       "round": "ADART II",
@@ -1073,7 +1073,7 @@
           2,
           12
         ],
-        "seconds": 1.6,
+        "seconds": 1.5,
         "same_choices_as_all_volumes": false
       },
       "exposure": {
@@ -1105,7 +1105,7 @@
         },
         "median_strict_set": 49.5
       },
-      "scoring_cpu_seconds": 8.2
+      "scoring_cpu_seconds": 7.7
     },
     {
       "round": "ADART III",
@@ -1612,7 +1612,7 @@
         },
         "median_strict_set": 17.0
       },
-      "scoring_cpu_seconds": 73.6
+      "scoring_cpu_seconds": 70.6
     },
     {
       "round": "all volumes",
@@ -2109,7 +2109,7 @@
           2,
           5
         ],
-        "seconds": 1.7
+        "seconds": 1.6
       },
       "exposure": {
         "records": 179,
@@ -2140,12 +2140,12 @@
         },
         "median_strict_set": 15.0
       },
-      "scoring_cpu_seconds": 97.1,
+      "scoring_cpu_seconds": 92.8,
       "repo_check": {
         "records": 179,
         "identical": true,
         "differing_records": [],
-        "cpu_seconds": 96.2
+        "cpu_seconds": 92.5
       },
       "repo_table_row": {
         "test_volume": "unmodified pipeline",
@@ -2171,7 +2171,7 @@
     "cal": "370231c111606692b34da9473c1acb42b81d41abfef422dbd6a5da3543f37d66",
     "sky": "6578ceb3126ac83d13cbb3cc4ffcddbc2bd12bf8a7ebbe8aa84ab6c2ada98b65",
     "eclipses": "c88938b300ee6067a0a8263796281242c043b78ccb9f59f0188feb1a59c96bb0",
-    "audit_held_out": "86786ef817eec39569a1badf238da9806b08ae9e696b04e6729ac0aff41e4987",
+    "audit_held_out": "19bd7580792b48b98855aa1edb18a66f45e72b2da8ff33d53e42b519ef683560",
     "reviewed_clauses": "2d85cad107cc16da5b123140e7205a66fca9287adaabdcdc5978d90d633d4eba"
   },
   "all_volumes_reproduces_repo_choices": {
@@ -2179,7 +2179,7 @@
     "parser_rules": true,
     "decisive_types": true
   },
-  "scoring_wall_seconds": 49.8,
+  "scoring_wall_seconds": 47.6,
   "all_three_rounds": {
     "test_volume": "all three rounds",
     "records": 120,
@@ -2218,5 +2218,5 @@
     "strict_set": 119,
     "median_strict_set": 15.0
   },
-  "seconds": 52.7
+  "seconds": 50.5
 }

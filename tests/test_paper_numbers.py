@@ -190,14 +190,20 @@ class PaperNumbersTest(unittest.TestCase):
 
     def test_clauses_without_a_month(self):
         # Decisive positions with no month are tested over their whole year.
-        free = self.facts[self.facts.semantic_tier.eq("decisive") & self.facts.month.isna()
-                          & self.facts.kind.isin(["in_sign", "entry", "station", "first_app", "last_app"])]
+        run = DATA / "clauses" / "model_review_gpt-6-luna-2026-09-22"
+        verdicts = pd.read_parquet(run / "reviewed_clause_verdicts.parquet")
+        reviewed = pd.read_parquet(DATA / "clauses" / "reviewed_clauses.parquet",
+                                   columns=["tablet", "clause_index", "month", "joint_positions"])
+        facts = verdicts.merge(reviewed, left_on=["tablet", "statement_index"],
+                               right_on=["tablet", "clause_index"], validate="one_to_one")
+        free = facts[facts.semantic_tier.eq("decisive") & facts.month.isna()
+                     & facts.kind.isin(["in_sign", "entry", "station", "first_app", "last_app"])]
         tested = free[free.forward_verdict.isin(["agree", "contradict"])]
-        joint = free.joint_positions_json.fillna("[]").ne("[]")
+        joint = free.joint_positions.ne("[]")
         self.assertEqual((len(free), free.tablet.nunique(), len(tested),
-                          int(tested.forward_verdict.eq("agree").sum()), int(joint.sum())), (26, 21, 22, 22, 4))
+                          int(tested.forward_verdict.eq("agree").sum()), int(joint.sum())), (31, 24, 27, 27, 4))
         self.assertTrue(free[joint].forward_verdict.eq("untestable").all())
-        self.says("All 22 such positions in ADART I to III that are testable at the published year agree with it.")
+        self.says("All 27 such positions in ADART I to III that are testable at the published year agree with it.")
         sys.path.insert(0, str(ROOT / "scripts" / "paper"))
         import build_adart_iv_table as table
         ranked = self.adart_iv[self.adart_iv.claim.eq("ranked")]

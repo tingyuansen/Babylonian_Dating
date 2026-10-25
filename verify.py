@@ -291,6 +291,13 @@ def wilson(part: int, whole: int, z: float = 1.959963984540054) -> tuple[int, in
     return round(100 * (centre - half)), round(100 * (centre + half))
 
 
+def wilson_lower(part: int, whole: int, z: float = 1.959963984540054) -> float:
+    """The lower end of the 95% Wilson score interval of a rate."""
+    p, d = part / whole, 1 + z * z / whole
+    return ((p + z * z / (2 * whole))
+            - z * ((p * (1 - p) / whole + z * z / (4 * whole * whole)) ** 0.5)) / d
+
+
 def everyone(part: int, whole: int) -> str:
     return f"all {whole}" if part == whole else f"{part} of the {whole}"
 
@@ -1805,6 +1812,10 @@ def audit(t0: float, scratch: Path) -> int:
                                   f"rate is {ci[0]}--{ci[1]}\\%")(wilson(first, n_act))
                                  if pooled["first_group"]["n"] == first
                                  else "held-out: the pooled first-group rate differs from the benchmark"),
+            "Wilson margin": ("and its lower end lies about five points below the rate"
+                              if abs(100 * first / n_act - 100 * wilson_lower(first, n_act)
+                                     - held.CLOSE_POINTS) < 0.5
+                              else "held-out: the margin differs from the Wilson interval"),
             "addenda interval": (lambda ci: f"the 95\\% interval of their first-group rate, {ci[0]}--{ci[1]}\\%, is wide, "
                                  "and it holds the benchmark rate"
                                  if ci[0] <= int(pct(first, n_act)) <= ci[1] else "addenda: the interval misses the benchmark rate")(
