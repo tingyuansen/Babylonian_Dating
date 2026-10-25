@@ -1821,8 +1821,11 @@ def audit(t0: float, scratch: Path) -> int:
                               if abs(100 * first / n_act - 100 * wilson_lower(first, n_act)
                                      - held.CLOSE_POINTS) < 0.5
                               else "held-out: the margin differs from the Wilson interval"),
-            "addenda interval": (lambda ci: f"the 95\\% interval of their first-group rate, {ci[0]}--{ci[1]}\\%, is wide, "
-                                 "and it holds the benchmark rate"
+            "addenda interval": (lambda ci: "The first group holds the published year in "
+                                 f"{addenda['published_year_in_first_group']['count']} of these "
+                                 f"{addenda['texts_with_a_decisive_clause']} texts. With so few texts, the 95\\% Wilson "
+                                 f"interval of this rate is wide, {ci[0]}--{ci[1]}\\%, and it includes the benchmark rate "
+                                 f"of {pct(first, n_act)}\\%"
                                  if ci[0] <= int(pct(first, n_act)) <= ci[1] else "addenda: the interval misses the benchmark rate")(
                                      wilson(addenda["published_year_in_first_group"]["count"],
                                             addenda["texts_with_a_decisive_clause"])),
