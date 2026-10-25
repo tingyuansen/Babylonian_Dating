@@ -250,7 +250,7 @@ class PaperNumbersTest(unittest.TestCase):
         pooled = summary["all_three_rounds"]
         self.assertEqual((pooled["first_group"]["n"], pooled["strict_set"]["n"]), (103, 112))
         self.assertTrue(all(reading["close"] for reading in summary["reading"].values()))
-        self.says("The first group then holds the published year in 92\\% and the strict set in 100\\%")
+        self.says("Over the three rounds, the first group holds the published year in 92\\% and the strict set in 100\\%")
         self.says("All three rounds & 112 & 103 (92\\%) & 109 (97\\%) & 112 (100\\%) & 19 years")
 
     def test_corrigenda(self):

@@ -1779,7 +1779,7 @@ def audit(t0: float, scratch: Path) -> int:
                                 f"{word(int(held.CLOSE_POINTS))} points"
                                 if all(r["close"] for r in reading.values())
                                 else "One drop exceeds the fixed points"),
-            "held-out (main text)": "The first group then holds the published year in "
+            "held-out (main text)": "Over the three rounds, the first group holds the published year in "
                                     f"{pct(pooled['first_group']['n'], pooled['records'])}\\% and the "
                                     f"strict set in {pct(pooled['strict_set']['n'], pooled['records'])}\\%, "
                                     f"within {word(int(held.CLOSE_POINTS))} points of the full benchmark"
