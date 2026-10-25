@@ -44,8 +44,9 @@ paper/PNAS_Paper.pdf: $(PAPER_INPUTS)
 # arXiv also deletes the files that the main file does not name: the packages
 # that the class loads, their language files and the SI reference list. The
 # arXiv main file therefore carries them in filecontents environments.
-# 00README.json turns off the arXiv stamp, which the narrow left margin of the
-# PNAS layout cannot hold.
+# arXiv prints its stamp in the left margin of the first page, which the narrow
+# PNAS margin cannot hold, so the arXiv pages are 36pt wider and the text block
+# sits 18pt further right. Line and page breaks stay the same.
 ARXIV_EMBED = pnasresearcharticle.sty jabbrv.sty jabbrv-ltwa-all.ldf jabbrv-ltwa-en.ldf S.bbl
 arxiv: $(PAPER_INPUTS)
 	$(LATEX)
@@ -55,10 +56,11 @@ arxiv: $(PAPER_INPUTS)
 	cp $(BUILD)/PNAS_Paper.bbl $(BUILD)/S.bbl $(BUILD)/arxiv/
 	cd $(BUILD)/arxiv && perl -pi -e 's/\\includegraphics\[height=24\.5pt,width=66\.4pt\]\{PNAS_Logo\.pdf\}//' pnas-new.cls PNAS_Paper.tex
 	cd $(BUILD)/arxiv && ! grep -rq PNAS_Logo .
+	cd $(BUILD)/arxiv && perl -pi -e 's/^(\\templatetype\{pnasresearcharticle\})$$/$$1\n\\addtolength{\\paperwidth}{36pt}\\addtolength{\\oddsidemargin}{18pt}\\addtolength{\\evensidemargin}{18pt}/' PNAS_Paper.tex
+	cd $(BUILD)/arxiv && grep -q '^\\addtolength{\\paperwidth}{36pt}' PNAS_Paper.tex
 	cd $(BUILD)/arxiv && { for f in $(ARXIV_EMBED); do printf '\\begin{filecontents*}[overwrite]{%s}\n' $$f; cat $$f; printf '\n\\end{filecontents*}\n'; done; cat PNAS_Paper.tex; } > main.tmp && mv main.tmp PNAS_Paper.tex && rm $(ARXIV_EMBED)
 	cd $(BUILD)/arxiv && pdflatex -interaction=nonstopmode -halt-on-error PNAS_Paper > /dev/null && pdflatex -interaction=nonstopmode -halt-on-error PNAS_Paper > /dev/null
 	cd $(BUILD)/arxiv && ! grep -E -q "(Citation|Reference) .* undefined|There were undefined" PNAS_Paper.log
-	cd $(BUILD)/arxiv && printf '%s\n' '{' '  "spec_version": 1,' '  "process": {"compiler": "pdflatex"},' '  "sources": [{"filename": "PNAS_Paper.tex", "usage": "toplevel"}],' '  "stamp": false' '}' > 00README.json && python3 -m json.tool 00README.json > /dev/null
 	cd $(BUILD)/arxiv && rm -f *.aux *.log *.out PNAS_Paper.pdf $(ARXIV_EMBED) && COPYFILE_DISABLE=1 tar --no-xattrs -czf ../arxiv.tar.gz .
 	@echo "$(BUILD)/arxiv.tar.gz"
 
