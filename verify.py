@@ -1680,8 +1680,8 @@ def audit(t0: float, scratch: Path) -> int:
                                 f"{corpus_summary['entries_with_translation']} have an English translation",
             "ADART IV first group": f"Of the {len(ranked_iv)} ranked entries, "
                                     f"{int(ranked_iv.n_decisive_statements.eq(1).sum())} hold a single decisive "
-                                    "clause. One clock leaves many years, and their first groups have a median of "
-                                    f"{num(ranked_iv.top_evidence_group_size.median())} years",
+                                    "clause. One clock leaves many years, and the first groups of all "
+                                    f"{len(ranked_iv)} have a median of {num(ranked_iv.top_evidence_group_size.median())} years",
             "ADART IV passages": f"The other {int(ranked_iv.n_decisive_statements.sum())} "
                                  "passages agree with the page",
             "Fig. S2": f"Strict candidate sets of the {len(ranked_iv)} ADART IV entries",
@@ -1733,14 +1733,17 @@ def audit(t0: float, scratch: Path) -> int:
                                     and all(abs(shift(name, column)) <= 8 for name in alternatives
                                             for column in ("truth_in_leading_group", "truth_strict"))
                                     else "sensitivity: a rate changes by more than eight points"),
-            "clocks widen": ("The clocks matter most for the width of the sets"
-                             if all(float(sensitivity.loc[name, "median_strict_count"]) >= 2 * base_strict
+            "clocks widen": ("Removing one planet about triples the median strict set"
+                             if all(2.5 <= float(sensitivity.loc[name, "median_strict_count"]) / base_strict <= 4
                                     for name in ("no_mars_family", "no_jupiter_family", "no_saturn_family"))
-                             else "clocks: removing one does not widen the strict set"),
-            "month context ranks": ("The month context matters most for the ranking"
-                                    if float(sensitivity.loc["no_month_context", "median_leading_group"]) >= 10 * base_first
-                                    else "month context: the first group does not widen"),
-            "conventions matter least": ("The conventions matter least"
+                             else "clocks: removing one does not about triple the strict set"),
+            "month context ranks": ("The month context sets the width of the sets and the ranking"
+                                    if float(sensitivity.loc["no_month_context", "median_strict_count"])
+                                    > max(float(sensitivity.loc[name, "median_strict_count"])
+                                          for name in ("no_mars_family", "no_jupiter_family", "no_saturn_family"))
+                                    and float(sensitivity.loc["no_month_context", "median_leading_group"]) >= 10 * base_first
+                                    else "month context: the sets do not widen most"),
+            "conventions matter least": ("Each moves a rate by at most one point"
                                          if all(within_point(name) for name in conventions)
                                          else "conventions: a rate moves by more than one point"),
             "no agent rules": ("Without the agent rules, each rate falls by at most two points, and the median strict set about doubles"

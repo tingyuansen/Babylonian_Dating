@@ -184,7 +184,7 @@ class PaperNumbersTest(unittest.TestCase):
         self.says("Of the 52 ranked entries, 44 hold a single decisive clause")
         self.assertEqual((ranked.strict_count.median(), ranked.top_evidence_group_size.median()), (101, 100))
         self.says("cut the 701 candidate years to a median of 101")
-        self.says("their first groups have a median of 100 years")
+        self.says("the first groups of all 52 have a median of 100 years")
         self.assertFalse(self.adart_iv.claim.eq("committed").any())
 
     def test_clauses_without_a_month(self):
@@ -221,7 +221,7 @@ class PaperNumbersTest(unittest.TestCase):
         self.says("Scaled to 100 records, the larger model would cost about \\$50, against about \\$2.50 for gpt-6-luna")
         run = json.loads((DATA / "clauses" / "model_review_gpt-6-luna-2026-09-22" / "run_summary.json").read_text())
         self.assertEqual(round(run["all_cached_record_calls"]["cost_usd"]), 4)
-        self.says("The full review and search of ADART I to III with gpt-6-luna cost about \\$4")
+        self.says("All review and search calls for ADART I to III with gpt-6-luna, superseded ones included, cost about \\$4")
 
     def test_sensitivity(self):
         self.assertEqual(len(self.sensitivity), 32)
