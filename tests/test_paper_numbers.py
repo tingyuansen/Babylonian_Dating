@@ -145,7 +145,7 @@ class PaperNumbersTest(unittest.TestCase):
         self.assertEqual(committed.basis.value_counts().to_dict(),
                          {"independent_astronomy": 6, "secure_lunar_eclipse": 1})
         self.says("commits to one year for 7. All 7 match the published year")
-        self.says("6 rest on two or more clocks and 1 on a lunar eclipse")
+        self.says("Six rest on two or more clocks and one on a lunar eclipse")
         stated = dated[~dated.chronology_relation.eq("absent")]
         narrowed = stated[~stated.chronology_relation.eq("lookup_only")]
         self.assertEqual((len(stated), len(narrowed)), (23, 11))

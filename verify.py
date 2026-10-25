@@ -1679,9 +1679,8 @@ def audit(t0: float, scratch: Path) -> int:
             "volumes": f"Its {n_dated} dated records split into {volumes.get('adsd/adart1', 0)}, "
                        f"{volumes.get('adsd/adart2', 0)} and {volumes.get('adsd/adart3', 0)} "
                        "records in Volumes I to III",
-            "current rules": f"Under the current rules, {len(no_decisive)} of the {n_act} have no "
-                             f"decisive clause, and {int(supporting.active_decisive.gt(0).sum())} of the "
-                             f"{len(supporting)} have one",
+            "current rules": f"Under the current rules, {int(supporting.active_decisive.gt(0).sum())} of the "
+                             f"{len(supporting)} supporting-only records also have a decisive clause",
             "corrigenda": f"ADART IV makes {len(corrigenda_rows)} corrections",
             "calendar corrections": f"Only the {len(pd.read_csv(HERE / 'data' / 'physical' / 'calendar_ocr_corrections.csv'))} "
                                     "transcription errors found were corrected",
@@ -1706,9 +1705,8 @@ def audit(t0: float, scratch: Path) -> int:
                                       f"{pct(config('no_sun_family', 'truth_in_leading_group'), n_act)}\\%, "
                                       f"{years_word(sensitivity.loc['no_sun_family', 'median_leading_group'])} "
                                       f"and {pct(config('no_sun_family', 'truth_strict'), n_act)}\\%",
-            "commitment bases": f"Of the {len(committed_all)} commitments of the main text, "
-                                f"{int(bases.get('independent_astronomy', 0))} rest on two or more "
-                                f"clocks and {int(bases.get('secure_lunar_eclipse', 0))} on a lunar eclipse",
+            "commitment bases": f"{word(int(bases.get('independent_astronomy', 0))).capitalize()} rest on two "
+                                f"or more clocks and {word(int(bases.get('secure_lunar_eclipse', 0)))} on a lunar eclipse",
             "longitude-only distances": f"Making supporting the {lat_decisive} decisive distances in "
                                         f"{lat_records} records that the rules test only in longitude leaves "
                                         "the three values at "
@@ -1756,13 +1754,10 @@ def audit(t0: float, scratch: Path) -> int:
                                 f"{word(int(held.CLOSE_POINTS))} percentage points",
             "one record of ADART II": "because single volumes hold few records, such as "
                                       f"{held_rows.get('ADART II', {}).get('records')} in ADART II",
-            "held-out result": "With settings chosen on the other volumes, the first group held the "
-                               f"published year in {pct(pooled['first_group']['n'], pooled['records'])}\\% "
-                               "of these records, and the strict set in "
-                               f"{pct(pooled['strict_set']['n'], pooled['records'])}\\%. "
-                               + (f"Both lie within the {word(int(held.CLOSE_POINTS))} points"
-                                  if all(r["close"] for r in reading.values())
-                                  else "One drop exceeds the fixed points"),
+            "held-out result": (f"With settings chosen on the other volumes, both pooled rates lie within the "
+                                f"{word(int(held.CLOSE_POINTS))} points"
+                                if all(r["close"] for r in reading.values())
+                                else "One drop exceeds the fixed points"),
             "held-out (main text)": "The first group then holds the published year in "
                                     f"{pct(pooled['first_group']['n'], pooled['records'])}\\% and the "
                                     f"strict set in {pct(pooled['strict_set']['n'], pooled['records'])}\\%, "
