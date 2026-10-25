@@ -88,7 +88,7 @@ class PaperNumbersTest(unittest.TestCase):
         self.assertEqual((int(verdicts["agree"]), testable), (2169, 2313))
         self.says("2,169 of 2,313 testable clauses agree (93.8\\%)")
         self.assertEqual(f"{100 * 2732 / 2920:.1f}", f"{reviewed['agreement_percent']:.1f}")
-        self.says("the reviewed clauses agree in 93.6\\% of the cases that the tools can test and the parser clauses in 93.8\\%")
+        self.says("the reviewed clauses agree with the published years in 93.6\\% of cases and the parser clauses in 93.8\\%")
 
     def test_benchmark_population(self):
         self.assertEqual((len(self.scores), len(self.active)), (179, 120))
@@ -150,7 +150,7 @@ class PaperNumbersTest(unittest.TestCase):
         self.assertEqual((len(stated), len(narrowed)), (23, 14))
         self.assertTrue(narrowed.chronology_relation.isin(
             ["selects_strict_candidate", "confirms_astronomy"]).all())
-        self.says("For 23 dated records, the system extracts a year")
+        self.says("the system finds a year stated in the Seleucid Era for 23 dated records")
         self.says("In all 14 records where the astronomy narrows the year, the stated year lies in the strict set")
 
     def test_worked_examples(self):
@@ -170,7 +170,7 @@ class PaperNumbersTest(unittest.TestCase):
         rows = years("X301322")
         for count in (656, 635, 11):
             self.assertIn(count, rows)
-        self.says("so rows 2 and 4 agree with 656 and 635 years")
+        self.says("Rows 2 and 4 agree with 656 and 635 years")
         self.says("The Mars row thus agrees with 11 years, which Fig.~\\ref{fig:diary}b shows as 6.0 bits")
 
     def test_adart_iv(self):
@@ -258,7 +258,7 @@ class PaperNumbersTest(unittest.TestCase):
         self.says("Without this clock, the benchmark values stay as in the baseline")
         for config in ("contradictions_before_information", "equal_weighting_with_tiers"):
             self.assertEqual((rate(config, "truth_in_leading_group"), rate(config, "truth_strict")), ("96", "99"))
-        self.says("and they give the same rates as the baseline")
+        self.says("They give the same rates as the baseline")
         self.assertEqual((rate("contradictions_bound_the_leading_set", "truth_strict"),
                           rate("information_weighting", "truth_strict")), ("96", "95"))
         self.assertEqual((self.sensitivity.loc["contradictions_bound_the_leading_set", "median_strict_count"],

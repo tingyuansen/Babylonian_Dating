@@ -1616,9 +1616,9 @@ def audit(t0: float, scratch: Path) -> int:
             "reviewed clauses": f"It raises the {num(span['deterministic_facts'])} parser "
                                 f"clauses to {num(span['reviewed_clauses'])} clauses from "
                                 f"{span['reviewed_records']} records",
-            "forward agreement": "the reviewed clauses agree in "
+            "forward agreement": "the reviewed clauses agree with the published years in "
                                  f"{100 * reviewed_fw['agree'] / reviewed_fw['testable']:.1f}\\% "
-                                 "of the cases that the tools can test and the parser clauses in "
+                                 "of cases and the parser clauses in "
                                  f"{100 * parser_fw['agree'] / parser_fw['testable']:.1f}\\%",
             "Normal Star clauses": f"Such clauses agree with a median of {num(normal3['Median years allowed'])} of the "
                                    f"{n_years} years, or {normal3.Bits:.1f} bits",
@@ -1679,14 +1679,15 @@ def audit(t0: float, scratch: Path) -> int:
                            if committed_match == len(committed_all)
                            == int(committed_all.index.isin(backward.tablet).sum())
                            else "commitments: not all match or lie in the benchmark",
-            "stated years": f"For {len(stated)} dated records, the system extracts a year",
+            "stated years": f"the system finds a year stated in the Seleucid Era for {len(stated)} dated records",
             "stated years in the strict set": f"In all {len(narrowed)} records where the astronomy "
                                               "narrows the year, the stated year lies in the strict set"
                                               if narrowed.chronology_relation.isin(
                                                   ["selects_strict_candidate",
                                                    "confirms_astronomy"]).all()
                                               else "stated years: one lies outside the strict set",
-            "Fig. 4": f"Inclusion of the published year in the benchmark of {n_bench} dated records",
+            "Fig. 4": f"Inclusion of the published year for the {n_act} benchmark records with decisive clauses, "
+                      f"the {len(supporting)} supporting-only records and all {n_bench}",
             "ADART IV coverage": "The parser and the search find astronomical clauses in "
                                  f"{int(adart_iv_dates.n_statements.gt(0).sum())} entries, and "
                                  f"{len(ranked_iv)} of them have a decisive clause",
@@ -1711,8 +1712,9 @@ def audit(t0: float, scratch: Path) -> int:
                       f"{int(catalogue.loc[sorted(dated_ids), 'text'].fillna('').str.strip().ne('').sum())}"
                       " an English translation",
             "corrigenda": f"ADART IV makes {len(corrigenda_rows)} corrections",
-            "calendar corrections": f"we corrected the {len(pd.read_csv(HERE / 'data' / 'physical' / 'calendar_ocr_corrections.csv'))} "
-                                    "transcription errors that checks against the computed new moons and the printed table found",
+            "calendar corrections": "Checks against the computed new moons and the printed table found "
+                                    f"{len(pd.read_csv(HERE / 'data' / 'physical' / 'calendar_ocr_corrections.csv'))} "
+                                    "transcription errors, which we corrected",
             "solar eclipses": "Solar eclipses stay supporting, because the dated corpus has only "
                               f"{word(len(solar_usable))} unrestored, observed report",
             "Table S3 caption": f"for {num(span['reviewed_clauses'])} clauses from "
@@ -1737,7 +1739,7 @@ def audit(t0: float, scratch: Path) -> int:
             "approximation runs": (lambda most: "Making the distances tested only in longitude supporting moves each rate by at most "
                                    f"{word(most('longitude_only_distances_supporting'))} point"
                                    + ("" if most("longitude_only_distances_supporting") == 1 else "s")
-                                   + ", and a window of one night for the Moon by at most "
+                                   + ". A window of one night for the Moon moves each by at most "
                                    f"{word(most('moon_night_window'))}")(
                 lambda name: max(abs(shift(name, column)) for column in ("truth_in_leading_group", "truth_strict"))),
             "strict set protected": ("The strict set then shrinks to about one year, which is more often wrong"
@@ -1745,12 +1747,12 @@ def audit(t0: float, scratch: Path) -> int:
                                             and shift(name, "truth_strict") < 0
                                             for name in ("contradictions_bound_the_leading_set", "information_weighting"))
                                      else "strict-set runs: the strict set does not shrink as stated"),
-            "ordering runs": ("and they give the same rates as the baseline"
+            "ordering runs": ("They give the same rates as the baseline"
                               if all(shift(name, column) == 0
                                      for name in ("contradictions_before_information", "equal_weighting_with_tiers")
                                      for column in ("truth_in_leading_group", "truth_strict"))
                               else "ordering runs: a rate changes"),
-            "rates change little": ("Across the 31 settings, the rates change little"
+            "rates change little": ("Over the 31 settings, the rates change little"
                                     if len(alternatives) == 31
                                     and all(abs(shift(name, column)) <= 8 for name in alternatives
                                             for column in ("truth_in_leading_group", "truth_strict"))
@@ -1792,7 +1794,7 @@ def audit(t0: float, scratch: Path) -> int:
             "held-out tolerances": (f"such as a planet tolerance of ${num(tolerances.get('ADART I', 0))}^\\circ$ in Round I."
                                     if tolerances.get("ADART II") == tolerances.get("ADART III") == S.TOL_PLANET
                                     else "held-out: rounds II or III change the planet tolerance"),
-            "held-out types": ("so the choices differ a little between rounds"
+            "held-out types": ("The choices thus differ a little between rounds"
                                if {name: sorted(rounds[name]["choices"]["demoted_types"]) for name in held.HELD_OUT}
                                == {"ADART I": [], "ADART II": ["distance to Normal Star|outer|compound"],
                                    "ADART III": ["distance to Normal Star|outer|compound", "sign entry|outer|-"]}
