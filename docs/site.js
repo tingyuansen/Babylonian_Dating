@@ -282,9 +282,7 @@
   let REVEALED = false;
   const REVEAL_WAIT = 'The last step brings in the date that the edition gives.';
   function setRevealed(on) {
-    const was = REVEALED;
     REVEALED = REVEALED || on;
-    if (REVEALED && !was) drawCompare();
     document.body.classList.toggle('revealed', REVEALED);
     d3.select('.u-reveal').html(REVEALED ? REVEAL_HTML : REVEAL_WAIT);
     document.querySelectorAll('.chron').forEach((el) => el.setAttribute('aria-hidden', REVEALED ? 'false' : 'true'));
@@ -321,7 +319,6 @@
         The other clauses only put the years in order.`
       : `The system finds no clause about the sky in this text, so the sky cannot date it.`);
     writeModel(r);
-    drawCompare();
     const maxK = r.K.length ? d3.max(r.K) : 0;
     const nMax = r.K.filter((k) => k === maxK).length;
     d3.select('.u-bars').html(CLOCKS.length
@@ -532,7 +529,7 @@
       : ' It finds no clause that the parser misses.';
     if (changes.length) t += ' A dashed pencil line marks a changed clause.';
     d3.select('.t-model').html(t);
-    d3.select('.t-model-2').html(`The date on this page uses all these clauses. The end of the page compares it with the date from the parser clauses alone.${agent
+    d3.select('.t-model-2').html(`The date on this page uses all these clauses.${agent
       ? ` A coding agent also proposed some rules of the parser, and the authors wrote and tested them. Here these rules
         read ${plural(agent, 'clause', 'clauses')}.` : ''}`);
   }
@@ -1366,84 +1363,6 @@
     return { render, update };
   }
 
-  // ------------------------------------------------------------------ what the language model adds
-  // The years that stay with the parser clauses alone, against those with all the clauses. A switch
-  // shows the strict sets or the first groups, and after the reveal both rows mark the published year.
-  let cmpView = 'strict';
-  function drawCompare() {
-    const r = REC;
-    const box = d3.select('.model-cmp');
-    if (!r || box.empty()) return;
-    box.selectAll('*').remove();
-    const pa = r.parser_alone;
-    const n = r.clauses.length;
-    const np = r.clauses.filter((c) => !c.found).length;
-    d3.select('.m-compare').html(!n
-      ? 'This record has no clause about the sky, so the language model has nothing to check and adds nothing.'
-      : !pa
-        ? `The language model keeps ${n === 1 ? 'the clause' : `all ${n} clauses`} as the parser reads ${n === 1 ? 'it' : 'them'},
-          and it finds none that the parser misses. Thus the years are the same with and without it.`
-        : `The parser reads ${plural(np, 'clause', 'clauses')} of this record. The language model checks them${n > np
-          ? ` and finds ${plural(n - np, 'more clause', 'more clauses')}` : ''}. The two rows show the years that stay with the
-          parser clauses alone and with all the clauses. Move the pointer over a row, or tap it, to read a year.`);
-    if (!pa) return;
-    const sets = { strict: [pa.strict, r.strict || []], first: [pa.first, (r.groups && r.groups[0]) || []] };
-    const ctl = box.append('div').attr('class', 'cmp-switch').attr('role', 'group').attr('aria-label', 'The set that the rows show');
-    [['strict', 'Strict set'], ['first', 'First group']].forEach(([key, label]) => {
-      ctl.append('button').attr('type', 'button').attr('aria-pressed', String(cmpView === key)).text(label)
-        .on('click', () => { cmpView = key; drawCompare(); });
-    });
-    const w = Math.max(280, box.node().clientWidth);
-    const narrowScreen = w < 520;
-    const labelW = narrowScreen ? 96 : 124;
-    const countW = narrowScreen ? 66 : 82;
-    const rowH = 18;
-    const gap = 12;
-    const top = 8;
-    const y0 = META.years[0];
-    const x = d3.scaleLinear().domain([y0 - 0.5, META.years[1] + 0.5]).range([labelW, w - countW]);
-    const cw = Math.max(1, x(y0 + 1) - x(y0));
-    const rows = [['Parser alone', sets[cmpView][0]], ['With the model', sets[cmpView][1]]];
-    const bottom = top + 2 * rowH + gap;
-    const name = cmpView === 'strict' ? 'Strict set' : 'First group';
-    const svg = box.append('svg').attr('width', w).attr('height', bottom + 30).attr('role', 'img')
-      .attr('aria-label', `${name}: ${plural(rows[0][1].length, 'year', 'years')} with the parser clauses alone, `
-        + `${plural(rows[1][1].length, 'year', 'years')} with all the clauses`);
-    const pub = REVEALED ? r.published_astro : null;
-    rows.forEach(([label, years], k) => {
-      const y = top + k * (rowH + gap);
-      svg.append('rect').attr('x', x.range()[0]).attr('y', y).attr('width', x.range()[1] - x.range()[0]).attr('height', rowH)
-        .attr('fill', C['bg-2'] || C.bg);
-      svg.append('g').selectAll('rect').data(years).join('rect')
-        .attr('x', (yr) => x(yr) - cw / 2).attr('width', cw).attr('y', y).attr('height', rowH).attr('fill', C.gold);
-      svg.append('text').attr('class', 'note').attr('x', 0).attr('y', y + rowH * 0.74).text(label);
-      svg.append('text').attr('class', 'note').attr('x', w).attr('y', y + rowH * 0.74).attr('text-anchor', 'end')
-        .text(plural(years.length, 'year', 'years'));
-    });
-    if (pub != null) {
-      svg.append('line').attr('x1', x(pub)).attr('x2', x(pub)).attr('y1', top - 4).attr('y2', bottom + 2)
-        .attr('stroke', C.seal).attr('stroke-width', 1.5);
-    }
-    svg.append('g').attr('class', 'axis').attr('transform', `translate(0,${bottom + 2})`)
-      .call(d3.axisBottom(x).tickValues(narrowScreen ? [-600, -300, 0] : [-600, -500, -400, -300, -200, -100, 0])
-        .tickFormat(yearLabel).tickSizeOuter(0));
-    const hover = svg.append('g').style('pointer-events', 'none');
-    const inAlone = new Set(rows[0][1]);
-    const inAll = new Set(rows[1][1]);
-    const what = cmpView === 'strict' ? 'stays' : 'in the first group';
-    svg.append('rect').attr('x', x.range()[0]).attr('y', top - 4).attr('width', x.range()[1] - x.range()[0])
-      .attr('height', bottom - top + 8).attr('fill', 'transparent').style('cursor', 'crosshair')
-      .on('mousemove', (ev) => {
-        const yr = Math.round(x.invert(d3.pointer(ev)[0]));
-        if (yr < y0 || yr > META.years[1]) return;
-        hover.html('').append('line').attr('x1', x(yr)).attr('x2', x(yr)).attr('y1', top - 4).attr('y2', bottom + 2)
-          .attr('stroke', C.ink).attr('opacity', 0.55);
-        tipShow(ev, `<b>${yearLabel(yr)}</b>${pub === yr ? ' · the published year' : ''}<br>Parser alone: ${inAlone.has(yr) ? what : 'out'}`
-          + `<br>With the model: ${inAll.has(yr) ? what : 'out'}`);
-      })
-      .on('mouseleave', () => { hover.html(''); tipHide(); });
-  }
-
   // ------------------------------------------------------------------ the side panel
   // One panel holds what the charts cannot: the verdicts of one year, the full ranking, the full text.
   // It takes the keyboard focus, Escape closes it, and the focus goes back to where it was.
@@ -1585,7 +1504,6 @@
     if (REC) CLOCKS = findClocks(REC);
     sections.forEach((s) => { s.rendered = false; s.current = -1; });
     if (REC) showChoice(REC);
-    drawCompare();
     onScroll();
   }
   let resizeTimer = null;

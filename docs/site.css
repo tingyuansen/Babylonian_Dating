@@ -297,14 +297,6 @@ body.revealed .chron .restored { color: var(--seal); }
 .fig-controls button { font: 500 13px var(--ui); color: var(--ink-2); background: var(--card); border: 1px solid var(--rule);
   border-radius: 999px; padding: 3px 11px; cursor: pointer; }
 .fig-controls button:hover { color: var(--ink); border-color: var(--gold); }
-/* What the language model adds: the years with the parser clauses alone and with all the clauses. */
-.model-cmp { margin: 0.4em 0 1.2em; }
-.model-cmp svg { display: block; overflow: visible; }
-.cmp-switch { display: flex; gap: 6px; margin-bottom: 10px; }
-.cmp-switch button { font: 500 13px var(--ui); color: var(--ink-2); background: var(--card); border: 1px solid var(--rule);
-  border-radius: 999px; padding: 4px 12px; cursor: pointer; }
-.cmp-switch button:hover { color: var(--ink); border-color: var(--gold); }
-.cmp-switch button[aria-pressed="true"] { color: var(--ink); border-color: var(--gold); background: var(--gold-leaf); }
 
 /* provenance panel */
 .provenance-panel { position: fixed; right: 16px; bottom: 16px; z-index: 45; width: min(460px, calc(100vw - 32px));
