@@ -2,6 +2,7 @@ path,what,sha256
 data/source/adart_i/scan.pdf,"The introduction to ADART I (Sachs and Hunger 1988), with the Normal Star table",d26df90c2937affed7e36e1e35153c4cdf39732bb7144ac6182b0766273335cc
 data/source/adart_iv/scan.pdf,"ADART IV (Hunger 2022), with the corrections to Volumes I to III and the 867 undated entries",5c2ca092f1f9a0c4a9a0394b9cc610615a7a53a8220a3b5b0fbaf289512f965c
 data/source/parker_dubberstein/scan.pdf,"Parker and Dubberstein, Babylonian Chronology 626 B.C.–A.D. 75 (Brown University Press, 1956)",787be98b6ac7d8b43b22d8665033a528d038d4583b2e35d299500e09bff0073f
+data/source/adart_iv/scan_searchable.pdf,"The ADART IV scan with the Mathpix text laid over it, so it can be searched. data/source/adart_iv/mathpix_manifest.json records it",7df2883805ac21a4f7ec97f7885ac2050cc755b17ce69e8af0cbff879704549a
 data/source/adart_iv/mathpix_lines.json,"The Mathpix reading of the ADART IV scan, line by line, from scripts/source/ocr_adart_iv_mathpix.py",4b60c8a9876566996d23ce18e9449177e1f48a114447cfc9e1552a4537a6bc31
 data/corpus/adart_iv_tablets.parquet,"One row per undated ADART IV entry, with its translation, from scripts/source/build_adart_iv_corpus.py",dff212f9047e07fc9408ecdb1a1eada22c3630b19bde5e445bb4d777849b9782
 data/corpus/adart_iv_lines.parquet,"One row per line of the translation column of ADART IV, from scripts/source/build_adart_iv_corpus.py",36b48671042c31413c83f76677725438f7a38de9a26183a267336880bcadcffa
