@@ -232,7 +232,7 @@ class PaperNumbersTest(unittest.TestCase):
         translated = int(self.tablets.text.fillna("").str.strip().ne("").sum())
         adart_iv = json.loads((DATA / "corpus" / "adart_iv_corpus_summary.json").read_text())["entries_with_translation"]
         self.assertEqual((translated, adart_iv, round(translated + adart_iv, -2)), (332, 860, 1200))
-        self.says("All calls to the language model, for the review and the search of about 1,200 texts, cost about \\$5")
+        self.says("The review and the search of about 1,200 texts cost about \\$5 in calls to the language model")
         iv = runs[1]["review"]["final_actions"]
         self.assertEqual((runs[1]["review"]["clauses"], iv["KEEP"], iv["MODIFY"], runs[1]["recall"]["added"]),
                          (539, 533, 6, 179))
