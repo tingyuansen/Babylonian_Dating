@@ -1733,6 +1733,7 @@ def audit(t0: float, scratch: Path) -> int:
                                    f"{int(eclipse_untestable_reasons.get('no date', 0))} lack a secure month and day",
             "station contradictions": f"In {station_window_misses} of its {len(station_contradictions)} "
                                       "contradictions, the computed station lies outside the window of the clause",
+            "calendar lag": f"fall a median of {med:.1f} days after the computed new moons",
             "sensitivity configurations": f"The sensitivity audit tests {len(SENSITIVITY_CONFIGS)} "
                                           "fixed configurations, including the baseline, on the "
                                           f"same {n_bench} records",
