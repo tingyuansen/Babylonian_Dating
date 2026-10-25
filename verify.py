@@ -1772,7 +1772,7 @@ def audit(t0: float, scratch: Path) -> int:
             "held-out tolerances": (f"Round I chose a planet tolerance of ${num(tolerances.get('ADART I', 0))}^\\circ$."
                                     if tolerances.get("ADART II") == tolerances.get("ADART III") == S.TOL_PLANET
                                     else "held-out: rounds II or III change the planet tolerance"),
-            "held-out types": ("Rounds II and III kept the distances of the outer planets to Normal Stars in compound "
+            "held-out types": ("the distances of the outer planets to Normal Stars in compound "
                                "units supporting, and Round III also made the sign entries of the outer planets supporting"
                                if {name: sorted(rounds[name]["choices"]["demoted_types"]) for name in held.HELD_OUT}
                                == {"ADART I": [], "ADART II": ["distance to Normal Star|outer|compound"],
@@ -1809,39 +1809,6 @@ def audit(t0: float, scratch: Path) -> int:
             "tolerances": f"tolerances of ${num(S.TOL_MOON)}^\\circ$ for the Moon and "
                           f"${num(S.TOL_PLANET)}^\\circ$ for a planet",
         }
-        # SI section S10: the records dated with the parser clauses alone and
-        # with the reviewed clauses that the dates use.
-        clause_sets = json.loads((HERE / "data" / "benchmark" / "clause_set_comparison.json")
-                                 .read_text(encoding="utf-8"))
-        alone, reviewed_set = (clause_sets["adart_i_iii"][k] for k in ("parser", "reviewed"))
-        iv_alone, iv_reviewed = (clause_sets["adart_iv"][k] for k in ("parser", "reviewed"))
-        change = clause_sets["benchmark_records_that_change"]
-        ok("the reviewed column of SI Table S8 is the benchmark of the main text",
-           (reviewed_set["first_group"], reviewed_set["records_with_decisive_clauses"]) == (first, n_act))
-        claims.update({
-            "parser alone": ("which narrow the dates without a loss at the published years"
-                             if reviewed_set["first_group"] >= alone["first_group"]
-                             and reviewed_set["strict_set"] >= alone["strict_set"]
-                             and reviewed_set["median_strict_set"] <= alone["median_strict_set"]
-                             else "the reviewed clauses lose at the published years"),
-            "S10 change": (f"With them, {change['records']} of the {n_act} records with decisive clauses "
-                           f"change. The strict set becomes narrower in {change['strict_set_narrower']}, "
-                           "and the published year moves up the ranking in "
-                           f"{change['published_year_ranked_higher']}. In none of them does it move "
-                           "down or leave the strict set"
-                           if not change["published_year_ranked_lower"]
-                           and not change["published_year_leaves_strict_set"]
-                           else "S10: a published year moves down or leaves the strict set"),
-            "S10 commitments": (f"the commitments rise from {alone['commitments']} to "
-                                f"{reviewed_set['commitments']}, and all {reviewed_set['commitments']} "
-                                "match the published year"
-                                if reviewed_set["commitments_correct"] == reviewed_set["commitments"]
-                                else "S10: a commitment misses the published year"),
-            "S10 ADART IV": ("the search finds clauses in "
-                             f"{iv_reviewed['entries_with_clauses'] - iv_alone['entries_with_clauses']} "
-                             f"more entries, and {iv_reviewed['ranked_entries'] - iv_alone['ranked_entries']} "
-                             "more entries receive ranked candidate years"),
-        })
         missing = [label for label, phrase in claims.items() if phrase not in tex]
         ok("every number the paper prints follows from the data",
            not missing, "; ".join(f"{m}: '{claims[m][:90]}'" for m in missing[:3])
@@ -1904,34 +1871,10 @@ def audit(t0: float, scratch: Path) -> int:
                        "strict_set": {"n": sum(t["published_year_in_strict_set"] for t in addenda_new)},
                        "median_strict_set": addenda_json["scores"]["not_linked_to_adart_i_iii"]["median_strict_set_size"]}
         want_s6.append(s6("Frozen rules, ADART IV addenda", addenda_row))
-        def both(key: str, rate: bool = False, unit: str = "") -> tuple[str, str]:
-            if rate:
-                return tuple(f"{t[key]} ({pct(t[key], n_act)}\\%)" for t in (alone, reviewed_set))
-            return tuple(f"{num(t[key])}{unit}" for t in (alone, reviewed_set))
-
-        want_s8 = [
-            row("Clauses in ADART I to III", *both("clauses")),
-            row("First group holds the published year", *both("first_group", rate=True)),
-            row("First three groups hold it", *both("first_three_groups", rate=True)),
-            row("Strict set holds it", *both("strict_set", rate=True)),
-            row("Median strict set", *both("median_strict_set", unit=" years")),
-            row("First groups of one year (with the published year)",
-                *(f"{t['single_year_first_groups']} ({t['single_year_first_groups_correct']})"
-                  for t in (alone, reviewed_set))),
-            row("Commitments (correct)",
-                *(f"{t['commitments']} ({t['commitments_correct']})" for t in (alone, reviewed_set))),
-            row("ADART IV entries with clauses",
-                *(t["entries_with_clauses"] for t in (iv_alone, iv_reviewed))),
-            row("ADART IV entries with ranked years",
-                *(t["ranked_entries"] for t in (iv_alone, iv_reviewed))),
-            row("Median strict set in ADART IV",
-                *(f"{num(t['median_strict_set'])} years" for t in (iv_alone, iv_reviewed))),
-        ]
         for name, label, want in (("S3", "tab:information", want_s3),
                                   ("S4", "tab:forward", want_s4),
-                                  ("S6", "tab:heldout", want_s6),
-                                  ("S8", "tab:clausesets", want_s8)):
-            have = tex_rows(label) if name in ("S6", "S8") else sorted(tex_rows(label))
+                                  ("S6", "tab:heldout", want_s6)):
+            have = tex_rows(label) if name == "S6" else sorted(tex_rows(label))
             if name == "S4":
                 want = sorted(want)
             wrong = [f"'{h}' should be '{w}'" for h, w in zip(have, want) if h != w]

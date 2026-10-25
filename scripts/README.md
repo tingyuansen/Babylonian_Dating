@@ -20,7 +20,7 @@ physical/   build_calendar  build_normal_stars  build_eclipses
 audit/      build_parser_clauses  build_benchmark
 agent/      rescore_model_review  compare_models
 inference/  date_all  date_adart_iv
-audit/      score_benchmark  rank_candidates  compare_clause_sets  audit_sensitivity  audit_adart_iv_corrigenda  audit_era_readings
+audit/      score_benchmark  rank_candidates  audit_sensitivity  audit_adart_iv_corrigenda  audit_era_readings
 physical/   appulse_residuals  calibrate_visibility  validate_zodiac  check_calendar_against_sky
 paper/      build_paper_counts  build_adart_iv_table
 audit/      audit_held_out --run-held-out

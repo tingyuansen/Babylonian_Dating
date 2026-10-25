@@ -7,7 +7,7 @@ The data are grouped by what they are. Each folder below is rebuilt by the scrip
 | `source/` | The inputs as obtained: the digital edition, the text read from the books, the corrections checked by eye, the cuneiform sign list, the photograph in Fig. 2 and the reference identifiers. Never edited in place |
 | `corpus/` | The text, one row per record, of the 417 dated diaries of ADART I to III, and the counts and hashes of the ADART IV text, which stays local |
 | `physical/` | The calendar, ephemeris, eclipses and Normal Stars that the tools use, and the measurements that check them |
-| `clauses/` | The clauses that the parser reads, and the language-model review of step 1 |
+| `clauses/` | The reviewed clauses that the dates use, the parser clauses, and the language-model review of step 1 |
 | `results/` | The candidate years of every record. These files hold no published year |
 | `benchmark/` | Everything that compares the results with the published years: the frozen benchmark, its scores, the ranking, the sensitivity, held-out and corrigenda audits, and the frozen test on the dated addenda of ADART IV |
 | `paper_counts/` | The counts and SI tables that the paper quotes |
@@ -101,7 +101,7 @@ The book scans, and the full text that the project read from ADART IV, are under
 | `tablet_dates.parquet` | One row per ADART I to III record: its decision, strict and safety sets, groups of tied years, and the verdicts of its clauses in those years | `inference/date_all.py` |
 | `adart_iv_dates.parquet` | The same for the 867 ADART IV entries. Each clause keeps its extracted statement | `inference/date_adart_iv.py` |
 | `adart_iv_summary.json` | Counts and hashes of the ADART IV run | `inference/date_adart_iv.py` |
-| `adart_iv_addenda_dates.parquet` | The same for the 52 texts of the dated addenda of ADART IV | `inference/date_adart_iv_addenda.py` |
+| `adart_iv_addenda_dates.parquet` | The same for the 52 texts of the dated addenda of ADART IV, dated with the parser clauses, as the test registered | `inference/date_adart_iv_addenda.py` |
 | `adart_iv_addenda_summary.json` | Counts and hashes of the addenda run | `inference/date_adart_iv_addenda.py` |
 
 ## benchmark/
@@ -112,7 +112,6 @@ The book scans, and the full text that the project read from ADART IV, are under
 | `benchmark_results.parquet` | The 179 benchmark records, scored against the published year | `audit/score_benchmark.py` |
 | `benchmark_clause_bits.parquet` | Bits and tier of each clause of the 179 benchmark records | `audit/score_benchmark.py` |
 | `ranking_candidates.parquet` | Every candidate year of every benchmark record, with its scores and rank | `audit/rank_candidates.py` |
-| `clause_set_comparison.json` | The rates of the benchmark, and the counts of ADART IV, when the records are dated with the parser clauses alone and with the reviewed clauses (SI Appendix, section S10) | `audit/compare_clause_sets.py` |
 | `sensitivity_runs.parquet`, `sensitivity_summary.parquet` | Every benchmark record under each of the 32 configurations, and the summary per configuration | `audit/audit_sensitivity.py` |
 | `held_out_runs.parquet`, `held_out_summary.json` | The choices and the records of each held-out round | `audit/audit_held_out.py` |
 | `addenda_registration.json` | The registration of the frozen test on the dated addenda of ADART IV: the frozen commit, the input, the blinding and the scores, fixed before any addendum was read | Written by hand before the test |

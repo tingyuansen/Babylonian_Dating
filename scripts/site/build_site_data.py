@@ -398,14 +398,17 @@ def record_story(tablet: str, text: str, years: list[int], saved: pd.Series,
                          review_run["tiers"].get(tablet), added)
     if found:
         story["found"] = found
-    # What the parser clauses alone would give, for the comparison on the page.
+    # The strict set and the first group that the parser clauses alone would
+    # give, for the comparison at the end of the page.
     if len(parsed) != len(sts) or any(a != b for a, b in zip(parsed, sts)):
         alone = S.candidate_scores(parsed, months, years, "skill") if parsed else None
         alone_levels = S.evidence_levels(alone) if alone is not None else []
         story["parser_alone"] = {
             "clauses": len(parsed),
-            "strict": int(alone.strict.sum()) if alone is not None else len(years),
-            "first": len(alone_levels[0]["years_astro"]) if alone_levels else len(years)}
+            "strict": ([int(y) for y in np.asarray(years)[alone.strict]]
+                       if alone is not None else list(years)),
+            "first": (years_list(alone_levels[0]["years_astro"])
+                      if alone_levels else list(years))}
     # The sets and the first three groups of the ranking, as the results hold them.
     levels = json.loads(saved.evidence_levels_json) if isinstance(
         saved.evidence_levels_json, str) else []

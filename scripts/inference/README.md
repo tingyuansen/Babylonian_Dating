@@ -1,6 +1,6 @@
 # inference
 
-These scripts turn text into candidate years. They read a record's identifier, its surviving text and its reviewed clauses from `data/clauses/`, and nothing else: no published date, catalogue position, volume, period or join.
+These scripts turn text into candidate years. They read a record's identifier, its surviving text and its reviewed clauses from `data/clauses/` (for the frozen addenda test, its parser clauses), and nothing else: no published date, catalogue position, volume, period or join.
 
 | Script | What it does |
 |---|---|

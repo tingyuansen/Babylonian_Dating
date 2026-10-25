@@ -1,6 +1,6 @@
 # agent
 
-These scripts are bounded language-model interfaces. A model here sees translated text with the published year withheld, and may not supply a number or change a verdict. The package holds the clause review whose final clauses the dates use, and the MCP server that gives any agent the read-only tools.
+These scripts are bounded language-model interfaces. A model here sees translated text with the published year withheld, and may not supply a year or a score, or change a verdict. The package holds the clause review whose final clauses the dates use, and the MCP server that gives any agent the read-only tools.
 
 ## Clause review
 

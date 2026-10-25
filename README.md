@@ -42,7 +42,7 @@ The committed data can be rebuilt from `data/source/` in the order of `scripts/R
 - `scripts/agent/model_review.py` runs the paid language-model review. `scripts/agent/rescore_model_review.py` rebuilds its final clauses, which the dates use, from the committed caches. The caches of the review of ADART IV quote the volume, so they stay local, and the repository keeps its final clauses.
 - `scripts/physical/build_ephemeris.py` needs the JPL DE441 kernel `de441_part-1.bsp` (1.65 GB) from https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/, which is too large to keep.
 
-The results record the SHA-256 of the code and tables that made them. An edit to `tools/`, `scripts/inference/date_all.py`, `scripts/agent/model_review.py`, the protocol in `skills/` or the physical tables invalidates the committed results until the rebuild runs again.
+The results record the SHA-256 of the code and tables that made them. An edit to the hashed modules of `tools/`, the clause tables, `scripts/inference/date_all.py`, `scripts/agent/model_review.py`, the protocol in `skills/` or the physical tables invalidates the committed results until the rebuild runs again.
 
 ## Checking
 
