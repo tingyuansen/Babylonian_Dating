@@ -1693,8 +1693,8 @@ def audit(t0: float, scratch: Path) -> int:
             "current rules": f"so {int(supporting.active_decisive.gt(0).sum())} of the {len(supporting)} "
                              "supporting-only records now also have a decisive clause",
             "corrigenda": f"ADART IV makes {len(corrigenda_rows)} corrections",
-            "calendar corrections": f"Only the {len(pd.read_csv(HERE / 'data' / 'physical' / 'calendar_ocr_corrections.csv'))} "
-                                    "transcription errors found were corrected",
+            "calendar corrections": f"We corrected the {len(pd.read_csv(HERE / 'data' / 'physical' / 'calendar_ocr_corrections.csv'))} "
+                                    "transcription errors that this comparison found",
             "solar eclipses": "Solar eclipses stay supporting, because the dated corpus has only "
                               f"{word(len(solar_usable))} unrestored, observed report",
             "Table S3 caption": f"for {num(span['reviewed_clauses'])} clauses from "
@@ -1763,7 +1763,7 @@ def audit(t0: float, scratch: Path) -> int:
                                           f"same {n_bench} records",
             "held-out tolerances": f"Round I chose a planet tolerance of ${num(tolerances.get('ADART I', 0))}^\\circ$ "
                                    f"and Round III one of ${num(tolerances.get('ADART III', 0))}^\\circ$",
-            "held-out reading": "counts as close if it lies at most "
+            "held-out reading": "passes if it lies at most "
                                 f"{word(int(held.CLOSE_POINTS))} percentage points",
             "one record of ADART II": "because single volumes hold few records, such as "
                                       f"{held_rows.get('ADART II', {}).get('records')} in ADART II",

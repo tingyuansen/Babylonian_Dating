@@ -298,7 +298,7 @@
       : r.tablet
         ? `This is ${esc(r.id)}, as the edition reads its signs. The cuneiform comes from that reading, sign by sign,
           with the ORACC Sign List. The dark hollows show where the clay is broken. The faint signs in them are the signs
-          that the editors restore. Move the pointer over a line to read it in Latin letters.`
+          that Sachs and Hunger restored. Move the pointer over a line to read it in Latin letters.`
         : `This is the English translation of ${esc(r.id)}. The edition gives no reading of its signs line by line.`);
     d3.select('.t-clauses').html(`The system reads only the English translation. The shaded words are year numbers and
       names of kings. Code hides them from the language model. The dating uses year numbers only to count the years
@@ -547,7 +547,7 @@
 
   // ------------------------------------------------------------------ chapter 1: tablet to parchment
   // One line of the tablet in cuneiform. Whole signs are pressed into the clay; damaged signs are faint; where
-  // the clay is lost, a dark hollow holds the signs that the editors restore. A reading with no sign in the
+  // the clay is lost, a dark hollow holds the signs that Sachs and Hunger restored. A reading with no sign in the
   // ORACC Sign List stays in Latin letters.
   function glyphHTML(tokens) {
     let html = '';

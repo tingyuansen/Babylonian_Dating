@@ -170,8 +170,8 @@ class PaperNumbersTest(unittest.TestCase):
         rows = years("X301322")
         for count in (656, 635, 11):
             self.assertIn(count, rows)
-        self.says("so they agree with 656 and 635 years")
-        self.says("Its row thus agrees with 11 years, which Fig.~\\ref{fig:diary}b shows as 6.0 bits")
+        self.says("so rows 2 and 4 agree with 656 and 635 years")
+        self.says("The Mars row thus agrees with 11 years, which Fig.~\\ref{fig:diary}b shows as 6.0 bits")
 
     def test_adart_iv(self):
         ranked = self.adart_iv[self.adart_iv.claim.eq("ranked")]
