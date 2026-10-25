@@ -306,9 +306,9 @@
       of the dating reads it. This page hides these words only for the story. It cannot keep them secret, because the
       record number and the data files hold them. It shows them at the end.`);
     d3.select('.t-decisive').html(r.clauses.length
-      ? `A parser finds ${plural(r.clauses.length, 'clause', 'clauses')} in the text. Each clause is one claim about the
-        sky. The inked clauses are <span class="k k-gold">decisive</span>. Only some types of claim can be decisive. The
-        authors chose them by how well they agree with the published dates. They are most claims about Mars, Jupiter or
+      ? `A parser finds ${plural(r.clauses.length, 'clause', 'clauses')} in the text. Each clause is one report about the
+        sky. The inked clauses are <span class="k k-gold">decisive</span>. Only some types of clause can be decisive. The
+        authors chose them by how well they agree with the published dates. They are most clauses about Mars, Jupiter or
         Saturn, lunar eclipses, solstices, equinoxes and dates of Sirius. A decisive clause also needs text that is not
         restored. It needs a secure date, or a test over its whole year. The scribe must not mark the event as
         unobserved. Fixed rules apply these conditions, not a model. ${dec.length
@@ -316,7 +316,7 @@
         ? ` ${plural(idle, 'other clause has', 'other clauses have')} a decisive type, but ${idle === 1 ? 'it agrees' : 'they agree'}
           with each year that the tools can test, so ${idle === 1 ? 'it does' : 'they do'} not narrow the years.` : ''}
         The other clauses only put the years in order.`
-      : `The parser finds no claim about the sky in this text, so the sky cannot date it.`);
+      : `The parser finds no clause about the sky in this text, so the sky cannot date it.`);
     writeModel(r);
     const maxK = r.K.length ? d3.max(r.K) : 0;
     const nMax = r.K.filter((k) => k === maxK).length;
@@ -504,8 +504,8 @@
     const acc = changes.filter((x) => x.accepted);
     const rej = changes.filter((x) => !x.accepted);
     const agent = r.clauses.filter((c) => c.agent_rule).length;
-    let t = `A language model then reads the same text. It checks each clause of the parser, and it searches for claims
-      that the parser misses. It must cite the words that support each change and each new claim, and code checks each
+    let t = `A language model then reads the same text. It checks each clause of the parser, and it searches for clauses
+      that the parser misses. It must cite the words that support each change and each new clause, and code checks each
       citation.`;
     if (rv) {
       const n = rv.kept + rv.modified + rv.dropped;
@@ -518,8 +518,8 @@
       if (rej.length) t += ` Code rejects ${plural(rej.length, 'other proposed change', 'other proposed changes')}, because the sentence of the clause does not state ${rej.length === 1 ? 'it' : 'them'}.`;
     }
     t += found.length
-      ? ` It finds ${plural(found.length, 'claim', 'claims')} that the parser misses. A pencil line marks ${found.length === 1 ? 'it' : 'them'}.`
-      : ' It finds no claim that the parser misses.';
+      ? ` It finds ${plural(found.length, 'clause', 'clauses')} that the parser misses. A pencil line marks ${found.length === 1 ? 'it' : 'them'}.`
+      : ' It finds no clause that the parser misses.';
     if (changes.length) t += ' A dashed pencil line marks a changed clause.';
     d3.select('.t-model').html(t);
     d3.select('.t-model-2').html(`The date on this page uses only the parser clauses. The paper compares the two lists of clauses at the published years.${agent
@@ -1401,7 +1401,7 @@
     const found = (REC.found || []).map((f) => `<li>${esc(f.what)}: “${esc(f.quote)}”</li>`).join('');
     openPanel(`<h3>The translation</h3><div class="fulltext">${html.replace(/\n/g, '<br>') || 'This record has no English translation.'}</div>
       ${changes ? `<h4>Changes that the language model proposed</h4><ul>${changes}</ul>` : ''}
-      ${found ? `<h4>Claims that the language model found</h4><ul>${found}</ul>` : ''}`, 'The translation');
+      ${found ? `<h4>Clauses that the language model found</h4><ul>${found}</ul>` : ''}`, 'The translation');
   }
 
   // ------------------------------------------------------------------ provenance of one year
