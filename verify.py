@@ -1775,7 +1775,7 @@ def audit(t0: float, scratch: Path) -> int:
                 max(abs(shift(name, column)) for name in conventions
                     for column in ("truth_in_leading_group", "truth_strict"))),
             "no agent rules": (lambda growth: (
-                "Without the rules from the coding agent, each rate falls by at most two points, and the median strict set "
+                "Without the coding agent's rules, each rate falls by at most two points, and the median strict set "
                 + ("about doubles" if 1.7 <= growth <= 2.5 else "grows by about half" if 1.4 <= growth < 1.7
                    else "grows by about a third" if 1.2 <= growth < 1.4 else "changes otherwise"))
                 if all(-2 <= shift("no_agent_suggested_rules", column) <= 0
