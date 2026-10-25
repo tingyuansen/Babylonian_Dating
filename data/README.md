@@ -82,7 +82,7 @@ The book scans, and the full text that the project read from ADART IV, are under
 | `parser_clauses.parquet` | Every parser clause: its fields, its source passage and line, and its verdict at the published year | `audit/build_parser_clauses.py` |
 | `model_review_gpt-6-luna-2026-09-22/` | The language-model review of step 1, listed below | |
 | `model_review_gpt-6-luna-2026-09-22_adart_iv/run_summary.json` | The calls, tokens, cost and outcomes of the review of ADART IV. The rest of this run quotes the volume and stays local | `agent/model_review.py --scope adart-iv` (paid) |
-| `model_review_pilot/` | The pilot of three models on ten records: for each model, `<model>_summary.json` (calls, cost and outcomes), `<model>_changes.csv` (its changes to parser clauses) and `<model>_additions.csv` (its search proposals), and `comparison.json`, their verdicts at the published year | `agent/model_review.py` (paid); `comparison.json` by `agent/compare_models.py` |
+| `model_review_pilot/` | The comparison of three models on ten records: for each model, `<model>_summary.json` (calls, cost and outcomes), `<model>_changes.csv` (its changes to parser clauses) and `<model>_additions.csv` (its search proposals), and `comparison.json`, their verdicts at the published year | `agent/model_review.py` (paid); `comparison.json` by `agent/compare_models.py` |
 
 `model_review_gpt-6-luna-2026-09-22/` is the committed run of the review. A run with another model writes to its own `model_review_<model>/`.
 
