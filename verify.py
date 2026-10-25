@@ -1600,7 +1600,7 @@ def audit(t0: float, scratch: Path) -> int:
             "significance": f"On {n_act} dated tablets, its leading candidate years include the "
                             f"published year in {pct(first, n_act)}\\% of cases.",
             "parser clauses": f"it finds {num(len(parser))} clauses in "
-                              f"{parser.tablet.nunique()} of the {n_dated} dated diary records",
+                              f"{parser.tablet.nunique()} of the {n_dated} records with a published date",
             "reviewed clauses": f"It raises the {num(span['deterministic_facts'])} parser "
                                 f"clauses to {num(span['reviewed_clauses'])} clauses from "
                                 f"{span['reviewed_records']} records",
@@ -1686,7 +1686,7 @@ def audit(t0: float, scratch: Path) -> int:
                                  "passages agree with the page",
             "Fig. S2": f"Strict candidate sets of the {len(ranked_iv)} ADART IV entries",
             "Table S7": f"Ranked candidate years of the {len(ranked_iv)} ADART IV entries",
-            "corpus": f"We use its {n_dated} dated diary records of ADART I to III, of which "
+            "corpus": f"We use its {n_dated} records of ADART I to III with a published date. Of these, "
                       f"{span['records_with_edition_text']} have edition text and "
                       f"{int(catalogue.loc[sorted(dated_ids), 'text'].fillna('').str.strip().ne('').sum())}"
                       " an English translation",

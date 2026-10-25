@@ -71,14 +71,14 @@ class PaperNumbersTest(unittest.TestCase):
         self.assertEqual([by_volume[v] for v in ("I", "II", "III")], [94, 161, 162])
         with_text = int(self.tablets.loc[sorted(self.dated)].n_lines.gt(0).sum())
         self.assertEqual(with_text, 393)
-        self.says("of which 393 have edition text")
+        self.says("Of these, 393 have edition text")
         before = self.tablets.loc[sorted(self.dated)].bce_first.max()
         self.assertEqual(int(before), 652)
 
     def test_parser_and_reviewed_clauses(self):
         parser = self.facts[self.facts.tablet.isin(self.dated)]
         self.assertEqual((len(parser), parser.tablet.nunique()), (3193, 316))
-        self.says("it finds 3,193 clauses in 316 of the 417 dated diary records")
+        self.says("it finds 3,193 clauses in 316 of the 417 records with a published date")
         deterministic, reviewed = self.scope["deterministic_forward"], self.scope["reviewed_forward"]
         self.assertEqual((deterministic["clauses"], deterministic["records"]), (3193, 316))
         self.assertEqual((reviewed["clauses"], reviewed["records"]), (4010, 321))
