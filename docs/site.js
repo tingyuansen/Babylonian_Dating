@@ -409,7 +409,9 @@
     }
     REVEAL_HTML = `${reveal} <span class="small">${claim}</span>`;
     d3.select('.u-reveal').html(REVEAL_WAIT);
-    d3.select('.data-links').html(`This record as data: <a href="data/records/${r.id}.json">${r.id}.json</a>.`);
+    d3.select('.data-links').html(`This record as data: <a href="data/records/${r.id}.json">${r.id}.json</a>.
+      The code and the results of all records are at
+      <a href="https://github.com/tingyuansen/Babylonian_Dating">github.com/tingyuansen/Babylonian_Dating</a>.`);
   }
 
   // Where the tablet is now. Only the museum number tells this, so the card gives no other fact about the object.
