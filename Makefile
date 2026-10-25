@@ -39,12 +39,16 @@ paper/PNAS_Paper.pdf: $(PAPER_INPUTS)
 # .bbl files, since arXiv does not run bibtex. It is checked by a build with
 # pdflatex alone, and written to $(BUILD)/arxiv.tar.gz. LaTeX always runs
 # first, because a fresh checkout has the committed PDF but not the .bbl files.
+# The arXiv version prints no PNAS logo, and arXiv rejects a source that names a
+# file it lacks, so its copies of the class and the paper drop the logo command.
 arxiv: $(PAPER_INPUTS)
 	$(LATEX)
 	rm -rf $(BUILD)/arxiv && mkdir -p $(BUILD)/arxiv/Figures
 	cp paper/PNAS_Paper.tex paper/tableS7_adart_iv.tex paper/*.cls paper/*.sty paper/*.bst paper/*.ldf $(BUILD)/arxiv/
 	cp paper/Figures/*.pdf $(BUILD)/arxiv/Figures/
 	cp $(BUILD)/PNAS_Paper.bbl $(BUILD)/S.bbl $(BUILD)/arxiv/
+	cd $(BUILD)/arxiv && perl -pi -e 's/\\includegraphics\[height=24\.5pt,width=66\.4pt\]\{PNAS_Logo\.pdf\}//' pnas-new.cls PNAS_Paper.tex
+	cd $(BUILD)/arxiv && ! grep -rq PNAS_Logo .
 	cd $(BUILD)/arxiv && pdflatex -interaction=nonstopmode -halt-on-error PNAS_Paper > /dev/null && pdflatex -interaction=nonstopmode -halt-on-error PNAS_Paper > /dev/null
 	cd $(BUILD)/arxiv && ! grep -E -q "(Citation|Reference) .* undefined|There were undefined" PNAS_Paper.log
 	cd $(BUILD)/arxiv && rm -f *.aux *.log *.out PNAS_Paper.pdf && COPYFILE_DISABLE=1 tar --no-xattrs -czf ../arxiv.tar.gz .
