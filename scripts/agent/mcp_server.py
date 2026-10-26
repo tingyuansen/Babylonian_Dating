@@ -287,7 +287,7 @@ def body_position(body: Body, year: int, month: int, day: int,
     year, month and day are a proleptic Julian date, and hour counts from
     its midnight, the instant the verdicts use for a calendar day. The
     longitude is the tropical longitude of date plus the offset of Britton
-    (Eq. 8 of the paper), and a sign is a 30-degree bin of it, Aries first.
+    (Eq. 7 of the paper), and a sign is a 30-degree bin of it, Aries first.
     The ephemeris is geocentric and covers 700 BCE to AD 76.
     """
     if body not in sky.BODIES:

@@ -91,7 +91,7 @@ CONFIGS = [
     # stated distance by 2.2/2.
     {"config": "cubit_at_2_2_degrees", "moon_tol": 3.0,
      "planet_tol": 2.0, "weighting": "skill", "ablation": "cubit_scale"},
-    # Britton gives the constant term of the zodiac relation (Eq. 8 of the main
+    # Britton gives the constant term of the zodiac relation (Eq. 7 of the main
     # text) to about 0.1 degree. These two runs move it by half a degree either
     # way, to find results that rest on a planet near a sign boundary.
     {"config": "britton_offset_minus_half", "moon_tol": 3.0,

@@ -33,7 +33,7 @@ Each folder has a README that tells what each of its files does. `data/columns.c
 |---|---|---|
 | Step 1, reading the text into clauses (SI Appendix, section S2) | `tools/statements.py`, `scripts/agent/` | `data/clauses/` |
 | Step 2, checking the clauses against the sky (sections S3 and S4) | `tools/`, `scripts/physical/` | `data/physical/` |
-| Step 3, deciding with independent clocks (sections S5 and S6) | `scripts/inference/date_all.py` | `data/results/tablet_dates.parquet` |
+| Step 3, deciding with several clocks (sections S5 and S6) | `scripts/inference/date_all.py` | `data/results/tablet_dates.parquet` |
 | Benchmark of 179 dated records (Fig. 4) | `scripts/audit/build_benchmark.py`, `scripts/audit/score_benchmark.py` | `data/benchmark/benchmark_results.parquet` |
 | Sensitivity (section S7, Fig. S1) | `scripts/audit/audit_sensitivity.py` | `data/benchmark/sensitivity_summary.parquet` |
 | Held-out test (section S8, Table S6) | `scripts/audit/audit_held_out.py` | `data/benchmark/held_out_summary.json` |

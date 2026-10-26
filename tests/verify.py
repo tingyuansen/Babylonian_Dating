@@ -264,7 +264,7 @@ def tree() -> tuple[list[str], list[str]]:
 
 
 def zodiac_guard_violations() -> list[str]:
-    """The source files that bypass or refit the zodiac relation of Britton (Eq. 8).
+    """The source files that bypass or refit the zodiac relation of Britton (Eq. 7).
 
     A hit is a file that names another zodiac offset or a zodiac fitted to the
     diaries. A file that takes a sign directly from a longitude of date is also
