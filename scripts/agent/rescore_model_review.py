@@ -23,7 +23,7 @@ search_proposals.csv there again, and its other outputs are
                                             published year
 
 The last two, in the run directory, are inputs of
-scripts/paper/build_paper_counts.py. For ADART IV, whose run directory stays
+scripts/audit/build_paper_counts.py. For ADART IV, whose run directory stays
 local because its caches quote the volume, the output is
 data/clauses/adart_iv_reviewed_clauses.parquet.
 """

@@ -20,8 +20,8 @@ import pandas as pd
 import figure_style as fs
 
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parents[2]
-OUT = ROOT / "paper" / "Figures"
+ROOT = HERE.parents[1]
+OUT = ROOT / "figures"
 sys.path.insert(0, str(ROOT))
 
 from tools import cal, clauses, statements as S  # noqa: E402

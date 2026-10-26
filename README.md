@@ -18,7 +18,7 @@ python3 scripts/audit/date_tablet.py X301492  # one record, from its text to its
 
 ```text
 data/      the inputs as obtained (data/source/), and every table that the pipeline writes
-scripts/   the pipeline, in seven steps: source, physical, inference, audit, agent, paper, site
+scripts/   the pipeline, in seven steps: source, physical, inference, audit, agent, figures, site
 tools/     the parser and the astronomical tools that the pipeline uses
 skills/    the written protocol of the rules, given unchanged to agents and human auditors
 tests/     offline tests, and verify.py, which checks the whole tree
@@ -43,7 +43,7 @@ Years are astronomical years, so 1 BCE is year 0 and 150 BCE is year -149. Colum
 
 ## Rebuild
 
-`make rebuild` runs the pipeline in order, from `data/source/` and the committed responses of the language model. It needs no network and no paid service, and it takes about 25 minutes. Run `make check` after it. `make site` then writes the data of the interactive page.
+`make rebuild` runs the pipeline in order, from `data/source/` and the committed responses of the language model. It needs no network and no paid service, and it takes about 25 minutes. Run `make check` after it. `make site` then writes the data of the interactive page, and `make figures` draws the figures of the paper into `figures/`.
 
 A few scripts stay outside the rebuild, and the Makefile lists them. They need the network, the paid language model or a book scan. The test on the dated addenda of ADART IV is also outside it, because it ran once, as `data/benchmark/addenda_registration.json` registers. Their outputs are committed. The ephemeris needs the JPL DE441 kernel `de441_part-1.bsp` (1.65 GB) from https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/, which is too large to keep.
 

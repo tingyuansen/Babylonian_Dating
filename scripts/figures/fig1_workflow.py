@@ -36,7 +36,7 @@ from matplotlib.patches import (Arc, Circle, FancyArrowPatch, FancyBboxPatch,
 import figure_style as fs
 
 HERE = Path(__file__).resolve().parent
-OUT = HERE.parents[2] / "paper" / "Figures"
+OUT = HERE.parents[1] / "figures"
 
 HEIGHT = 3.62                        # inches. The width is fs.FULL_WIDTH
 LABEL, SMALL, HEAD = 7.5, 7.0, 9.0   # font sizes in points

@@ -16,7 +16,7 @@ Outputs, in data/paper_counts/:
 
 Run from the repository root:
 
-    python scripts/paper/build_paper_counts.py
+    python scripts/audit/build_paper_counts.py
 
 With --clause-dir data/clauses/model_review_<model>, it reads the reviewed
 clauses of another run, as scripts/agent/rescore_model_review.py writes them,
@@ -631,7 +631,6 @@ def main(argv=None):
           json.dumps(result["production"]["astronomy_claims"], sort_keys=True))
     print("  scope and provenance checks: passed")
     print(f"Outputs: {output}")
-    print(f"Upload this file: {output / 'manuscript_scope_update.zip'}")
     return 0
 
 

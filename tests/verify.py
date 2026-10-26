@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prove this directory works, and, where the paper is present, that it follows from the data.
+"""Prove that this directory works, and that its results follow from its data.
 
 Run this first, before reading anything else and before changing anything. It
 checks the environment and the data, runs each tool's own self-check, and dates
@@ -10,8 +10,6 @@ a tablet whose answer is known. Then it audits the tree.
   from the script that writes it.
 - The benchmark, the public results, the ranked candidates, the sensitivity
   baseline and the held-out test must be one run, record by record.
-- Where paper/ is present, every number the paper prints must follow from the
-  data, and Tables S3, S4, S6 and S7 must be the tables the code writes.
 - The repository holds only what README.md, the Makefile and data/columns.csv
   describe.
 
@@ -50,10 +48,6 @@ sys.path.insert(0, str(HERE))
 REQUIRED = ["numpy", "pandas", "scipy", "pyarrow", "swisseph", "requests",
             "matplotlib"]
 OPTIONAL = {"jplephem": "only needed to rebuild the ephemeris from a kernel"}
-# The paper is kept outside the public repository. Checks that read it run
-# only when paper/PNAS_Paper.tex is present.
-PAPER = HERE / "paper" / "PNAS_Paper.tex"
-
 # Row counts are kept only where they are a fixed property of the sources or
 # of the design. Every other table is checked below against the code that
 # writes it or the rows it summarises.
@@ -90,14 +84,10 @@ FROZEN_ELIGIBLE_IDS_SHA256 = (
 FROZEN_YEAR_BEARING_IDS_SHA256 = (
     "e39b6845256bb10c9597ec17635e831efc124bae7e1d2aaf77f5dfff7a8f76be")
 
-# What may sit at the top of the tree, and in paper/, which goes to Overleaf
-# as it is.
+# What may sit at the top of the tree.
 TOP_LEVEL = {"README.md", "LICENSE", "CITATION.cff", "Makefile", "requirements.txt",
-             ".gitignore", "data", "docs", "paper", "scripts", "skills",
+             ".gitignore", "data", "docs", "scripts", "skills",
              "tests", "tools"}
-PAPER_SUFFIXES = {".tex", ".bib", ".cls", ".bst", ".sty", ".ldf", ".pdf"}
-PAPER_PDFS = {"PNAS_Paper.pdf", "PNAS_Logo.pdf"}
-FIGURE_SUFFIXES = {".pdf", ".png"}
 TRANSIENT_DIRS = {"tmp", "output", ".pytest_cache", ".mypy_cache",
                   ".ruff_cache", ".ipynb_checkpoints", ".cache"}
 # Markdown files besides the README at the root.
@@ -105,8 +95,6 @@ DOCUMENTS = {"skills/dating_protocol.md"}
 FILE_TOKEN = re.compile(
     r"[\w./+-]+\.(?:py|parquet|jsonl?|csv|md|tex|pdf|png|jpg|ttf|txt|zip|bib"
     r"|mmd|sty|cls|bst|ldf)")
-NUMBER_WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven",
-                "eight", "nine", "ten"]
 
 fails: list[str] = []
 warns: list[str] = []
@@ -266,47 +254,6 @@ def tree() -> tuple[list[str], list[str]]:
     return files, dirs
 
 
-def pct(part, whole) -> str:
-    """A percentage as the paper prints it, rounded half up to a whole number."""
-    return str(int(100 * part / whole + 0.5))
-
-
-def num(value) -> str:
-    """A count or median as the paper prints it: 4,039, 17.5 or 101."""
-    value = float(value)
-    return f"{int(value):,}" if value.is_integer() else f"{value:g}"
-
-
-def word(n: int) -> str:
-    """A small count as the paper spells it, and a larger one as digits."""
-    return NUMBER_WORDS[n] if 0 <= n < len(NUMBER_WORDS) else str(n)
-
-
-def wilson(part: int, whole: int, z: float = 1.959963984540054) -> tuple[int, int]:
-    """The 95% Wilson score interval of a rate, in whole percent."""
-    p, d = part / whole, 1 + z * z / whole
-    centre = (p + z * z / (2 * whole)) / d
-    half = z * ((p * (1 - p) / whole + z * z / (4 * whole * whole)) ** 0.5) / d
-    return round(100 * (centre - half)), round(100 * (centre + half))
-
-
-def wilson_lower(part: int, whole: int, z: float = 1.959963984540054) -> float:
-    """The lower end of the 95% Wilson score interval of a rate."""
-    p, d = part / whole, 1 + z * z / whole
-    return ((p + z * z / (2 * whole))
-            - z * ((p * (1 - p) / whole + z * z / (4 * whole * whole)) ** 0.5)) / d
-
-
-def everyone(part: int, whole: int) -> str:
-    return f"all {whole}" if part == whole else f"{part} of the {whole}"
-
-
-def strip_tex_comments(text: str) -> str:
-    return "\n".join(re.sub(r"(?<!\\)%.*", "", line) for line in text.splitlines())
-
-
-
-
 def zodiac_guard_violations() -> list[str]:
     """Return source files that bypass or refit the published zodiac model."""
     forbidden = [
@@ -424,14 +371,6 @@ def audit(t0: float, scratch: Path) -> int:
         (["data/clauses/parser_clauses.parquet"],
          ["scripts/audit/build_parser_clauses.py", "--out", "{0}"]),
     ]
-    # The table builder writes to a fixed path, so it runs with its output, and
-    # the root it names in its message, moved to scratch. It needs the paper.
-    if PAPER.is_file():
-        rebuilds.append((["paper/tableS7_adart_iv.tex"],
-                     ["-c", "import sys; from pathlib import Path; "
-                            "from scripts.paper import build_adart_iv_table as table; "
-                            "table.OUT = Path(sys.argv[1]); table.HERE = table.OUT.parent; "
-                            "raise SystemExit(table.main())", "{0}"]))
     running = [
         (outputs, subprocess.Popen(
             [sys.executable, *(argument.format(*(str(scratch / Path(rel).name)
@@ -1010,12 +949,6 @@ def audit(t0: float, scratch: Path) -> int:
     recorded += [("mathpix_manifest.json", mathpix["outputs"]["lines.json"]["sha256"],
                   ocr_lines),
                  ("mathpix_manifest.json", mathpix["source_sha256"], adart_iv_pdf)]
-    bibliography_record = HERE / "paper" / "bibliography.json"
-    bibliography_sources = (json.loads(bibliography_record.read_text(encoding="utf-8"))
-                            if bibliography_record.is_file() else {})
-    recorded += [("bibliography.json", entry["file"]["sha256"], entry["file"]["path"])
-                 for entry in bibliography_sources.values()
-                 if isinstance(entry, dict) and isinstance(entry.get("file"), dict)]
     recorded += [("held_out_summary.json", value,
                   "scripts/audit/audit_held_out.py" if name == "audit_held_out"
                   else "data/clauses/reviewed_clauses.parquet" if name == "reviewed_clauses"
@@ -1214,7 +1147,7 @@ def audit(t0: float, scratch: Path) -> int:
        not why, why)
 
     head("reviewed clauses and Tables S3 and S4")
-    from scripts.paper import build_paper_counts as scope_builder
+    from scripts.audit import build_paper_counts as scope_builder
     fingerprint = hashlib.sha256(json.dumps(
         {rel: digest(rel) for rel in scope_builder.SCORE_DEPENDENCIES},
         sort_keys=True).encode()).hexdigest()
@@ -1505,421 +1438,6 @@ def audit(t0: float, scratch: Path) -> int:
     ok("no module that builds a candidate set can read a reference date",
        not leaks, ", ".join(leaks))
 
-    if PAPER.is_file():
-        head("the paper against the data")
-        tex_source = (HERE / "paper" / "PNAS_Paper.tex").read_text(encoding="utf-8")
-        tex = re.sub(r"\s+", " ", tex_source)
-        os.environ.setdefault("MPLBACKEND", "Agg")
-        sys.path.insert(0, str(HERE / "scripts" / "paper" / "figures"))
-        import fig4_benchmark
-        dated_ids = set(population.tablet)
-        in_dated = public.loc[sorted(dated_ids)]
-        n_bench, n_act, n_dated, n_years = len(backward), len(active_backward), len(dated_ids), len(years)
-        supporting = backward[~backward.decisive]
-        first = int(active_backward.truth_in_top_evidence_group.sum())
-        three = int(active_backward.truth_evidence_group_rank.le(3).sum())
-        strict_in = int(active_backward.truth_in_strict.sum())
-        safety_in = int(active_backward.truth_in_safety.sum())
-        places = fig4_benchmark.positions(ranking_candidates[ranking_candidates.decisive])
-        reach = {n: pct(int((places <= n).sum()), len(places)) for n in (1, 3, 10)}
-        parser = facts[facts.tablet.isin(dated_ids)]
-        span = scope["adart_i_iii"]
-        reviewed_fw, parser_fw = scope["reviewed_forward"], scope["deterministic_forward"]
-        s3 = pd.read_csv(scope_dir / "table_s3.csv")
-        s4 = pd.read_csv(scope_dir / "table_s4.csv")
-        station3 = s3[s3.kind.eq("station_appulse")].iloc[0]
-        station4 = s4[s4.kind.eq("station_appulse")].iloc[0]
-        normal3 = s3[s3.kind.eq("appulse")].iloc[0]
-        scheme4 = s4[s4.kind.isin(["season", "sirius"])].set_index("kind")
-        outside = in_dated.loc[sorted(dated_ids - set(backward.tablet))]
-        outside_ranked = outside[outside.claim.eq("ranked")]
-        committed_all = in_dated[in_dated.claim.eq("committed")]
-        committed_match = sum(int(row.strict_years_astro[0]) == published.get(tablet)
-                              for tablet, row in committed_all.iterrows())
-        stated = in_dated[~in_dated.chronology_relation.eq("absent")]
-        narrowed = stated[~stated.chronology_relation.eq("lookup_only")]
-        bases = committed_all.basis.value_counts()
-        volumes = population.project.value_counts()
-        no_decisive = active_backward[active_backward.active_decisive.eq(0)]
-        decisive_now = active_backward[active_backward.active_decisive.gt(0)]
-        ranked_iv = adart_iv_dates[adart_iv_dates.claim.eq("ranked")]
-        held_rows = {name: held.table_row(name, rows) for name, rows in by_round.items()}
-        x301492 = information[information.tablet.eq("X301492") & information.decisive_tier]
-        x301492_years = sorted(x301492.agreeing_years.astype(int), reverse=True)
-        solar = parser[parser.kind.eq("eclipse") & parser.planet.eq("solar")]
-        solar_usable = solar[~solar.restored & ~solar.omitted
-                             & solar.month.notna() & solar.day.notna()]
-        tolerances = {name: rounds[name]["choices"]["tolerance"]["planet"]
-                      for name in held.HELD_OUT if name in rounds}
-
-        # The partial checks that the reviews asked about, recounted from the committed tables.
-        benchmark_now = pd.read_parquet(HERE / "data" / "benchmark" / "benchmark_results.parquet")
-        decisive_ids = set(benchmark_now[benchmark_now.decisive.astype(bool)].tablet)
-        parser_now = pd.read_parquet(HERE / "data" / "clauses" / "parser_clauses.parquet")
-        latitude = parser_now[parser_now.tablet.isin(decisive_ids) & parser_now.semantic_tier.eq("decisive")
-                              & parser_now.direction.isin(["above", "below"])]
-        lat_decisive, lat_records = len(latitude), latitude.tablet.nunique()
-        verdicts_now = pd.read_parquet(HERE / "data" / "clauses" / "model_review_gpt-6-luna-2026-09-22"
-                                       / "reviewed_clause_verdicts.parquet")
-        eclipse_rows = verdicts_now[verdicts_now.kind.eq("eclipse")]
-        eclipse_untestable_reasons = {
-            "unobserved": int(eclipse_rows.forward_detail.str.contains("omitted, unwatched, or unobserved").sum()),
-            "no date": int(eclipse_rows.forward_detail.str.contains("no secure month and day").sum())}
-        station_rows = verdicts_now[verdicts_now.kind.eq("station_appulse")
-                                    | verdicts_now.parser_rule.astype(str).str.startswith("measured_station_normal_star")]
-        station_contradictions = station_rows[station_rows.forward_verdict.eq("contradict")]
-        station_window_misses = int(station_contradictions.forward_detail.str.contains("no matching station").sum())
-
-        def config(name: str, column: str) -> int:
-            return int(sensitivity.loc[name, column])
-
-        def shift(name: str, column: str) -> int:
-            """Change from the baseline, in whole percent of the records with decisive clauses."""
-            return int(pct(config(name, column), n_act)) - int(pct(config("baseline", column), n_act))
-
-        def within_point(name: str) -> bool:
-            return all(abs(shift(name, column)) <= 1 for column in ("truth_in_leading_group", "truth_strict"))
-
-        conventions = ("cubit_at_2_2_degrees", "britton_offset_minus_half", "britton_offset_plus_half",
-                       "delta_t_applied", "tolerance_narrow", "tolerance_wide", "moon_night_window")
-        alternatives = [name for name in sensitivity.index if name != "baseline"]
-        base_strict = float(sensitivity.loc["baseline", "median_strict_count"])
-        base_first = float(sensitivity.loc["baseline", "median_leading_group"])
-
-        def years_word(value) -> str:
-            return f"{num(value)} year" + ("" if float(value) == 1 else "s")
-
-        def english(values: list[int]) -> str:
-            return ", ".join(str(v) for v in values[:-1]) + f" and {values[-1]}"
-
-        addenda = load("data/benchmark/addenda_results.json")["scores"]["not_linked_to_adart_i_iii"]
-        addenda_hits = {addenda["published_year_in_first_group"]["count"], addenda["published_year_in_strict_set"]["count"]}
-        claims = {
-            "candidate calendar": f"in all {n_years} years from "
-                                  f"{yr.year_label(years[0])} to {yr.year_label(years[-1])}",
-            "benchmark (abstract)": f"On {n_act} dated tablets, the years tied at the top",
-            "first group (abstract)": "the years tied at the top of the ranking include the "
-                                      f"published year in {pct(first, n_act)}\\% of cases",
-            "strict set (abstract)": f"In {everyone(strict_in, n_act)}, the reported candidate set "
-                                     "contains it.",
-            "frozen addenda test": (f"Of the {addenda['texts']} addenda that do not join (fit onto) or duplicate a record of ADART I to III, "
-                                    f"{addenda['texts_with_a_decisive_clause']} have a decisive clause. For {min(addenda_hits)} of them, the first "
-                                    "group and the strict set each hold the published year")
-                                   if len(addenda_hits) == 1 else "addenda: first group and strict set differ",
-            "ADART IV (abstract)": f"For {len(ranked_iv)} undated entries of ADART IV, the system "
-                                   "gives ranked candidate years",
-            "significance": f"On {n_act} dated tablets, its leading candidate years include the "
-                            f"published year in {pct(first, n_act)}\\% of cases.",
-            "parser clauses": f"it finds {num(len(parser))} clauses in "
-                              f"{parser.tablet.nunique()} of the {n_dated} records with a published date",
-            "reviewed clauses": f"It raises the {num(span['deterministic_facts'])} parser "
-                                f"clauses to {num(span['reviewed_clauses'])} clauses from "
-                                f"{span['reviewed_records']} records",
-            "forward agreement": "the reviewed clauses agree with the published years in "
-                                 f"{100 * reviewed_fw['agree'] / reviewed_fw['testable']:.1f}\\% "
-                                 "of cases and the parser clauses in "
-                                 f"{100 * parser_fw['agree'] / parser_fw['testable']:.1f}\\%",
-            "Normal Star clauses": f"Such clauses agree with a median of {num(normal3['Median years allowed'])} of the "
-                                   f"{n_years} years, or {normal3.Bits:.1f} bits",
-            "station against a star": "A station against a star carries a median of "
-                                      f"{station3.Bits:.1f} bits. However, it agrees with the published "
-                                      f"year in {pct(station4.Agree, station4.Testable)}\\% of "
-                                      "testable cases",
-            "three clocks": f"Record X301492, one of {int(backward.best_bodies.ge(3).sum())} "
-                            "benchmark records with three or more clocks",
-            "X301492 clauses": f"Five of its decisive clauses agree with "
-                               f"{english(x301492_years)} years"
-                               if len(x301492_years) == 5 else "X301492: not five clauses",
-            "X301492 bits": "the decisive bits $I_D$ total "
-                            f"{float(public.at['X301492', 'primary_bits']):.1f}",
-            "benchmark size": f"we fixed a benchmark of {n_bench} dated records",
-            "decisive records": f"Of these, {n_act} have at least one decisive clause",
-            "supporting-only records": f"The other {n_bench - n_act} are supporting-only records",
-            "first group": f"For the {n_act} records with decisive clauses, it contains the "
-                           f"published year in {first} ({pct(first, n_act)}\\%",
-            "first group size": f"For {int(active_backward.top_evidence_group_size.eq(1).sum())} of the {n_act}, it holds a single year, "
-                                f"and in {int((active_backward.top_evidence_group_size.eq(1) & active_backward.truth_in_top_evidence_group.astype(bool)).sum())} this is the published year",
-            "first group size (abstract)": f"For {int(active_backward.top_evidence_group_size.eq(1).sum())} of them, this top group is a single year, "
-                                           f"the published year in {int((active_backward.top_evidence_group_size.eq(1) & active_backward.truth_in_top_evidence_group.astype(bool)).sum())}",
-            "first two groups": (lambda rank: f"The first two groups contain it in {int(rank(active_backward).le(2).sum())} "
-                                 f"({pct(int(rank(active_backward).le(2).sum()), n_act)}\\%), and the third and fourth add none"
-                                 if all(int(rank(part).le(2).sum()) == int(rank(part).le(4).sum())
-                                        for part in (active_backward, backward, supporting))
-                                 else "Fig. 4b: the third or fourth group adds a record")(
-                                     lambda part: part.truth_evidence_group_rank),
-            "supporting-only first group": "The supporting-only records also reach "
-                                           f"{pct(supporting.truth_in_top_evidence_group.sum(), len(supporting))}"
-                                           "\\% for the first group",
-            "ranked order": f"the first candidate year alone is the published year in {reach[1]}\\%",
-            "ties": f"Ties explain the gap to the {pct(first, n_act)}\\% of the first group",
-            "strict set": (lambda missed: f"It contains the published year in {everyone(strict_in, n_act)} records "
-                           f"with decisive clauses ({pct(strict_in, n_act)}\\%), with a median size of "
-                           f"{num(active_backward.strict_count.median())} years"
-                           + (f". In the one miss, {missed.tablet.iloc[0]}, the published year stays in the safety set"
-                              if len(missed) == 1 and bool(missed.truth_in_safety.iloc[0]) else ""))(
-                active_backward[~active_backward.truth_in_strict.astype(bool)]),
-            "alternative settings": f"most of the {len(SENSITIVITY_CONFIGS) - 1} alternative settings",
-            "outside the benchmark": f"The same rules date the {len(outside)} dated records "
-                                     "outside the benchmark, and "
-                                     f"{int(outside.n_decisive_statements.gt(0).sum())} of them "
-                                     "have a decisive clause",
-            "outside inclusion": (lambda truth: "and "
-                                  f"{sum(yr.bce_to_astro(int(truth[t])) in {int(y) for y in years_in} for t, years_in in zip(outside_ranked.index, outside_ranked.strict_years_astro))}"
-                                  " of them hold the published year")(
-                pd.read_parquet(HERE / "data" / "corpus" / "tablets.parquet",
-                                columns=["tablet", "bce_first"]).set_index("tablet").bce_first),
-            "outside median": "Their strict sets hold a median of "
-                              f"{num(outside_ranked.strict_count.median())} years, against "
-                              f"{num(active_backward.strict_count.median())} in the benchmark",
-            "commitments": f"In the whole corpus of {n_dated} dated records, the commitment rule "
-                           f"of Eq.~\\ref{{eq:commit}} commits to one year for {len(committed_all)}. "
-                           f"All {committed_match} match the published year, and all "
-                           f"{int(committed_all.index.isin(backward.tablet).sum())} lie in the benchmark"
-                           if committed_match == len(committed_all)
-                           == int(committed_all.index.isin(backward.tablet).sum())
-                           else "commitments: not all match or lie in the benchmark",
-            "stated years": f"the system finds a year stated in the Seleucid Era for {len(stated)} dated records",
-            "stated years in the strict set": f"In all {len(narrowed)} records where the astronomy "
-                                              "narrows the year, the stated year lies in the strict set"
-                                              if narrowed.chronology_relation.isin(
-                                                  ["selects_strict_candidate",
-                                                   "confirms_astronomy"]).all()
-                                              else "stated years: one lies outside the strict set",
-            "Fig. 4": f"Inclusion of the published year for the {n_act} benchmark records with decisive clauses, "
-                      f"the {len(supporting)} supporting-only records and all {n_bench}",
-            "ADART IV coverage": "The parser and the search find astronomical clauses in "
-                                 f"{int(adart_iv_dates.n_statements.gt(0).sum())} entries, and "
-                                 f"{len(ranked_iv)} of them have a decisive clause",
-            "ADART IV median": f"cut the {n_years} candidate years to a median of "
-                               f"{num(ranked_iv.strict_count.median())}",
-            "ADART IV heading": f"Ranked candidate years for {len(ranked_iv)} undated entries",
-            "ADART IV entries": f"which gives {corpus_summary['entries']} entries. Of these, "
-                                f"{corpus_summary['entries_with_translation']} have an English translation",
-            "ADART IV first group": f"Of the {len(ranked_iv)} ranked entries, "
-                                    f"{int(ranked_iv.n_decisive_statements.eq(1).sum())} hold a single decisive "
-                                    "clause. One clock leaves many years, and the first groups of all "
-                                    f"{len(ranked_iv)} have a median of {num(ranked_iv.top_evidence_group_size.median())} years",
-            "ADART IV passages": (lambda fixes: "corrected one passage in which the scan had lost a question mark"
-                                  if len(fixes) == 1 and fixes.printed_text.str.endswith("?").all()
-                                  and not fixes.ocr_text.str.endswith("?").any()
-                                  else "ADART IV: the OCR corrections differ from the paper")(
-                pd.read_csv(HERE / "data" / "source" / "adart_iv" / "ocr_corrections.csv")),
-            "Fig. S2": f"Strict candidate sets of the {len(ranked_iv)} ADART IV entries",
-            "Table S7": f"Ranked candidate years of the {len(ranked_iv)} ADART IV entries",
-            "corpus": f"We use its {n_dated} records of ADART I to III with a published date. Of these, "
-                      f"{span['records_with_edition_text']} have edition text and "
-                      f"{int(catalogue.loc[sorted(dated_ids), 'text'].fillna('').str.strip().ne('').sum())}"
-                      " an English translation",
-            "corrigenda": f"ADART IV makes {len(corrigenda_rows)} corrections",
-            "calendar corrections": "Checks against the computed new moons and the printed table found "
-                                    f"{len(pd.read_csv(HERE / 'data' / 'physical' / 'calendar_ocr_corrections.csv'))} "
-                                    "transcription errors, which we corrected",
-            "solar eclipses": "Solar eclipses stay supporting, because the dated corpus has only "
-                              f"{word(len(solar_usable))} unrestored, observed report",
-            "Table S3 caption": f"for {num(span['reviewed_clauses'])} clauses from "
-                                f"{span['reviewed_records']} records of ADART I to III",
-            "Table S4 caption": f"of the {num(span['reviewed_clauses'])} reviewed clauses from "
-                                f"{span['reviewed_records']} dated records of ADART I to III",
-            "Table S4 parser note": f"For the parser clauses alone, from {parser_fw['records']} "
-                                    f"records, {num(parser_fw['agree'])} of "
-                                    f"{num(parser_fw['testable'])} testable clauses agree "
-                                    f"({100 * parser_fw['agree'] / parser_fw['testable']:.1f}\\%)",
-            "station agreement": ("The station against a star of the main text agrees in about half of its testable cases"
-                                  if 0.4 <= station4.Agree / station4.Testable <= 0.6 else "station: not about half"),
-            "scheme types": ("The solstice, equinox and Sirius types agree in nearly all of theirs"
-                             if min(scheme4.at[k, "Agree"] / scheme4.at[k, "Testable"] for k in ("season", "sirius")) >= 0.9
-                             else "scheme types: not nearly all"),
-            "without the solar year": ("Without this clock, the benchmark values stay as in the baseline"
-                                       if all(shift("no_sun_family", column) == 0 for column in ("truth_in_leading_group", "truth_strict"))
-                                       and sensitivity.loc["no_sun_family", "median_leading_group"] == sensitivity.loc["baseline", "median_leading_group"]
-                                       else "without the solar year: a value changes"),
-            "commitment bases": f"{word(int(bases.get('independent_astronomy', 0))).capitalize()} rest on two "
-                                f"or more clocks and {word(int(bases.get('secure_lunar_eclipse', 0)))} on a lunar eclipse",
-            "approximation runs": (lambda most: "Making the distances tested only in longitude supporting moves each rate by at most "
-                                   f"{word(most('longitude_only_distances_supporting'))} point"
-                                   + ("" if most("longitude_only_distances_supporting") == 1 else "s"))(
-                lambda name: max(abs(shift(name, column)) for column in ("truth_in_leading_group", "truth_strict"))),
-            "Moon window run": (lambda most: "Testing the Moon over two nights in place of two and a half days moves each by at most "
-                                f"{word(most('moon_night_window'))}")(
-                lambda name: max(abs(shift(name, column)) for column in ("truth_in_leading_group", "truth_strict"))),
-            "strict set protected": ("The strict set then shrinks to about one year, which is more often wrong"
-                                     if all(float(sensitivity.loc[name, "median_strict_count"]) <= 1.5
-                                            and shift(name, "truth_strict") < 0
-                                            for name in ("contradictions_bound_the_leading_set", "information_weighting"))
-                                     else "strict-set runs: the strict set does not shrink as stated"),
-            "ordering runs": ("They give the same rates as the baseline"
-                              if all(shift(name, column) == 0
-                                     for name in ("contradictions_before_information", "equal_weighting_with_tiers")
-                                     for column in ("truth_in_leading_group", "truth_strict"))
-                              else "ordering runs: a rate changes"),
-            "rates change little": ("Over the 31 settings, the rates change little"
-                                    if len(alternatives) == 31
-                                    and all(abs(shift(name, column)) <= 8 for name in alternatives
-                                            for column in ("truth_in_leading_group", "truth_strict"))
-                                    else "sensitivity: a rate changes by more than eight points"),
-            "clocks widen": (lambda ratios: "Removing one planet "
-                             + ("more than triples" if all(3 <= r <= 4 for r in ratios)
-                                else "about triples" if all(2.5 <= r <= 3.5 for r in ratios)
-                                else "changes otherwise") + " the median strict set")(
-                [float(sensitivity.loc[name, "median_strict_count"]) / base_strict
-                 for name in ("no_mars_family", "no_jupiter_family", "no_saturn_family")]),
-            "month context ranks": ("The month context sets the width of the sets and the ranking"
-                                    if float(sensitivity.loc["no_month_context", "median_strict_count"])
-                                    > max(float(sensitivity.loc[name, "median_strict_count"])
-                                          for name in ("no_mars_family", "no_jupiter_family", "no_saturn_family"))
-                                    and float(sensitivity.loc["no_month_context", "median_leading_group"]) >= 10 * base_first
-                                    else "month context: the sets do not widen most"),
-            "conventions matter least": (lambda most: f"Each moves a rate by at most {word(most)} "
-                                                      + ("point" if most == 1 else "points"))(
-                max(abs(shift(name, column)) for name in conventions
-                    for column in ("truth_in_leading_group", "truth_strict"))),
-            "no agent rules": (lambda growth: (
-                "Without the coding agent's rules, each rate falls by at most two points, and the median strict set "
-                + ("about doubles" if 1.7 <= growth <= 2.5 else "grows by about half" if 1.4 <= growth < 1.7
-                   else "grows by about a third" if 1.2 <= growth < 1.4 else "changes otherwise"))
-                if all(-2 <= shift("no_agent_suggested_rules", column) <= 0
-                       for column in ("truth_in_leading_group", "truth_strict"))
-                else "agent rules: a rate falls by more than two points")(
-                float(sensitivity.loc["no_agent_suggested_rules", "median_strict_count"]) / base_strict),
-            "eclipses untestable": f"Of {len(eclipse_rows)} eclipse clauses, the scribes mark "
-                                   f"{int(eclipse_untestable_reasons.get('unobserved', 0))} as unobserved, and "
-                                   f"{int(eclipse_untestable_reasons.get('no date', 0))} lack a secure month and day",
-            "station contradictions": ("Most of its contradictions fall outside the window of the clause"
-                                       if station_window_misses > len(station_contradictions) / 2
-                                       else "station: most contradictions lie inside the window"),
-            "calendar lag": f"fall a median of {med:.1f} days after the computed new moons",
-            "sensitivity configurations": f"The sensitivity audit tests {len(SENSITIVITY_CONFIGS)} "
-                                          "fixed configurations, including the baseline, on the "
-                                          f"same {n_bench} records",
-            "held-out tolerances": (f"such as a planet tolerance of ${num(tolerances.get('ADART I', 0))}^\\circ$ in Round I."
-                                    if tolerances.get("ADART II") == tolerances.get("ADART III") == S.TOL_PLANET
-                                    else "held-out: rounds II or III change the planet tolerance"),
-            "held-out types": ("The choices thus differ a little between rounds"
-                               if {name: sorted(rounds[name]["choices"]["demoted_types"]) for name in held.HELD_OUT}
-                               == {"ADART I": [], "ADART II": ["distance to Normal Star|outer|compound"],
-                                   "ADART III": ["distance to Normal Star|outer|compound", "sign entry|outer|-"]}
-                               and not any(rounds[name]["choices"]["promoted_types"] for name in held.HELD_OUT)
-                               else "held-out: the rounds change other decisive types"),
-            "outer pairs and eclipses": (lambda types: (
-                lambda pairs, lunar: f"Distances between two outer planets, for example, agree in only {pairs[0]} of "
-                                     f"{pairs[1]} testable cases. Lunar eclipses agree in all {lunar[1]} of theirs"
-                                     if lunar[0] == lunar[1] else "lunar eclipses: a testable case disagrees")(
-                    [sum(row[k] for row in types if row["type"].startswith("planet distance to planet|outer|"))
-                     for k in ("agree", "testable")],
-                    [sum(row[k] for row in types if row["type"] == "eclipse|lunar|-") for k in ("agree", "testable")]))(
-                rounds["all volumes"]["choices"]["types"]),
-            "held-out reading": "passes if it lies at most "
-                                f"{word(int(held.CLOSE_POINTS))} percentage points",
-            "one record of ADART II": "because single volumes hold few records, such as "
-                                      f"{held_rows.get('ADART II', {}).get('records')} in ADART II",
-            "Wilson intervals": ((lambda ci: f"With {n_act} records, the 95\\% Wilson interval of the first-group "
-                                  f"rate is {ci[0]}--{ci[1]}\\%")(wilson(first, n_act))
-                                 if pooled["first_group"]["n"] == first
-                                 else "held-out: the pooled first-group rate differs from the benchmark"),
-            "Wilson margin": ("and its lower end lies about five points below the rate"
-                              if abs(100 * first / n_act - 100 * wilson_lower(first, n_act)
-                                     - held.CLOSE_POINTS) < 0.5
-                              else "held-out: the margin differs from the Wilson interval"),
-            "addenda interval": (lambda ci: "The first group holds the published year in "
-                                 f"{addenda['published_year_in_first_group']['count']} of these "
-                                 f"{addenda['texts_with_a_decisive_clause']} texts. With so few texts, the 95\\% Wilson "
-                                 f"interval of this rate is wide, {ci[0]}--{ci[1]}\\%, and it includes the benchmark rate "
-                                 f"of {pct(first, n_act)}\\%"
-                                 if ci[0] <= int(pct(first, n_act)) <= ci[1] else "addenda: the interval misses the benchmark rate")(
-                                     wilson(addenda["published_year_in_first_group"]["count"],
-                                            addenda["texts_with_a_decisive_clause"])),
-            "held-out result": ("With settings chosen on the other volumes, both pooled rates equal those of the "
-                                f"full benchmark, well within the {word(int(held.CLOSE_POINTS))} points"
-                                if all(r["close"] for r in reading.values())
-                                and (pooled["first_group"]["n"], pooled["strict_set"]["n"]) == (first, strict_in)
-                                else "held-out: a pooled rate differs from the benchmark"),
-            "held-out (main text)": "Over the three rounds, the first group holds the published year in "
-                                    f"{pct(pooled['first_group']['n'], pooled['records'])}\\% and the "
-                                    f"strict set in {pct(pooled['strict_set']['n'], pooled['records'])}\\%, "
-                                    "as in the full benchmark"
-                                    if (pooled["first_group"]["n"], pooled["strict_set"]["n"]) == (first, strict_in)
-                                    else "held-out: a pooled rate differs from the benchmark",
-            "Britton": "\\lambda_{\\mathrm{Bab}}=\\lambda_{\\mathrm{date}}"
-                       f"+{sky.BABYLONIAN_OFFSET_YEAR0_DEG:.2f}^\\circ-"
-                       f"{sky.BABYLONIAN_PRECESSION_DEG_PER_CENTURY:.4f}^\\circ\\,Y",
-            "tolerances": f"tolerances of ${num(S.TOL_MOON)}^\\circ$ for the Moon and "
-                          f"${num(S.TOL_PLANET)}^\\circ$ for a planet",
-        }
-        missing = [label for label, phrase in claims.items() if phrase not in tex]
-        ok("every number the paper prints follows from the data",
-           not missing, "; ".join(f"{m}: '{claims[m][:90]}'" for m in missing[:3])
-           + (f" (+{len(missing) - 3})" if len(missing) > 3 else ""))
-        ok("the method constants are the ones the paper states",
-           S.TOL_PLANET_PAIR == S.TOL_PLANET and not S.ORDER_CONTRADICTIONS_FIRST)
-
-        def tex_rows(label: str) -> list[str]:
-            """The rows of a TeX table, one string per row, as the paper prints them."""
-            body = tex.split(f"\\label{{{label}}}", 1)[-1].split("\\midrule", 1)[-1]
-            body = body.split("\\bottomrule", 1)[0].replace("\\addlinespace", "")
-            return [" ".join(row.split()) for row in body.split("\\\\") if "&" in row]
-
-        def row(*cells) -> str:
-            return " & ".join(str(cell) for cell in cells)
-
-        def paper_label(kind: str) -> str:
-            """The paper names each clause kind as Table S3 does, without "measured"."""
-            return scope_builder.LABELS[kind].replace(" measured", "")
-
-        def cell(value, places: int = 0) -> str:
-            return "\\textemdash" if pd.isna(value) else f"{float(value):.{places}f}"
-
-        # Tables S3 and S4 list the same kinds. Their order is presentation, so
-        # the rows are compared as sorted lists.
-        want_s3 = sorted(row(paper_label(r.kind), cell(r.Clauses),
-                             cell(r["Testable across candidate years"]),
-                             cell(r["Median years allowed"]), cell(r.Bits, 1),
-                             cell(r["Decisive %"])) for _, r in s3.iterrows())
-        want_s4 = sorted(row(paper_label(r.kind), cell(r.Clauses), cell(r.Testable),
-                             cell(r.Agree), cell(r.Contradict), cell(r.Untestable),
-                             cell(r["Agreement %"], 1)) for _, r in s4.iterrows())
-        want_s4.append(row("All types", reviewed_fw["clauses"], reviewed_fw["testable"],
-                           reviewed_fw["agree"], reviewed_fw["contradict"],
-                           reviewed_fw["untestable"],
-                           f"{100 * reviewed_fw['agree'] / reviewed_fw['testable']:.1f}"))
-
-        def s6(label: str, table: dict) -> str:
-            n = table["records"]
-            return row(label, n, *(f"{table[part]['n']} ({pct(table[part]['n'], n)}\\%)"
-                                   for part in ("first_group", "first_three_groups", "strict_set")),
-                       f"{num(table['median_strict_set'])} years")
-
-        want_s6 = [s6(name, held_rows[name]) for name in held.HELD_OUT if name in held_rows]
-        want_s6.append(s6("All three rounds", pooled))
-        want_s6.append(s6("Rules from all volumes", held_rows.get("all volumes", pooled)))
-        # The last row is the frozen test on the dated addenda of ADART IV that join no record of ADART I to III.
-        addenda_json = json.loads((HERE / "data" / "benchmark" / "addenda_results.json").read_text(encoding="utf-8"))
-        addenda_dates = pd.read_parquet(HERE / "data" / "results" / "adart_iv_addenda_dates.parquet").set_index("tablet")
-        addenda_new = [t for t in addenda_json["texts_with_a_decisive_clause"] if not t["linked_to_adart_i_iii"]]
-
-        def addenda_in(t, column):
-            held = addenda_dates.at[t["tablet"], column]
-            held = json.loads(held) if isinstance(held, str) else [int(y) for y in held]
-            return any(y in held for y in t["published_years_astro"])
-
-        addenda_row = {"records": len(addenda_new),
-                       "first_group": {"n": sum(t["published_year_in_first_group"] for t in addenda_new)},
-                       "first_three_groups": {"n": sum(addenda_in(t, "top_three_evidence_groups_years_astro") for t in addenda_new)},
-                       "strict_set": {"n": sum(t["published_year_in_strict_set"] for t in addenda_new)},
-                       "median_strict_set": addenda_json["scores"]["not_linked_to_adart_i_iii"]["median_strict_set_size"]}
-        want_s6.append(s6("ADART IV addenda", addenda_row))
-        for name, label, want in (("S3", "tab:information", want_s3),
-                                  ("S4", "tab:forward", want_s4),
-                                  ("S6", "tab:heldout", want_s6)):
-            have = tex_rows(label) if name == "S6" else sorted(tex_rows(label))
-            if name == "S4":
-                want = sorted(want)
-            wrong = [f"'{h}' should be '{w}'" for h, w in zip(have, want) if h != w]
-            ok(f"SI Table {name} prints the rows the data give",
-               have == want, "; ".join(wrong[:2]) or f"{len(have)} rows, {len(want)} expected")
-
-    else:
-        warns.append("paper/PNAS_Paper.tex is kept outside the repository, so the paper checks did not run")
-
     head("repository layout")
     files, dirs = tree()
     names = {Path(rel).name for rel in files}
@@ -1936,7 +1454,7 @@ def audit(t0: float, scratch: Path) -> int:
                          (HERE / "Makefile").read_text(encoding="utf-8").splitlines())
     figures_line = re.search(r"^FIGURES\s*:=\s*(.+)$", makefile, re.M)
     make_figures = figures_line.group(1).split() if figures_line else []
-    scheduled = {f"paper/figures/{name}.py" for name in make_figures}
+    scheduled = {f"figures/{name}.py" for name in make_figures}
     scheduled |= {path[len("scripts/"):] for path in re.findall(r"scripts/[\w/]+\.py", makefile)}
     imported = set()
     for rel in python_files:
@@ -1958,7 +1476,6 @@ def audit(t0: float, scratch: Path) -> int:
        ", ".join(unscheduled + [f"{name} (in the Makefile, absent)" for name in vanished]))
     patterns = ignore_patterns()
     scans = {Path(rel).name for rel in NOT_DISTRIBUTED}
-    # Files in paper/ belong to the paper, which is kept outside the repository.
     ghosts = []
     text = (HERE / "README.md").read_text(encoding="utf-8")
     for token in re.findall(r"`([^`\s]+)`", text):
@@ -1966,7 +1483,6 @@ def audit(t0: float, scratch: Path) -> int:
                 or not re.search(r"[A-Za-z]", Path(token).stem)):
             continue
         if ((HERE / token).exists() or Path(token).name in names or Path(token).name in scans
-                or token.startswith("paper/")
                 or any(fnmatch.fnmatch(Path(token).name, Path(p.strip("/")).name)
                        for p in patterns)):
             continue
@@ -1992,61 +1508,6 @@ def audit(t0: float, scratch: Path) -> int:
     ok("the top level holds only the documented files and directories, and no "
        "scratch or cache directory", top <= TOP_LEVEL and not transient,
        ", ".join(sorted(top - TOP_LEVEL) + transient))
-    if PAPER.is_file():
-        # The preamble names the PNAS logo, which sits in paper/ itself, to remove it from the arXiv version.
-        included = [name for name in re.findall(r"\\includegraphics(?:\[[^\]]*\])?\{([^}]+)\}",
-                                                strip_tex_comments(tex_source))
-                    if name not in PAPER_PDFS]
-        inputs = re.findall(r"\\input\{([^}]+)\}", strip_tex_comments(tex_source))
-        stray = []
-        for rel in files:
-            parts = rel.split("/")
-            if parts[0] != "paper":
-                continue
-            name, suffix = parts[-1], Path(rel).suffix
-            if len(parts) == 2 and suffix in PAPER_SUFFIXES and (
-                    suffix not in {".pdf", ".tex"} or name in PAPER_PDFS
-                    or name == "PNAS_Paper.tex" or Path(name).stem in inputs):
-                continue
-            if len(parts) == 3 and parts[1] == "Figures" and suffix in FIGURE_SUFFIXES \
-                    and name in included:
-                continue
-            stray.append(rel)
-        missing_inputs = ([f"paper/Figures/{name}" for name in included
-                           if not (HERE / "paper" / "Figures" / name).is_file()]
-                          + [f"paper/{name}.tex" for name in inputs
-                             if not (HERE / "paper" / f"{name}.tex").is_file()])
-        figure_modules = {Path(rel).stem for rel in python_files
-                          if rel.startswith("scripts/paper/figures/")
-                          and re.match(r"figS?\d", Path(rel).stem)}
-        ok("paper/ holds only what LaTeX needs, and every figure and table it includes",
-           not stray and not missing_inputs
-           and {f"{name}.pdf" for name in make_figures} <= set(included)
-           and figure_modules == set(make_figures)
-           and (HERE / "paper" / "PNAS_Paper.pdf").is_file()
-           and (HERE / "paper" / "PNAS_Paper.pdf").stat().st_size > 0,
-           ", ".join((stray + [f"{rel} missing" for rel in missing_inputs])[:4]))
-        cited_source = strip_tex_comments(tex_source)
-        bibliography = (HERE / "paper" / "Bibliography.bib").read_text(encoding="utf-8")
-        entries = set(re.findall(r"@(?!comment|string|preamble)\w+\s*\{\s*([^,\s]+)\s*,",
-                                 bibliography, re.I))
-        cited = {key.strip() for keys in re.findall(r"\\cite\w*\*?(?:\[[^\]]*\])*\{([^}]*)\}",
-                                                    cited_source)
-                 for key in keys.split(",") if key.strip()}
-        ok("every citation has a bibliography entry, and every entry is cited",
-           cited == entries,
-           ", ".join([f"unresolved {k}" for k in sorted(cited - entries)]
-                     + [f"uncited {k}" for k in sorted(entries - cited)][:4]))
-        acceptance = HERE / "tests" / "test_paper_numbers.py"
-        recipe = re.search(r"^check:.*?(?=^\S|\Z)", makefile, re.M | re.S)
-        ok("the paper's acceptance test is present and make check runs it, then this file",
-           acceptance.is_file()
-           and "unittest.TestCase" in acceptance.read_text(encoding="utf-8")
-           and "PNAS_Paper.tex" in acceptance.read_text(encoding="utf-8")
-           and bool(recipe) and "tests/test_*.py" in recipe.group(0)
-           and "verify.py" in recipe.group(0)
-           and recipe.group(0).index("tests/test_*.py") < recipe.group(0).index("verify.py"))
-
     print(f"\n{'-' * 60}")
     for note in warns:
         print(f"optional absent: {note}")
@@ -2055,8 +1516,7 @@ def audit(t0: float, scratch: Path) -> int:
         print("Do not trust the generated results until these pass.")
         return 1
     print(f"all checks passed in {time.time() - t0:.1f}s")
-    print("The scientific pipeline and the committed results agree"
-          + (", and so does the paper." if PAPER.is_file() else "."))
+    print("The scientific pipeline and the committed results agree.")
     return 0
 
 

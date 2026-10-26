@@ -1040,13 +1040,13 @@ benchmark/addenda_published_years.parquet,starts_new_number,boolean,,True if a d
 benchmark/addenda_published_years.parquet,published_years_astro,list of integers,astronomical year,The published year: the diary number as an astronomical year. The heading No. -212/1 gives the two years -212 and -211.
 benchmark/addenda_published_years.parquet,museum_numbers,list of strings,,"Each museum number of the text, from its headings on the right and on the left page, with the pieces of a join apart."
 benchmark/addenda_published_years.parquet,adsd_museum_matches,list of strings,,"Each museum number of the text that corpus/tablets.parquet also holds, with the ADART number of that record, such as Rm 710 = -88A."
-benchmark/addenda_published_years.parquet,overlaps_adart_i_iii,boolean,,"True if adsd_museum_matches, corrigenda_evidence or note_evidence is not empty. The scorer reports these texts in a separate row."
+benchmark/addenda_published_years.parquet,overlaps_adart_i_iii,boolean,,"True if ADART IV links the text to a record of ADART I to III, by its museum number, its corrigenda or a note. The scorer reports these texts in a separate row."
 benchmark/addenda_published_years.parquet,year_number_in_input,list of integers,astronomical year,"Published years whose number, as an astronomical or a BCE year, occurs in the astronomy_text of the text. Empty for every text."
 benchmark/adart_iv_corrigenda_summary.json,,JSON,,"Counts of the ADART IV corrections to Volumes I to III, by how each enters the digital edition. Made by scripts/audit/audit_adart_iv_corrigenda.py."
 benchmark/addenda_registration.json,,JSON,,"The registration of the test on the dated addenda of ADART IV: the frozen commit, the input, the blinding and the scores, fixed before any addendum was read. Written by hand before the test."
 benchmark/addenda_results.json,,JSON,,"The scores of the addenda test as registered, for the texts not linked to ADART I to III and, in a separate row, for the linked texts, with the benchmark rates at registration beside them, every text with a decisive clause, and the hashes of the inputs and the code. The public copy leaves out the quoted notes of the volume. Made by scripts/audit/score_adart_iv_addenda.py."
 benchmark/held_out_summary.json,,JSON,,"The choices, the pass condition and the rates of each held-out round. Made by scripts/audit/audit_held_out.py."
-paper_counts/table_s3.csv,,CSV table,,SI Table S3. Made by scripts/paper/build_paper_counts.py.
+paper_counts/table_s3.csv,,CSV table,,SI Table S3. Made by scripts/audit/build_paper_counts.py.
 paper_counts/table_s3.csv,Observation type,string,,Name of the clause type. SI Table S3 prints the same names without the word measured. The file holds one row per type.
 paper_counts/table_s3.csv,Clauses,integer,count,"Number of the 4,010 reviewed clauses of this type."
 paper_counts/table_s3.csv,Median years allowed,integer,count,"Median number of years that a clause agrees with, over the clauses testable in at least one year, rounded. Years in Table S3. Empty for a type with fewer than five such clauses."
@@ -1056,7 +1056,7 @@ paper_counts/table_s3.csv,Testable across candidate years,integer,count,Number o
 paper_counts/table_s3.csv,Median years allowed unrounded,float,count,Median years allowed without rounding.
 paper_counts/table_s3.csv,Decisive % unrounded,float,percent,Decisive % without rounding.
 paper_counts/table_s3.csv,kind,string,,"Code name of the clause type, as in the column kind of the clause tables."
-paper_counts/table_s4.csv,,CSV table,,SI Table S4. Made by scripts/paper/build_paper_counts.py.
+paper_counts/table_s4.csv,,CSV table,,SI Table S4. Made by scripts/audit/build_paper_counts.py.
 paper_counts/table_s4.csv,Observation type,string,,Short name of the clause type. The wording differs from SI Table S4 and from table_s3.csv. Use kind to join the tables.
 paper_counts/table_s4.csv,Clauses,integer,count,"Number of the 4,010 reviewed clauses of this type."
 paper_counts/table_s4.csv,Testable,integer,count,Number of clauses whose verdict at the published year is agree or contradict.
@@ -1066,6 +1066,6 @@ paper_counts/table_s4.csv,Untestable,integer,count,Number of clauses that are un
 paper_counts/table_s4.csv,Not evaluated,integer,count,Number of clauses of records without a published year. It is 0 for every type.
 paper_counts/table_s4.csv,Agreement %,float,percent,"100 times Agree divided by Testable, rounded to 0.1."
 paper_counts/table_s4.csv,kind,string,,"Code name of the clause type, as in the column kind of the clause tables."
-paper_counts/counts.json,,JSON,,The counts the paper quotes. Made by scripts/paper/build_paper_counts.py.
-paper_counts/source_manifest.json,,JSON,,SHA-256 and size of every input of the counts. Made by scripts/paper/build_paper_counts.py.
+paper_counts/counts.json,,JSON,,The counts the paper quotes. Made by scripts/audit/build_paper_counts.py.
+paper_counts/source_manifest.json,,JSON,,SHA-256 and size of every input of the counts. Made by scripts/audit/build_paper_counts.py.
 columns.csv,,CSV table,,"This data dictionary: each data file in a row with no column, and each column of each table in a row of its own. Written by hand from the scripts."

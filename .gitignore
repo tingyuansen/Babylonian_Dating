@@ -30,22 +30,16 @@ data/source/**/*.pdf
 # Other credential files.
 .env.*
 
-# LaTeX intermediates, if the paper is built inside paper/.
-paper/*.aux
-paper/*.log
-paper/*.bbl
-paper/*.blg
-paper/*.out
-
-# Book scans in other formats, and the old folder of reference books.
+# Book scans in other formats.
 data/source/**/*.djvu
 data/source/**/*.tif
 data/source/**/*.tiff
-/reference/
 
-# The paper is kept outside the public repository. A local folder or link
-# named paper/ is ignored.
+# The paper is not part of this repository.
 /paper
+
+# The figures that make figures draws.
+/figures/
 
 # The full text read from ADART IV stays local. data/source/not_distributed.csv gives the
 # SHA-256 of each file, and the public tree keeps the extracted statements.

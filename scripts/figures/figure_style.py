@@ -88,6 +88,7 @@ def save(fig, stem: Path) -> Path:
     the same bytes.
     """
     out = Path(stem).with_suffix(".pdf")
+    out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, metadata={"CreationDate": None})
     return out
 
