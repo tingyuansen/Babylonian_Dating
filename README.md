@@ -25,7 +25,7 @@ tests/     the offline tests, and the check of the whole repository
 docs/      the interactive page
 ```
 
-Each folder has a README that tells what each of its files does. `data/columns.csv` describes each data file and each column of each table.
+`data/columns.csv` describes each data file and each column of each table.
 
 ## From the paper to the files
 
@@ -86,5 +86,3 @@ L. Carrit Delgado Pinheiro, Y.-S. Ting, J. Clindaniel, L. Li, Y. Liang and N. Sh
   url           = {https://arxiv.org/abs/xxxx.xxxxx}
 }
 ```
-
-GitHub reads the same reference from `CITATION.cff`.

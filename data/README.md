@@ -1,6 +1,6 @@
 # Data
 
-The inputs of the pipeline, and each table that it writes. `columns.csv` describes each file and each column of each table. `scripts/README.md` names the script that writes each file.
+The inputs of the pipeline, and each table that it writes. `columns.csv` describes each file and each column of each table.
 
 | Folder | What it holds |
 |---|---|

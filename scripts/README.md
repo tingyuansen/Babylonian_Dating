@@ -1,6 +1,6 @@
 # Scripts
 
-The pipeline, in one folder per stage. `make rebuild` runs the stages in the order that the `Makefile` gives. Run each script from the repository root, for example `python3 scripts/audit/date_tablet.py X301492`. The first lines of each script tell what it reads and writes. In the tables below, the paths of the scripts are relative to `scripts/`, and the paths of the outputs are relative to `data/`, except `docs/data/`.
+The pipeline, in one folder per stage. `make rebuild` runs the stages in the order that the `Makefile` gives. Run each script from the repository root, for example `python3 scripts/audit/date_tablet.py X301492`. In the tables below, the paths of the scripts are relative to `scripts/`, and the paths of the outputs are relative to `data/`, except `docs/data/`.
 
 ## source
 
