@@ -1,54 +1,32 @@
+# Python, editor and system files.
 __pycache__/
 *.pyc
-.DS_Store
-
-# A launcher for an unrelated application that lands here when it is run from
-# this directory. Nothing in the project reads it.
-.dsh-app/
-
-# A local Python environment, if one is made inside the checkout.
 .venv/
 venv/
-
-# Credentials. scripts/agent/model_review.py reads LITELLM_API_KEY from here or ~/.env.
-.env
-
-# The book scans are under copyright and never enter the repository.
-# data/source/not_distributed.csv gives the SHA-256 of each one.
-data/source/**/*.pdf
-
-# Local settings and worktrees of agent sessions.
-.claude/
-
-# Editor, notebook and test caches.
+.pytest_cache/
 .ipynb_checkpoints/
 .vscode/
 .idea/
+.claude/
 *.swp
-.pytest_cache/
+.DS_Store
 
-# Other credential files.
+# Credentials. scripts/agent/model_review.py reads LITELLM_API_KEY from here or ~/.env.
+.env
 .env.*
-
-# Book scans in other formats.
-data/source/**/*.djvu
-data/source/**/*.tif
-data/source/**/*.tiff
-
-# The paper is not part of this repository.
-/paper
 
 # The figures that make figures draws.
 /figures/
 
-# The full text read from ADART IV stays local. data/source/not_distributed.csv gives the
-# SHA-256 of each file, and the public tree keeps the extracted statements.
+# Files under copyright, which a reader adds from their own copy at the paths
+# that data/source/not_distributed.csv gives. They never enter the repository.
+data/source/**/*.pdf
 data/source/adart_iv/mathpix_lines.json
 data/corpus/adart_iv_tablets.parquet
 data/corpus/adart_iv_lines.parquet
 data/corpus/adart_iv_addenda_tablets.parquet
 data/corpus/adart_iv_addenda_lines.parquet
-# The model review of ADART IV quotes its passages, so its caches stay local too.
-# Its run summary holds only counts and costs.
+# The caches of the model review of ADART IV quote its passages. Its run summary
+# holds only counts and costs, so it stays.
 data/clauses/model_review_gpt-6-luna-2026-09-22_adart_iv/*
 !data/clauses/model_review_gpt-6-luna-2026-09-22_adart_iv/run_summary.json
