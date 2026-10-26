@@ -297,7 +297,7 @@ def zodiac_guard_violations() -> list[str]:
         text = path.read_text(encoding="utf-8", errors="replace")
         reasons = []
         if any(token in text for token in forbidden):
-            reasons.append("legacy/fitted zodiac token")
+            reasons.append("names a replaced or fitted zodiac constant")
         if path.suffix == ".py" and direct_tropical_sign.search(text):
             reasons.append("direct sign_index(lon_date(...))")
         if reasons:
@@ -319,11 +319,11 @@ def zodiac_guard_violations() -> list[str]:
 
 def main() -> int:
     t0 = time.time()
-    print("Babylonian_Dating, cold start verification")
+    print("Babylonian Dating, check of the data, the code and the results")
 
-    head("zodiac-frame migration")
+    head("Babylonian zodiac")
     zodiac_violations = zodiac_guard_violations()
-    ok("published Babylonian zodiac is not bypassed or corpus-fitted",
+    ok("each sign comes from the zodiac relation of Britton, with no offset fitted to the corpus",
        not zodiac_violations, ", ".join(zodiac_violations))
 
     head("environment")
@@ -400,18 +400,18 @@ def audit(t0: float, scratch: Path) -> int:
     from tools import years as yr
     ok("tools/cal.py self-check", cal.check())
     calendar = pd.read_parquet(HERE / "data" / "physical" / "calendar.parquet")
-    ok("calendar search domain is complete",
+    ok("the calendar holds each of the 701 candidate years, with 12 or 13 months",
        set(calendar.bab_year_astro.astype(int)) == set(int(y) for y in yr.candidate_years())
        and calendar.groupby("bab_year_astro").size().isin([12, 13]).all())
     from tools import eras
     ok("tools/eras.py self-check", eras.check())
     era_readings = pd.read_parquet(HERE / "data" / "benchmark" / "era_readings.parquet")
     named_se = era_readings[era_readings.system.eq("named_seleucid_era")]
-    ok("named Seleucid-ruler chronology is sourced and separately gated",
+    ok("a Seleucid year stated with a king is checked only where a published year exists",
        len(named_se) > 0
        and named_se.forward_agree.isna().eq(named_se.published_astro.isna()).all())
     from scripts.source.build_corpus import split_date
-    ok("catalogue abbreviated BCE spans are validated",
+    ok("short catalogue dates such as 150/49 are read as two full years",
        split_date("150/49") == (150, 149)
        and split_date("73/3", "-73") == (74, 73)
        and split_date("73/3") == (None, None))
@@ -430,7 +430,7 @@ def audit(t0: float, scratch: Path) -> int:
         raw_ok &= (path.exists() and path.stat().st_size == record["bytes"]
                    and hashlib.sha256(path.read_bytes()).hexdigest()
                    == record["sha256"])
-    ok("raw ADsD archives match the fresh fetch manifest", raw_ok,
+    ok("the ADsD archives match the size and SHA-256 of their download record", raw_ok,
        manifest["fetched_utc"])
     if not all(record["tls_verified"] for record in manifest["files"].values()):
         warns.append("ADsD TLS authenticity not independently verified")
@@ -629,13 +629,13 @@ def audit(t0: float, scratch: Path) -> int:
        len(compound_planet) == 1
        and compound_planet[0].parser_rule == "measured_moon_planet_compound"
        and abs(compound_planet[0].offset + 2 * (1 + 8 / 24)) < 1e-12)
-    ok("compound grammar does not admit a headless fragment",
+    ok("a distance with no named body is not read as a clause",
        not S.extract(
            "Month I, The 3rd, 1 cubit 8 fingers above α Tauri."))
     station_relation = S.extract(
         "Month VII, around until the 13th, when Mars became stationary to "
         "the east, it became stationary 2/3 cubit above η Geminorum.")
-    ok("a named station-to-star relation is parsed conservatively",
+    ok("a station against a star takes its planet from the named station",
        len(station_relation) == 1
        and station_relation[0].kind == "station_appulse"
        and station_relation[0].planet == "mars"
@@ -674,8 +674,8 @@ def audit(t0: float, scratch: Path) -> int:
        and not S.is_decisive(planet_pair[0]))
     restored_unit = S.extract(
         "Month VII, the 13th, Venus was 8 [ fingers ] above Jupiter.")
-    ok("planet-pair grammar refuses anaphora, and reads a restored unit "
-       "only as support",
+    ok("a planet-to-planet distance needs a named planet, and a restored unit "
+       "makes it supporting",
        not S.extract("Month VII, the 13th, it stood 1 cubit behind Saturn.")
        and len(restored_unit) == 1 and restored_unit[0].restored
        and not S.is_decisive(restored_unit[0]))
@@ -706,10 +706,10 @@ def audit(t0: float, scratch: Path) -> int:
        dated.tablet.is_unique and set(dated.tablet) == set(tb.tablet)
        and set(dated.claim) <= {"committed", "ranked", "decline"}
        and dated.reason.fillna("").str.len().gt(0).all())
-    ok("date-blind result artifact contains no reference answer",
+    ok("the results table holds no published date or catalogue period",
        not {"bce_first", "bce_second", "ancient_year", "period"}
        .intersection(dated.columns))
-    ok("astronomy-only claims obey the public contract",
+    ok("each commitment has a strict set of one year, as the commitment rule requires",
        dated.claim.isin({"decline", "ranked", "committed"}).all()
        and dated.loc[dated.claim.eq("committed"), "strict_count"].eq(1).all()
        and dated.loc[dated.claim.eq("committed") & dated.basis.eq("independent_astronomy"),
@@ -738,7 +738,7 @@ def audit(t0: float, scratch: Path) -> int:
     active_ids = (set(frozen_records.loc[frozen_records.tool_benchmark_eligible, "tablet"])
                   & set(dated.loc[dated.n_decisive_statements.fillna(0).gt(0), "tablet"]))
     active_public = dated[dated.tablet.isin(active_ids)]
-    ok("public results expose complete score levels and exact physical subgroups",
+    ok("each record lists its first three groups of tied years in full",
        bool(evidence_outputs_are_complete.all())
        and dated.method_version.eq("date-all-v7-reviewed-clauses").all()
        and dated.loc[dated.tablet.eq("X301492"),
@@ -747,7 +747,7 @@ def audit(t0: float, scratch: Path) -> int:
     statements_are_public = dated.apply(
         lambda row: len(json.loads(row.statement_verdicts_json))
         == row.n_statements, axis=1)
-    ok("every extracted statement has public candidate verdicts",
+    ok("each clause of a record has its verdicts in the results",
        bool(statements_are_public.all()))
     source_units_are_complete = True
     sirius_subjects_are_explicit = True
@@ -774,7 +774,7 @@ def audit(t0: float, scratch: Path) -> int:
                 source_units_are_complete &= record.get("joint_positions") == joint
                 for tier in ("strict", "safety"):
                     source_units_are_complete &= record[tier + "_verdict_years_astro"] == group[0][tier + "_verdict_years_astro"]
-    ok("coordinated atomic records share complete source-level scoring units",
+    ok("the linked clauses of a joint statement are scored as one unit",
        source_units_are_complete)
     ok("Sirius is labelled as Sirius in public records", sirius_subjects_are_explicit)
     level_flags_match = dated.apply(
@@ -786,12 +786,12 @@ def audit(t0: float, scratch: Path) -> int:
         and all(level["predicate_exact"]
                 == (len(level["physical_groups_years_astro"]) == 1)
                 for level in json.loads(row.evidence_levels_json)), axis=1)
-    ok("each exact-predicate flag says whether its level is one physical group",
+    ok("each group flag says whether all years of the group give the same verdicts",
        bool(level_flags_match.all()))
-    ok("chronology-only lookup never becomes astronomy success",
+    ok("a record dated only by its stated year is not committed from the astronomy",
        not dated[dated.chronology_relation.eq("lookup_only")]
        .claim.eq("committed").any())
-    ok("chronology adjudication is separately labeled",
+    ok("when a stated year picks among the candidates, the astronomy decision stays ranked",
        dated[dated.combined_basis.eq("chronology_adjudicated")]
        .claim.eq("ranked").all())
     committed = dated[dated.claim == "committed"]
@@ -842,7 +842,7 @@ def audit(t0: float, scratch: Path) -> int:
        and facts.loc[facts.kind.eq("sirius"), "planet"].eq("sirius").all())
     population = pd.read_parquet(
         HERE / "data" / "benchmark" / "benchmark_records.parquet")
-    ok("evaluation selection is outcome-independent and explicit",
+    ok("the benchmark list comes from marks of the text alone, with no dating result",
        len(population) == 417
        and not population.selection_uses_backward_success.any()
        and population.cohort_source.eq("regex").all()
@@ -871,7 +871,7 @@ def audit(t0: float, scratch: Path) -> int:
        and "independent_joint_atoms" in sensitivity.index
        and len(SENSITIVITY_CONFIGS) == 32
        and sorted(sensitivity.index) == sorted(c["config"] for c in SENSITIVITY_CONFIGS))
-    ok("default backward runner writes the full evaluation population",
+    ok("the benchmark results hold all 179 records, with the 120 that have decisive clauses",
        len(backward) == 179 and int(backward.decisive.sum()) == len(active_ids)
        and set(backward.tablet) == set(population.loc[population.tool_benchmark_eligible, "tablet"])
        and backward.top_evidence_group_size.between(1, len(years)).all()
@@ -896,7 +896,7 @@ def audit(t0: float, scratch: Path) -> int:
                 public_subgroups_match &= len(sigs) == 1 and None not in sigs
                 group_signatures.append(next(iter(sigs)) if sigs else None)
             public_subgroups_match &= len(set(group_signatures)) == len(group_signatures)
-    ok("reported physical subgroups reproduce full candidate verdict signatures",
+    ok("the years of each reported subgroup give the same verdicts on all clauses",
        public_subgroups_match)
 
     head("provenance")
@@ -1282,7 +1282,7 @@ def audit(t0: float, scratch: Path) -> int:
             "close": (reference_row[measure]["percent"]
                       - pooled[measure]["percent"]) <= held.CLOSE_POINTS,
         } for measure in ("first_group", "strict_set")}
-    ok("the reading of the test is the pre-registered one, and is scored",
+    ok("the held-out test uses its registered limit of 5 points for close rates, and is scored",
        held.CLOSE_POINTS == 5.0
        and held_summary["settings"]["close_points"] == held.CLOSE_POINTS
        and held_summary["held_out_scored"] is True
@@ -1316,7 +1316,7 @@ def audit(t0: float, scratch: Path) -> int:
         "first_three_groups": int(active_backward.truth_evidence_group_rank.le(3).sum()),
         "strict_set": int(active_backward.truth_in_strict.sum()),
         "median_strict_set": float(active_backward.strict_count.median())}
-    ok("the all-volume round is the unmodified pipeline, record by record",
+    ok("the round with all three volumes equals the main run, record by record",
        not differ_all and check.get("identical") is True
        and check.get("records") == len(bench) and not check.get("differing_records")
        and same_json(plain(held.MAIN_TEXT), main_text)
@@ -1344,7 +1344,7 @@ def audit(t0: float, scratch: Path) -> int:
                        == (HERE / rel).read_text(encoding="utf-8") else "text differs")
             ok(f"{rel} is what its script writes", not why, why)
 
-    head("ADART IV source, OCR, corpus, and prospective inference")
+    head("ADART IV")
     # The full text of ADART IV is not distributed. These checks run where a
     # reader has rebuilt it from the scan.
     text_files = [ocr_lines, "data/corpus/adart_iv_tablets.parquet",
@@ -1430,7 +1430,7 @@ def audit(t0: float, scratch: Path) -> int:
     }
     differ_iv = [name for name, value in prospective_counts.items()
                  if not same_json(plain(value), prospective.get(name))]
-    ok("ADART IV inference is prospective and reports uncertainty rather than accuracy",
+    ok("the ADART IV summary follows from its rows, and no undated entry is committed",
        not differ_iv
        and not adart_iv_dates.claim.eq("committed").any()
        and "no accuracy" in prospective["interpretation"].lower()
@@ -1562,10 +1562,10 @@ def audit(t0: float, scratch: Path) -> int:
         print(f"optional absent: {note}")
     if fails:
         print(f"{len(fails)} CHECK(S) FAILED: {', '.join(fails)}")
-        print("Do not trust the generated results until these pass.")
+        print("The results do not match the code and the data until these checks pass.")
         return 1
     print(f"all checks passed in {time.time() - t0:.1f}s")
-    print("The scientific pipeline and the committed results agree.")
+    print("The results follow from the code and the data in this repository.")
     return 0
 
 
