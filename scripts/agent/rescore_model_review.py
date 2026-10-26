@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Rebuild the final clauses of one run of the model review from its caches alone.
+"""Rebuild the final clauses of one run of the language-model review from its caches.
 
-The run's final clause list is rebuilt from the review and search caches in its
-run directory. It holds the parser clauses as reviewed, plus the search's
-additions. The model client is replaced by one that raises, so a cache miss
-stops the rebuild and spends no money. The final clauses are the clauses that
-the dates use, and tools/clauses.py reads them back.
+The review is step 1 of the paper (SI Appendix, section S2). The script reads the
+review and search caches in the run directory and rebuilds the run's final
+clause list. The list holds the parser clauses as reviewed and the clauses
+that the search added. The model client is replaced by one that raises an
+error, so a cache miss stops the rebuild before any model call. The dates use
+these final clauses, and tools/clauses.py reads them back.
 
     python scripts/agent/rescore_model_review.py --model gpt-6-luna-2026-09-22
     python scripts/agent/rescore_model_review.py --scope adart-iv \
@@ -22,10 +23,10 @@ search_proposals.csv there again, and its other outputs are
     reviewed_clause_verdicts.parquet        per clause: verdict at the
                                             published year
 
-The last two, in the run directory, are inputs of
-scripts/audit/build_paper_counts.py. For ADART IV, whose run directory stays
-local because its caches quote the volume, the output is
-data/clauses/adart_iv_reviewed_clauses.parquet.
+The last two are in the run directory. scripts/audit/build_paper_counts.py
+reads them for SI Appendix, Tables S3 and S4. For ADART IV, the output is
+data/clauses/adart_iv_reviewed_clauses.parquet. Its run directory is not in the
+repository, because its caches quote the copyrighted volume.
 """
 
 from __future__ import annotations
@@ -47,7 +48,7 @@ WEIGHTING = "skill"
 
 
 class APICallBlocked(RuntimeError):
-    pass
+    """A model call was needed, so the caches do not cover the run."""
 
 
 def _no_api_client(*_args, **_kwargs):
@@ -62,7 +63,10 @@ review.get_client = _no_api_client
 
 
 def check_canonical_signs(combined: dict[str, list[Any]]) -> None:
-    """The review canonicalizes signs. Confirm that nothing slipped past it."""
+    """Raise an error for a sign in a form other than the review's canonical one.
+
+    A clause of a kind without a sign must carry no sign.
+    """
     for tablet, sts in combined.items():
         for st in sts:
             sign = st.sign or ""
@@ -76,8 +80,9 @@ def check_canonical_signs(combined: dict[str, list[Any]]) -> None:
 def clause_provenance(extracted, records, reviewed, additions, combined):
     """Origin, parser index and review action of each final clause, in its order.
 
-    The order follows merge_recall_additions: the reviewed parser clauses, then
-    for a record with additions, all of them sorted by their passage.
+    The order is that of merge_recall_additions. A record without additions
+    keeps the order of its reviewed parser clauses. In a record with additions,
+    all clauses are sorted by their passage.
     """
     by_index = {(r["tablet"], int(r["statement_index"])): r for r in records}
     out = {}

@@ -1,33 +1,34 @@
 #!/usr/bin/env python3
-"""Write the data of the interactive site in docs/ from the committed results.
+"""Write the data of the interactive page in docs/ from the committed results.
 
-The site tells, for one record at a time, how the astronomy narrows its date:
-its clauses, the verdict of each clause in each of the 701 candidate years,
-the clocks K, the decisive bits I_D and the supporting bits I_S of each year,
-the strict and safety sets, and the decision. It holds no value of its own.
-This script recomputes the per-year scores with tools.statements, checks that
-they give the committed strict and safety sets of every record, and writes:
+The page shows, for one record at a time, how the astronomy narrows its date.
+It shows the clauses and the verdict of each clause in each of the 701
+candidate years. For each year it shows the clocks K, the decisive bits I_D and
+the supporting bits I_S. It also shows the strict and safety sets and the
+decision. The page computes none of these values itself. This script
+recomputes the scores of each year with tools/statements.py, checks that they
+give the committed strict and safety sets of each record, and writes:
 
     docs/data/meta.json             the candidate years and one summary row per
                                     record, for the chooser
-    docs/data/records/<id>.json     the story of one record, with its tablet lines
+    docs/data/records/<id>.json     the data of one record, with its tablet lines
     docs/data/sky.json              the Babylonian longitude of the Sun and the
                                     five planets at the start and the end of
                                     every month of the 701 years
 
-The site covers the 417 dated records of ADART I to III, whose translation is
-that of ADsD (CC0). The undated ADART IV entries stay in data/results/. The
-site tells one record at a time, so the paper's aggregate results stay in the
+The page covers the 417 dated records of ADART I to III, with the ADsD
+translation (CC0). The results of the undated ADART IV entries are in
+data/results/ and not on the page. The page shows no aggregate result of the
 paper.
 
-Each record also tells what the language model of step 1 did, from the
-committed run in data/clauses/model_review_<model>/: the review of each parser
-clause, each field change that the review proposed and what the checks did
-with it, and the clauses that the search found in the text. The dates use the
-final clauses of data/clauses/reviewed_clauses.parquet: the parser clauses as
-the review leaves them, and the clauses that the search added. A parser clause
-that a rule from a coding agent read is marked too
-(data/clauses/parser_clauses.parquet).
+Each record also shows what the language model of step 1 did, from the
+committed run in data/clauses/model_review_<model>/. It shows the review of
+each parser clause and each field change that the review proposed, with the
+result of its checks. It also shows the clauses that the search found in the
+text. The dates use the final clauses of data/clauses/reviewed_clauses.parquet.
+These are the parser clauses as the review leaves them, and the clauses that
+the search added. The page also marks each parser clause that a rule from a
+coding agent read (data/clauses/parser_clauses.parquet).
 
 Usage:
     python scripts/site/build_site_data.py
@@ -58,8 +59,9 @@ sys.path.insert(0, str(HERE / "scripts" / "site"))
 import cuneiform  # noqa: E402  (the edition's readings drawn as signs)
 
 sys.path.insert(0, str(HERE / "scripts" / "agent"))
-# The year and ruler masker of step 1, the key under which its review keeps
-# each parser clause, and the event subtype that the review gives a clause.
+# Three helpers of step 1. blind masks years and rulers, cache_key gives the key
+# of each parser clause in the review, and infer_event_subtype gives the event
+# subtype of a clause.
 from model_review import blind, cache_key, infer_event_subtype  # noqa: E402
 
 
@@ -69,12 +71,12 @@ VERDICT = {1: "a", -1: "c", 0: "."}   # agree, contradict, untestable
 VOLUME = {"adsd/adart1": "ADART I", "adsd/adart2": "ADART II", "adsd/adart3": "ADART III"}
 SKY_BODIES = ["sun", "mercury", "venus", "mars", "jupiter", "saturn"]
 MONTHS = ["I", "II", "III", "IV", "V", "VI", "VI2", "VII", "VIII", "IX", "X", "XI", "XII", "XII2"]
-# Records that the story opens with: the worked example of the paper (Fig. 3),
-# the record of Fig. 2, a commitment on a lunar eclipse, and a commitment on
-# two or more clocks.
+# The records that the page offers first. These are the record of Fig. 3, the
+# record of Fig. 2b, a commitment on a lunar eclipse and a commitment on two or
+# more clocks.
 FEATURED = ["X301492", "X301322", "X300993", "X104181"]
-# The rulers of Babylon up to the Seleucid Era, in astronomical years (-625 is 626 BCE),
-# as the tables of Parker and Dubberstein give them (data/source/parker_dubberstein/).
+# The rulers of Babylon up to the Seleucid Era, in astronomical years (-625 is 626 BCE).
+# The years are those of the tables of Parker and Dubberstein (data/source/parker_dubberstein/).
 # A year that two rulers share goes to the earlier one.
 REIGNS = [
     ("Nabopolassar", -625, -604), ("Nebuchadnezzar II", -603, -561), ("Amel-Marduk", -560, -559),
@@ -85,14 +87,15 @@ REIGNS = [
     ("Alexander IV", -315, -311),
 ]
 # The periods of rule, for the band under the years. From 311 BCE the tables count in the
-# Seleucid Era; Arsacid kings hold Babylon from 141 BCE.
+# Seleucid Era, and from 141 BCE Arsacid kings hold Babylon.
 PERIODS = [
     ("babylon", "Babylonian kings", "Babylon", -625, -538), ("persia", "Persian kings", "Persia", -537, -330),
     ("macedon", "Macedonian kings", "Macedon", -329, -311), ("seleucid", "Seleucid kings", "Seleucid", -310, -141),
     ("arsacid", "Arsacid kings", "Arsacid", -140, 75),
 ]
-# Which years get a written reason for each clause verdict: the leading years,
-# the published year, and the strict set when it is small enough to read.
+# The years that get a written reason for each verdict. These are the 12
+# leading years, the published year, and the strict set when it has at most 40
+# years.
 DETAIL_TOP = 12
 DETAIL_STRICT_MAX = 40
 
@@ -111,16 +114,17 @@ KIND_LABEL = {
     "season": "Solstice or equinox",
     "sirius": "Sirius date",
 }
-# The period, in years, after which a clock repeats closely enough that its
-# agreeing years line up. Planets: the sidereal period. Lunar eclipses: the
-# Saros. The solar year and the Moon against the stars: the 19-year cycle of
-# the Babylonian calendar.
+# The period in years after which the agreeing years of a clock repeat. Mars,
+# Jupiter and Saturn use their sidereal periods, and Venus and Mercury the
+# 8-year and 46-year cycles of their phenomena. Lunar and solar eclipses use the
+# Saros. The solar year and the Moon use the 19-year cycle of the Babylonian
+# calendar, and the Sun one year.
 CLOCK_PERIOD = {
     "mars": 1.8809, "jupiter": 11.862, "saturn": 29.457, "venus": 8.0,
     "mercury": 46.0, "moon": 19.0, "lunar_eclipse": 18.03,
     "seasonal_sirius": 19.0, "solar": 18.03, "sun": 1.0,
 }
-# The committed run of step 1 that the site tells.
+# The committed run of step 1 that the page shows.
 REVIEW_MODEL = "gpt-6-luna-2026-09-22"
 REVIEW_RUN = HERE / "data" / "clauses" / f"model_review_{REVIEW_MODEL}"
 # How code starts its reason when it rejects a change that the model accepted.
@@ -133,10 +137,12 @@ SIRIUS_EVENT = {"sirius_rising": "first appearance", "sirius_setting": "last app
 
 
 def rounded(values, digits: int) -> list:
+    """The values as floats rounded to the given number of digits."""
     return [round(float(v), digits) for v in values]
 
 
 def years_list(value) -> list[int]:
+    """A list of years from the results, or an empty list for a missing value."""
     return [int(y) for y in (value if value is not None else [])]
 
 
@@ -171,9 +177,9 @@ def load_review_run() -> dict:
 
 
 def check_parser_clauses(tablet: str, sts: list, rows: pd.DataFrame | None) -> None:
-    """Stop when the parser clauses of the run are not the clauses of the site.
+    """Raise an error when the parser clauses of the run differ from those of the page.
 
-    The review and the rule origins name a parser clause by its index, so each
+    The review and the rule origins name a parser clause by its index. Each
     index must give the same passage at the same offsets as here.
     """
     count = 0 if rows is None else len(rows)
@@ -191,8 +197,8 @@ def field_change(j: int, st, record: dict, decision: dict) -> dict:
 
     The value before is the parser's, and the value after an accepted change is
     the run's. The run keeps no value for a rejected change, so that value is
-    given only when it is certain: the other value of a true-or-false field,
-    or the day or month that a rejection by code names.
+    given only when it is certain. This is the other value of a true-or-false
+    field, or the day or month that a rejection by code names.
     """
     field = decision["field"]
     before = (infer_event_subtype(st) if field == "event_subtype"
@@ -246,8 +252,8 @@ def model_review(tablet: str, text: str, sts: list, records: dict) -> tuple[dict
 
 
 def place_quote(text: str, quote: str, start: int, end: int) -> tuple[int, int] | None:
-    """Where a quote stands in the text: at its offsets, else at the exact match
-    nearest to them. None when the text does not hold the quote."""
+    """Where a quote stands in the text, at its offsets or else at the exact
+    match nearest to them. None when the text does not hold the quote."""
     if text[start:end] == quote:
         return start, end
     hits, at = [], text.find(quote)
@@ -261,7 +267,7 @@ def place_quote(text: str, quote: str, start: int, end: int) -> tuple[int, int] 
 
 
 def fraction(value: float) -> str:
-    """A number as the translation writes it: a whole part and a fraction, as 1 1/2."""
+    """A number as the translation writes it, a whole part and a fraction, as in 1 1/2."""
     exact = Fraction(value).limit_denominator(12)
     whole, part = divmod(exact.numerator, exact.denominator)
     rest = Fraction(part, exact.denominator)
@@ -271,9 +277,9 @@ def fraction(value: float) -> str:
 
 
 def distance(cubits: float | None, unit: str | None) -> str:
-    """A measured distance in the unit of the text: cubits, fingers or both.
+    """A measured distance in the unit of the text, as cubits, fingers or both.
 
-    The run keeps every distance in cubits; one cubit is 24 fingers.
+    The run keeps each distance in cubits, and one cubit is 24 fingers.
     """
     if cubits is None or (isinstance(cubits, float) and math.isnan(cubits)):
         return ""
@@ -326,12 +332,12 @@ def search_found(tablet: str, text: str, sts: list, finals: list,
     """The clauses that the search added to one record, placed in its text.
 
     The run's final list holds the reviewed parser clauses and the added ones,
-    sorted as merge_recall_additions in scripts/agent/model_review.py sorts
-    them, so its order gives the tier of each added clause in
+    in the order of merge_recall_additions in scripts/agent/model_review.py.
+    This order gives the tier of each added clause in
     reviewed_clause_bits.parquet. index gives the place of each added clause in
-    the final list, by its passage, kind and body. A quote that
-    is not at its offsets is placed at the nearest exact match in the text; a
-    quote that is not in the text is left out.
+    the final list, by its passage, kind and body. A quote that is not at its
+    offsets goes to the nearest exact match in the text. A quote that is not in
+    the text is left out.
     """
     if rows is None:
         return []
@@ -380,7 +386,7 @@ def record_story(tablet: str, text: str, years: list[int], saved: pd.Series,
              "claim": saved.claim, "basis": saved.basis, "reason": saved.reason}
     story["text"] = text
     # The spans of year numbers and ruler names, which the language model sees
-    # as placeholders. The site hides them until the edition's date is shown.
+    # as placeholders. The page hides them until it shows the edition's date.
     story["hidden"] = [[int(a), int(b)] for a, b, _, _ in blind(text).spans]
     # The language model's part. The review names a parser clause by its index
     # in the parser's list, and the page by its place in the final list.
@@ -403,9 +409,9 @@ def record_story(tablet: str, text: str, years: list[int], saved: pd.Series,
         saved.evidence_levels_json, str) else []
     groups = [years_list(level.get("years_astro")) for level in levels[:3]]
     if not sts:
-        # No clause, so no evidence: every candidate year stays in the
-        # strict and safety sets. The page shows this case on its own. When the
-        # results hold no ranking, all the candidate years are one group.
+        # With no clause, all candidate years stay in the strict and safety
+        # sets, and the page shows this case apart. When the results hold no
+        # ranking, all the candidate years form one group.
         story.update(no_clauses=True, clauses=[], grid=[], K=[], ID=[], IS=[], contradict=[],
                      strict=years_list(saved.strict_years_astro),
                      safety=years_list(saved.safety_years_astro),
@@ -443,7 +449,7 @@ def record_story(tablet: str, text: str, years: list[int], saved: pd.Series,
             "bits": round(float(scores.weights[j]), 3),
             "rule": st.parser_rule,
         })
-        # A rule that a coding agent proposed; the authors wrote and tested it.
+        # A rule that a coding agent proposed. The authors wrote and tested it.
         if source == "parser" and str(origin.rule_origin.iloc[index]).startswith("agent_suggested"):
             clauses[-1]["agent_rule"] = True
         if source == "search":
@@ -470,11 +476,14 @@ STATE = {"": "o", "damaged": "d", "broken": "b", "unread": "u"}
 
 
 def glyph_line(translit: str, table: dict[str, str]) -> list[str]:
-    """One line of the tablet as compact tokens: a state letter, then the text.
+    """One line of the tablet as short tokens, each a state letter and then the text.
 
-    o, d and b are a sign that is whole, damaged or broken; l is a reading with no
-    glyph, kept in Latin letters; g is a gap where the clay is lost; u an unread
-    sign; w a blank space on the clay; s a space between words.
+        o, d, b   a sign that is whole, damaged or broken
+        l         a reading with no glyph, kept in Latin letters
+        g         a gap where the clay is lost
+        u         an unread sign
+        w         a blank space on the clay
+        s         a space between words
     """
     out = []
     for kind, text, state, reading in cuneiform.to_cuneiform(translit, table):
@@ -490,12 +499,12 @@ def glyph_line(translit: str, table: dict[str, str]) -> list[str]:
 
 
 def tablet_rows(text: str, rows: pd.DataFrame, table: dict[str, str]) -> list[dict] | None:
-    """The lines of the tablet, each with its transliteration and the line of the
-    translation it gives, or None when a line has no translation of its own.
+    """The lines of the tablet, each with its transliteration and the index of its
+    translation line. That index is None when a line has no translation of its own.
 
     The record's text joins the translations of its lines and leaves out empty
     ones, so the lines are paired in order. A record whose lines do not pair up
-    gets no tablet, and the site shows its translation alone.
+    gets no tablet, and the page shows its translation alone.
     """
     lines = text.split("\n")
     out, k = [], 0
@@ -510,11 +519,11 @@ def tablet_rows(text: str, rows: pd.DataFrame, table: dict[str, str]) -> list[di
 
 
 def sky_table(years: list[int]) -> dict:
-    """Where the Sun and the planets stood at the bounds of each month's window.
+    """Where the Sun and the planets were at the bounds of each month's window.
 
-    The rules test a body over the whole month, so the site draws each body's
-    track over the window that the sign rules test. Longitudes are in tenths of a degree
-    of the Babylonian zodiac, from the committed ephemeris.
+    The rules test a body over the whole month, so the page draws the track of
+    each body over the window of the sign rules. Longitudes are in tenths
+    of a degree of the Babylonian zodiac, from the committed ephemeris.
     """
     rows = []
     for year in years:
@@ -524,12 +533,12 @@ def sky_table(years: list[int]) -> dict:
             if start is None:
                 by_month.append(None)
                 continue
-            # The next month begins where this one ends; after the last month
+            # This month ends where the next month begins. After the last month
             # of the year comes month I of the next year.
             index = next(i for i in range(1, 14) if cal.month_start_jd(year, i) == start)
             end = cal.month_start_jd(year, index + 1) or cal.month_start_jd(year + 1, 1) or start + 29.5
-            # The bounds of the window the sign rules test: from the civil day
-            # before the month begins to the start of the next month.
+            # The window that the sign rules test runs from the civil day before
+            # the month begins to the start of the next month.
             by_month.append([int(round(10 * sky.babylonian_lon(b, jd))) % 3600
                              for jd in (start - 1.0, end) for b in SKY_BODIES])
         rows.append(by_month)
@@ -583,7 +592,7 @@ def main() -> int:
     (args.out / "sky.json").write_text(json.dumps(sky_table(years), separators=(",", ":")))
     size = sum(p.stat().st_size for p in records_dir.iterdir())
     print(f"{len(index)} records -> {records_dir} ({size / 1e6:.1f} MB), meta -> {args.out / 'meta.json'}")
-    # The language model's part, counted over the records of the site.
+    # The language model's part, counted over the records of the page.
     changes = [c for s in stories for c in s.get("review", {}).get("changes", [])]
     found = [c for s in stories for c in s.get("found", [])]
     added = sum(len(review_run["found"].get(s["id"], [])) for s in stories)

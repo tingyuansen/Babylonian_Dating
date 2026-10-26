@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
-"""Regression checks for the paper's figures and the summary-only ranking audit."""
+"""Offline tests of the figure scripts in scripts/figures/.
+
+The tests check that the curve of Fig. 4a reaches 100% at the last candidate
+year, and that the rows of SI Fig. S1 match the configurations of the sensitivity audit.
+They check that the cells of SI Fig. S2 sit on their years in a fixed order, and
+that the labels of Figs. 1 to 3 do not overlap or leave the figure. The tests
+use small fixtures and read no result table.
+
+    python3 tests/test_result_figures.py
+"""
 
 from __future__ import annotations
 

@@ -1,23 +1,23 @@
 #!/usr/bin/env python3
-"""Check the printed Parker--Dubberstein calendar against the Moon.
+"""Compare the month starts of the calendar with the computed new moons.
 
-Parker and Dubberstein is the authority for the Babylonian calendar and stays
-that way. But OCR can misread digits in ways that look plausible in isolation.
-A wrong month start is a wrong date for every statement in that month.
+A Babylonian month began on the evening when the new crescent was first seen.
+This was about one day after the conjunction of the Sun and the Moon. So each
+month start of the calendar should come a short time after a computed
+conjunction. An OCR error in a date of Parker and Dubberstein shows up as a
+month start too early or too late. This is the check against the new moons in
+SI Appendix, section S3.
 
-A Babylonian month began on the evening the new crescent first became visible,
-roughly one day after conjunction of Sun and Moon. Every tabulated month start
-should therefore sit a small, consistent distance after a computed conjunction.
-This script checks every retained row independently against the ephemeris. It
-does not repair the calendar; repairs are performed only by build_calendar.py.
-It exits nonzero if any month start lies less than LAG_MIN or more than
-LAG_MAX days after the preceding conjunction, unless that row is listed in
-CHECKED_AGAINST_PRINT as read off the printed table.
+Reads data/physical/calendar.parquet and data/physical/ephemeris.parquet, and
+writes no file. The OCR corrections are in build_calendar.py. The script
+prints the lag of the month starts behind the conjunction before them. It
+fails if a lag is less than LAG_MIN or more than LAG_MAX days. A month start
+listed in CHECKED_AGAINST_PRINT does not fail.
 
-The calendar uses astronomical year numbering throughout.
+Years use astronomical numbering.
 
 Usage:
-    python scripts/physical/check_calendar_against_sky.py
+    python3 scripts/physical/check_calendar_against_sky.py
 """
 
 from __future__ import annotations
@@ -30,45 +30,39 @@ import pandas as pd
 
 HERE = Path(__file__).resolve().parents[2]
 
-# Accepted lag of a month start behind the preceding conjunction, in days.
-# The tabulated starts run from 0.38 days (600 BCE month 8, after a printed
-# 28-day month) to 3.29 days (512 BCE month 9, after a printed 31-day month).
+# Limits on the lag of a month start behind the conjunction before it, in
+# days.  The least lag in the table is 0.38 days, in 600 BCE month 8, after a
+# printed month of 28 days.  The greatest is 3.29 days, in 512 BCE month 9,
+# after a printed month of 31 days.
 LAG_MIN = 0.3
 LAG_MAX = 3.4
 
-# Month starts outside those limits that were checked against the printed
-# table and found to be what Parker and Dubberstein print, keyed by
-# (bab_year_astro, month_index) with a note of the check.  None at present.
+# Month starts outside these limits that match the printed table on a check
+# of the scan.  The key is (bab_year_astro, month_index), and the value is a
+# note of the check.  It is empty, because all month starts lie within the
+# limits.
 CHECKED_AGAINST_PRINT: dict[tuple[int, int], str] = {}
 
 
 def label(year: int) -> str:
-    """Historical label for an astronomical year."""
+    """Return the BCE or AD label of an astronomical year."""
     return f"{1 - year} BCE" if year <= 0 else f"AD {year}"
 
 
 def to_jd(y, mo, d):
-    """Proleptic Julian date to JD; y is an astronomical year."""
+    """Return the Julian day of a proleptic Julian date, with an astronomical year."""
     a = (14 - mo) // 12
     yy, mmn = y + 4800 - a, mo + 12 * a - 3
     return d + (153 * mmn + 2) // 5 + 365 * yy + yy // 4 - 32083 - 0.5
 
 
-def from_jd(jd):
-    """JD to proleptic Julian date; returned year is astronomical."""
-    z = int(jd + 0.5)
-    b = z + 1524
-    c = int((b - 122.1) / 365.25)
-    d = int(365.25 * c)
-    e = int((b - d) / 30.6001)
-    day = b - d - int(30.6001 * e)
-    mo = e - 1 if e < 14 else e - 13
-    y = c - 4716 if mo > 2 else c - 4715
-    return y, mo, day
-
-
 def conjunctions(eph: pd.DataFrame) -> np.ndarray:
-    """Julian days of Sun-Moon conjunction by zero-crossing interpolation."""
+    """Return the Julian days of the conjunctions of the Sun and the Moon.
+
+    The longitude of the Moon minus that of the Sun changes from negative to
+    positive at a conjunction.  The function interpolates linearly between
+    the two daily rows of the ephemeris around that change.
+    """
     d = (eph.moon_lon.to_numpy() - eph.sun_lon.to_numpy() + 180.0) % 360.0 - 180.0
     jd = eph.jd.to_numpy()
     i = np.where((d[:-1] <= 0) & (d[1:] > 0))[0]
@@ -100,7 +94,7 @@ def main() -> int:
     ], dtype=float)
     cal = cal.assign(jd=jd)
 
-    # Distance from each tabulated month start back to the preceding conjunction.
+    # Lag of each month start behind the conjunction before it.
     k = np.searchsorted(conj, jd) - 1
     inrange = (k >= 0) & (k < len(conj))
     lag = np.full(len(jd), np.nan)

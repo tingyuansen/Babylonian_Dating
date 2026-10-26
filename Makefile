@@ -1,9 +1,7 @@
-# Check the repository, rebuild the results, and draw the figures of the paper,
-# from the repository root.
-# ``python3`` is the project interpreter; override with ``make PYTHON=...``.
+# Check the repository, rebuild the results, and draw the figures of the paper.
+# Run make from the repository root. To use another Python, run make PYTHON=...
 PYTHON ?= python3
-# One module per figure in scripts/figures/, each writing figures/<name>.pdf.
-# Fig. 1 is the workflow schematic, and the others are drawn from committed results.
+# One script per figure in scripts/figures/. Each one writes figures/<name>.pdf.
 FIGURES := fig1_workflow fig2_diary fig3_x301492 fig4_benchmark figS1_sensitivity figS2_adart_iv
 
 .PHONY: check rebuild figures site
@@ -11,12 +9,11 @@ FIGURES := fig1_workflow fig2_diary fig3_x301492 fig4_benchmark figS1_sensitivit
 figures:
 	for f in $(FIGURES); do $(PYTHON) scripts/figures/$$f.py || exit 1; done
 
-# The pipeline, in the order the steps depend on each other. It starts from
-# data/source/ and the committed caches of the language-model review, and it
-# needs no network and no paid service. Two steps read the ADART IV text, which
-# is not distributed (data/source/not_distributed.csv), so they run only where
-# their input is present. The whole rebuild takes about 25 minutes; the
-# sensitivity audit is the slowest step. Run make check after it.
+# The pipeline, in the order in which the steps depend on each other. It starts
+# from data/source/ and the saved responses of the language-model review. It
+# needs no network and no paid service, and it takes about 25 minutes. Two steps
+# read the ADART IV text, which is not distributed (data/source/not_distributed.csv),
+# so they run only when that text is present. Run make check after the rebuild.
 ADART_IV_OCR := data/source/adart_iv/mathpix_lines.json
 ADART_IV_TEXT := data/corpus/adart_iv_tablets.parquet
 rebuild:
@@ -44,23 +41,23 @@ rebuild:
 	$(PYTHON) scripts/audit/build_paper_counts.py
 	$(PYTHON) scripts/audit/audit_held_out.py --run-held-out
 
-# The data of the interactive page in docs/, from the committed results.
+# The data of the interactive page in docs/, from the results in data/.
 site:
 	$(PYTHON) scripts/site/build_site_data.py
 
-# Scripts outside the rebuild, whose outputs are committed. These need the
-# network, a paid model or a book scan:
+# Scripts outside the rebuild. Their outputs are in the repository.
+# These need the network, a paid service, a book scan or the JPL kernel.
 NEEDS_SOURCE := scripts/source/fetch_adsd.py scripts/source/fetch_texts.py \
 	scripts/source/ocr_adart_iv_mathpix.py scripts/physical/ocr_parker_dubberstein.py \
 	scripts/physical/build_ephemeris.py scripts/agent/model_review.py
-# These ran once, as data/benchmark/addenda_registration.json registers the
-# test on the dated addenda of ADART IV, and they read the ADART IV text:
+# These ran once, for the test on the dated addenda of ADART IV that
+# data/benchmark/addenda_registration.json registers. They read the ADART IV text.
 REGISTERED_TEST := scripts/source/build_adart_iv_addenda.py \
 	scripts/inference/date_adart_iv_addenda.py scripts/audit/score_adart_iv_addenda.py
-# These trace one record, or give the tools to an MCP client:
+# These show one record, or give the tools to an MCP client.
 EXPLORE := scripts/audit/date_tablet.py scripts/agent/mcp_server.py
 
-# Every offline test, then the cold check of data, provenance and results.
+# The offline tests, then the check of the data, the code and the results.
 check:
 	for t in tests/test_*.py; do $(PYTHON) $$t || exit 1; done
 	$(PYTHON) tests/verify.py

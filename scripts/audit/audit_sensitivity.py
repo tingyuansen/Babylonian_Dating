@@ -1,10 +1,18 @@
 #!/usr/bin/env python3
-"""Retrospective sensitivity and ablation audit of backward inference.
+"""Run the sensitivity audit of SI Appendix, section S7, drawn in SI Fig. S1.
 
-All configurations use the same text-defined population and its reviewed
-clauses. Candidate sets are computed before reference dates or stratification
-metadata are loaded. These are robustness checks on already-seen data, not
-fresh test-set estimates.
+Each configuration in CONFIGS varies one convention, removes one clock or
+parser rule, or changes one scoring rule. Each one dates the same 179 benchmark
+records from their reviewed clauses. All candidate sets are computed before
+the published years and the cohorts are read. The same records served to
+develop the rules.
+
+Outputs:
+    data/benchmark/sensitivity_runs.parquet      one row per configuration and record
+    data/benchmark/sensitivity_summary.parquet   one row per configuration
+
+Usage:
+    python3 scripts/audit/audit_sensitivity.py [--workers N]
 """
 
 from __future__ import annotations
@@ -28,11 +36,14 @@ from tools import cal, clauses, sky, statements as S  # noqa: E402
 from tools import years as yr  # noqa: E402
 
 
+# The month-heading pattern without the added heading forms, for the run
+# no_extended_month_heading.
 LEGACY_MONTH_RE = re.compile(
     r"(?:\bMonth|\bMon\s*\]\s*th)\s*\]?\s*"
     r"(XII(?:2|₂)?|VI(?:2|₂)?|XI|IX|VIII|VII|VI|IV|V|"
     r"III|II|I|X)(?:\s*\[\s*(I{1,3})(?=\s*[\],.]))?(?=\W|$)")
 
+# The parser rules that the coding agent proposed (main text, step 1).
 AGENT_RULES = {
     "measured_moon_planet", "measured_moon_planet_compound",
     "measured_normal_star_compound", "monthly_path", "monthly_path_after",
@@ -58,32 +69,31 @@ CONFIGS = [
      "ablation": "restored_month_context"},
     {"config": "no_extended_month_heading", "moon_tol": 3.0, "planet_tol": 2.0, "weighting": "skill",
      "ablation": "extended_month_heading"},
-    # Refusing to read through the editors' restoration brackets, which is what
-    # a grammar written for clean text does by default.
     {"config": "no_first_appearance", "moon_tol": 3.0,
      "planet_tol": 2.0, "weighting": "skill", "ablation": "first_appearance"},
     {"config": "no_acronychal_rising", "moon_tol": 3.0,
      "planet_tol": 2.0, "weighting": "skill", "ablation": "acronychal"},
+    # The parser reads no clause across the brackets that mark the editors'
+    # restorations.
     {"config": "no_restoration_reading", "moon_tol": 3.0,
      "planet_tol": 2.0, "weighting": "skill", "ablation": "restoration_reading"},
     {"config": "no_scorpius_alias", "moon_tol": 3.0, "planet_tol": 2.0, "weighting": "skill",
      "ablation": "scorpius_alias"},
     {"config": "no_inferred_summary_month", "moon_tol": 3.0,
      "planet_tol": 2.0, "weighting": "skill", "ablation": "summary_month"},
-    # One cubit to two degrees is the convention the whole distance grammar
-    # rests on, and the value measured from observed appulses in the modern
-    # literature is nearer 2.2. Rescaling every converted distance asks whether
-    # the result depends on the convention.
-    # The ephemeris is evaluated at civil-date Julian days while the kernel
-    # expects dynamical time. The difference is Delta T, four hours or so here,
-    # and this asks whether any reported class depends on it.
+    # The baseline looks up the ephemeris at civil Julian days, and the
+    # ephemeris runs on dynamical time. This run shifts all times by one fixed
+    # value of Delta T, about four hours.
     {"config": "delta_t_applied", "moon_tol": 3.0,
      "planet_tol": 2.0, "weighting": "skill", "ablation": "delta_t"},
+    # The baseline takes one cubit as 2 degrees. Measured close approaches of
+    # observed bodies give a value nearer 2.2 degrees. This run scales each
+    # stated distance by 2.2/2.
     {"config": "cubit_at_2_2_degrees", "moon_tol": 3.0,
      "planet_tol": 2.0, "weighting": "skill", "ablation": "cubit_scale"},
-    # Britton gives the zodiac's constant term to about 0.1 degree. Moving it
-    # by half a degree either way asks whether any result rests on a planet
-    # that sits close to a sign boundary.
+    # Britton gives the constant term of the zodiac relation (Eq. 8 of the main
+    # text) to about 0.1 degree. These two runs move it by half a degree either
+    # way, to find results that rest on a planet near a sign boundary.
     {"config": "britton_offset_minus_half", "moon_tol": 3.0,
      "planet_tol": 2.0, "weighting": "skill", "ablation": "zodiac_minus"},
     {"config": "britton_offset_plus_half", "moon_tol": 3.0,
@@ -100,47 +110,57 @@ CONFIGS = [
      "planet_tol": 2.0, "weighting": "skill", "ablation": "sun"},
     {"config": "no_lunar_eclipse_family", "moon_tol": 3.0,
      "planet_tol": 2.0, "weighting": "skill", "ablation": "lunar_eclipse"},
-    # Not a defensive check but a bridge to ADART IV, where few entries keep a
-    # month heading, unlike most records of ADART I to III with decisive clauses.
-    # Stripping the calendar context from I--III asks what those undated
-    # fragments would look like if they were otherwise as rich.
+    # Few ADART IV entries keep a month heading, unlike most benchmark records
+    # with decisive clauses. This run removes the month and day of each clause,
+    # so that the benchmark records resemble those entries.
     {"config": "no_month_context", "moon_tol": 3.0,
      "planet_tol": 2.0, "weighting": "skill", "ablation": "month_context"},
-    # Not a capability but an ordering choice, and the one that decides whether
-    # the method commits against the published chronology on X102732.
+    # This run ranks the number of contradicting statements before the bits,
+    # in third place in the ranking of Eq. 5 of the main text.
     {"config": "contradictions_before_information", "moon_tol": 3.0, "planet_tol": 2.0, "weighting": "skill",
      "ablation": "order_contradictions_first"},
+    # The strict set keeps only its years with the fewest contradicting
+    # statements.
     {"config": "contradictions_bound_the_leading_set", "moon_tol": 3.0, "planet_tol": 2.0, "weighting": "skill",
      "ablation": "frontier_penalises_contradictions"},
+    # One unit for each testable source statement, shared among its clauses,
+    # with no tiers and no clocks.
     {"config": "count_weighting", "moon_tol": 3.0,
      "planet_tol": 2.0, "weighting": "count", "ablation": "none"},
+    # The bits of all clauses in one sum, with no tiers and no clocks.
     {"config": "information_weighting", "moon_tol": 3.0,
      "planet_tol": 2.0, "weighting": "information", "ablation": "none"},
+    # The clauses of a joint position, such as "Saturn and Mars were in Leo",
+    # are tested apart.
     {"config": "independent_joint_atoms", "moon_tol": 3.0,
      "planet_tol": 2.0, "weighting": "skill", "ablation": "independent_joint_atoms"},
-    # "Above" and "below" state a latitude that no rule tests, yet such a
-    # distance of Mars, Jupiter or Saturn to a star, or of the Moon to one of
-    # them, can be decisive. This keeps every such distance supporting.
+    # "Above" and "below" state a latitude, which no rule tests. In the
+    # baseline, such a distance of Mars, Jupiter or Saturn to a star, or of the
+    # Moon to one of them, can be decisive. This run keeps each such distance
+    # supporting.
     {"config": "longitude_only_distances_supporting", "moon_tol": 3.0,
      "planet_tol": 2.0, "weighting": "skill", "ablation": "latitudinal_supporting"},
     # The tiers, clocks, strict and safety sets and ranking of the baseline,
-    # with one unit per agreeing clause in place of its bits. It isolates the
-    # weighting by bits, which count_weighting changes together with the tiers.
+    # with one unit per agreeing clause in place of its bits. It changes the
+    # bits alone, while count_weighting also removes the tiers.
     {"config": "equal_weighting_with_tiers", "moon_tol": 3.0,
      "planet_tol": 2.0, "weighting": "equal", "ablation": "none"},
-    # A measured relation of the Moon tested only over the night that opens its
-    # Babylonian day, or the night after, in place of two and a half days.
+    # A measured relation of the Moon is tested only over the night that opens
+    # its Babylonian day, or the night after. The baseline tests it over two
+    # and a half days.
     {"config": "moon_night_window", "moon_tol": 3.0,
      "planet_tol": 2.0, "weighting": "skill", "ablation": "moon_night"},
 ]
 
 
+# Measured relations take their headings from S.appulse_context, and clauses of
+# a stated day from S.eclipse_context. Other kinds use S.positional_context.
 MEASURED_KINDS = {"appulse", "planet_appulse", "station_appulse", "planet_planet_appulse"}
 DAY_KINDS = {"eclipse", "season", "sirius", "acronychal"}
 
 
 def context_restored(text: str, st: S.Statement) -> bool:
-    """The restored mark that the headings give a clause at its passage."""
+    """Return the restored mark that the headings give a clause at its passage."""
     if st.kind in MEASURED_KINDS:
         return S.appulse_context(text, st.source_start)[3]
     if st.kind in DAY_KINDS:
@@ -149,11 +169,13 @@ def context_restored(text: str, st: S.Statement) -> bool:
 
 
 def without_restored_month_context(text: str, items: list[tuple]) -> list[S.Statement]:
-    """The reviewed clauses as they would be without the restored month context.
+    """Return the reviewed clauses without the restored month context.
 
-    A parser clause takes the restored mark of the parser without this rule,
-    plus any mark that the review added. An added clause loses the mark that
-    its month heading gave it, unless its own passage holds a bracket.
+    The rule removed here marks each clause under a restored month heading as
+    restored. A parser clause takes the restored mark of the parser without
+    this rule, plus any mark that the review added. An added clause loses the
+    mark that its month heading gave it, unless its own passage holds a
+    bracket.
     """
     parsed = S.extract(text)
     old = S.PROPAGATE_RESTORED_MONTH_CONTEXT
@@ -182,6 +204,7 @@ def without_restored_month_context(text: str, items: list[tuple]) -> list[S.Stat
 def retained(text: str, statements: list[S.Statement],
              legacy_month_statements: list[S.Statement], ablation: str,
              origins: list[str] | None = None):
+    """Return the clauses of one record that a configuration keeps or changes."""
     if ablation == "restoration_reading":
         return [st for st in statements
                 if not st.parser_rule.endswith("_bracket")]
@@ -196,6 +219,8 @@ def retained(text: str, statements: list[S.Statement],
         return [st for st in statements if "Scorpius" not in
                 text[st.source_start:st.source_end]]
     if ablation == "extended_month_heading":
+        # Keep a clause if no month heading governs it, or if the pattern
+        # without the added forms finds the same governing heading.
         def legacy_governs(st):
             current = [m for m in S.month_matches(text, 0, st.source_start)]
             legacy = [m for m in LEGACY_MONTH_RE.finditer(
@@ -204,19 +229,19 @@ def retained(text: str, statements: list[S.Statement],
                     (legacy and legacy[-1].start() == current[-1].start()))
         return [st for st in statements if legacy_governs(st)]
     if ablation == "month_context":
-        # Keep every clause but forget which month and day governed it, so a
-        # statement is tested against the tablet's whole span instead of one
-        # month. Nothing is deleted; only the calendar context is withdrawn.
+        # Each clause stays without its month and day. A clause with no month
+        # is tested over its whole year, and a clause whose rule needs a day
+        # is untestable.
         return [replace(st, month=None, day=None) for st in statements]
     if ablation == "cubit_scale":
-        # offset is the recorded distance already converted, so rescaling it is
-        # exactly a change in how many degrees a cubit is worth.
+        # offset holds the stated distance in degrees, so scaling it changes
+        # the degrees per cubit.
         return [st if st.offset is None
                 else replace(st, offset=st.offset * (2.2 / 2.0))
                 for st in statements]
     if ablation == "agent_rules":
-        # The rules are parser rules. The search finds what the parser misses,
-        # so its additions stay.
+        # The run drops the clauses that the agent rules read. It keeps the
+        # clauses that the search of the language-model review added.
         origins = origins or ["parser"] * len(statements)
         return [st for st, origin in zip(statements, origins, strict=True)
                 if origin == "search" or st.parser_rule not in AGENT_RULES]
@@ -249,11 +274,18 @@ def retained(text: str, statements: list[S.Statement],
     if ablation == "lunar_eclipse":
         return [st for st in statements
                 if not (st.kind == "eclipse" and st.planet == "lunar")]
+    # The run of one planet drops each clause that names the planet as its
+    # body or its target.
     return [st for st in statements
             if st.planet != ablation and st.target_planet != ablation]
 
 
 def infer(config: dict, population: list[tuple]) -> list[dict]:
+    """Date each record of the population under one configuration.
+
+    The configuration sets module values of tools/statements.py and
+    tools/sky.py, and the function restores them at the end.
+    """
     old_moon, old_planet = S.TOL_MOON, S.TOL_PLANET
     old_offset = sky.TIME_OFFSET_DAYS
     old_zodiac = sky.BABYLONIAN_OFFSET_YEAR0_DEG
@@ -287,17 +319,13 @@ def infer(config: dict, population: list[tuple]) -> list[dict]:
                 weighting=config["weighting"])
             strict = [int(year) for year in scores.years[scores.strict]]
             safety = [int(year) for year in scores.years[scores.safety]]
-            # Freeze the public inspection order before reference dates enter.
-            # The strict and safety sets remain the scientific outputs; this
-            # short list only permits an honest diagnostic of a forced top-k
-            # display without recomputing a truth-aware ordering later.
+            # The first ten years of the ranking. The top-1 and top-3 rates
+            # are scored from them after the published years are read.
             display_top10 = [
                 int(scores.years[index]) for index in scores.order[:10]
             ]
-            # Report the same unit as the headline result. A lattice of years
-            # the evidence cannot separate is one physical explanation, so
-            # counting raw candidate years overstates the ambiguity by exactly
-            # the periodicity the method is trying to describe.
+            # The first four groups of tied years. The first group gives the
+            # inclusion rate and the group size of SI Fig. S1.
             levels = S.evidence_levels(scores, max_levels=4)
             leading = levels[0]["years_astro"] if levels else []
             level_years = [level["years_astro"] for level in levels]
@@ -328,10 +356,13 @@ def infer(config: dict, population: list[tuple]) -> list[dict]:
 
 
 def summarize(results: pd.DataFrame) -> pd.DataFrame:
+    """Give the inclusion rates and set sizes of each configuration.
+
+    The rates count the records with decisive clauses under the baseline
+    rules, the same records in each configuration.
+    """
     rows = []
     for config, group in results.groupby("config", sort=False):
-        # The records with decisive clauses under the baseline rules, the same
-        # records in every configuration.
         strong = group[group.decisive]
         rows.append({
             "config": config,
@@ -373,8 +404,8 @@ def main() -> int:
     parser.add_argument(
         "--summary-out", type=Path,
         default=HERE / "data" / "benchmark" / "sensitivity_summary.parquet")
-    # One worker per core. Each configuration is an independent rerun of the
-    # whole evaluation, so this scales until the machine runs out of cores.
+    # Each configuration runs in its own process. The default leaves one core
+    # free.
     parser.add_argument("--workers", type=int,
                         default=max(1, (os.cpu_count() or 4) - 1))
     args = parser.parse_args()
@@ -387,7 +418,7 @@ def main() -> int:
     frozen_population = frozen_population.set_index("tablet")
     eligible_ids = set(frozen_population.loc[
         frozen_population.tool_benchmark_eligible].index)
-    # A record has decisive clauses when its result keeps at least one.
+    # A record has decisive clauses when its baseline result keeps at least one.
     decisive = (pd.read_parquet(HERE / "data" / "results" / "tablet_dates.parquet",
                                 columns=["tablet", "n_decisive_statements"])
                 .set_index("tablet").n_decisive_statements.fillna(0).gt(0).to_dict())
@@ -428,7 +459,8 @@ def main() -> int:
             for row in rows_by_config[config["config"]]]
     result = pd.DataFrame(rows)
 
-    # Reference and strata enter only after every configuration is inferred.
+    # The published years and the cohorts are read only after all
+    # configurations are dated.
     reference = pd.read_parquet(
         HERE / "data" / "corpus" / "tablets.parquet",
         columns=["tablet", "project", "bce_first", "bce_second"])

@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
-"""One tablet carried the whole way, from clauses to a single year.
+"""Draw Fig. 3, the decisive clauses of record X301492 narrowing the candidates to one year.
 
-X301492 is the clearest case in the corpus rather than the typical one, and it
-is drawn here because it shows the mechanism the rest of the paper measures:
-each slow planet names a family of years, and the families intersect. Panel (b)
-is the same tablet's score over the full candidate calendar, which is what the
-method actually returns before any published date is loaded.
+Panel (a) has one row for each decisive clause with bits, ordered from the most
+agreeing years to the fewest. Grey ticks mark the years that each clause agrees
+with on its own, and blue ticks the running intersection. The counts of both
+are at the right. The orange row is the strict set computed from K and I_D.
+
+Panel (b) shows the decisive bits I_D of each candidate year. The year with the
+highest I_D is orange, and the years tied at the next highest I_D are blue.
+
+The clauses are the reviewed clauses of data/clauses/reviewed_clauses.parquet.
+The script writes figures/fig3_x301492.pdf.
 """
 
 from __future__ import annotations
@@ -31,7 +36,7 @@ TABLET = "X301492"
 
 
 def short(statement: S.Statement) -> str:
-    """A readable label for a clause, without the surrounding damage."""
+    """A short label for a clause, made from its fields."""
     body = statement.planet.title()
     if statement.kind == "in_sign":
         return f"{body} in {statement.sign}"
@@ -45,7 +50,8 @@ def short(statement: S.Statement) -> str:
 
 
 def panel_intersection(ax, years, sts, scores) -> None:
-    # Counts occupy a separate margin, not calendar-year coordinates.
+    """Draw panel (a), the agreeing years of each decisive clause and their intersection."""
+    # The counts stand in a margin right of the axes, placed in axes coordinates.
     count_transform = ax.get_yaxis_transform()
     alone_column, combined_column = 1.09, 1.28
     agree = scores.outcomes == 1
@@ -102,10 +108,11 @@ NUMBER = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six",
 
 
 def panel_score(ax, years, scores) -> None:
+    """Draw panel (b), the decisive bits I_D of each candidate year."""
     ax.vlines(years, 0, scores.score, color=fs.FAINT, linewidth=0.6)
     best = int(np.argmax(scores.score))
-    # Every year tied at the next-highest decisive bits, so no tied year is
-    # left out, and the legend counts them and their clocks from the scores.
+    # The years tied at the next highest decisive bits. The legend counts them
+    # and their clocks from the scores.
     rest = np.flatnonzero(np.arange(len(years)) != best)
     second = scores.score[rest].max()
     order = [int(i) for i in rest if scores.score[i] == second]

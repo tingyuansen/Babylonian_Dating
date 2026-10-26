@@ -1,9 +1,19 @@
 #!/usr/bin/env python3
-"""Check that the dating code is blind, and write the frozen benchmark population.
+"""Check that the dating code reads no published date, and keep the list of benchmark records.
 
-The population ledger separates raw text properties, reproducible coarse
-labels and tool-extractable eligibility. None of its inclusion fields depends
-on a dating result.
+The benchmark list is data/benchmark/benchmark_records.parquet, one row per
+dated record. A record is one of the benchmark of 179 dated records
+(tool_benchmark_eligible) if it had at least three parser clauses when the
+benchmark was fixed. The column tool_year_bearing marks the benchmark records
+that then had a decisive clause. The scoring scripts take the records with
+decisive clauses from the results instead (SI Appendix, section S1).
+
+The benchmark is fixed, so by default the script runs the check and keeps the
+committed file. With --rebuild-population, it computes the file again from
+the parser clauses and the results.
+
+Usage:
+    python3 scripts/audit/build_benchmark.py [--rebuild-population]
 """
 
 from __future__ import annotations
@@ -24,7 +34,7 @@ from tools import statements as S  # noqa: E402
 
 
 def check_blind() -> None:
-    """Fail if the dating code reads a published date or a catalogue field."""
+    """Fail if the source of the dating functions names a published-date or catalogue field."""
     inference_source = "\n".join([
         inspect.getsource(date_all.astronomy_one),
         inspect.getsource(S.extract),
@@ -42,6 +52,7 @@ def check_blind() -> None:
 
 
 def regex_cohort(row) -> str:
+    """Label a record by the evidence marks of classify_evidence.py."""
     astronomy = bool(row.outer_regex or row.eclipse_regex)
     any_content = bool(
         row.lunar_regex or row.inner_regex or row.outer_regex
@@ -58,6 +69,7 @@ def regex_cohort(row) -> str:
 
 
 def population_ledger() -> pd.DataFrame:
+    """Build the benchmark list from the parser clauses and the results."""
     evidence = pd.read_parquet(HERE / "data" / "corpus" / "evidence.parquet")
     cohorts = pd.read_parquet(
         HERE / "data" / "corpus" / "cohorts.parquet",
@@ -67,11 +79,9 @@ def population_ledger() -> pd.DataFrame:
         HERE / "data" / "results" / "tablet_dates.parquet",
         columns=["tablet", "n_decisive_statements"])
 
-    # The evaluation population was frozen before the station-to-star
-    # extension. New supporting grammars remain visible in the fact ledger but
-    # cannot silently admit extra benchmark tablets merely by raising an
-    # extraction count. A future prospective cohort needs expert text labels,
-    # not a moving parser-defined threshold.
+    # The benchmark was fixed before these four parser rules existed, so their
+    # clauses do not count toward the three that admit a record. Nor does an
+    # eclipse that the text marks as omitted.
     post_freeze_rules = {
         "measured_station_normal_star",
         "measured_station_normal_star_compound",
@@ -120,6 +130,7 @@ def population_ledger() -> pd.DataFrame:
 
 
 def write_with_hash(frame: pd.DataFrame, path: Path) -> None:
+    """Write the frame with the SHA-256 of this script in each row."""
     frame = frame.copy()
     frame["generator_sha256"] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     path.parent.mkdir(parents=True, exist_ok=True)

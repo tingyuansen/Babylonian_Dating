@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
-"""What a diary is, and what its lines are worth.
+"""Draw Fig. 2, a diary tablet and the information in its clauses.
 
-Panel (a) is a public-domain photograph of a Babylonian astronomical diary.
-Panel (b) is the text of a different tablet against the number of candidate
-years each line leaves standing, computed the same way as everything else in
-the paper. The tablet in panel (b) is X301322, whose opening carries an era
-formula, an outer planet, weather, and a night the scribe records as unwatched,
-within seven lines.
+Panel (a) is a public-domain photograph of ADART I no. -322B (BM 45962), from
+data/source/photos/. Panel (b) shows the first six lines of record X301322 from
+ADART III, one tablet line per row. These lines hold a year formula, weather,
+and positions of the Moon and the planets.
+
+The strongest clause of a row is the one that agrees with the fewest years. A
+row is orange when this clause is decisive, blue when it is supporting, and
+grey when the line holds no clause. Each bar shows on a log scale the number n
+of years that agree with the strongest clause, labelled with log2(701 / n)
+bits. A grey row reaches all 701 years, at the dashed line, with 0 bits.
+
+The clauses are the reviewed clauses of data/clauses/reviewed_clauses.parquet.
+The script writes figures/fig2_diary.pdf.
 """
 
 from __future__ import annotations
@@ -44,6 +51,7 @@ def tidy(text: str) -> list[str]:
 
 
 def panel_diary(ax, bar_ax, years) -> None:
+    """Draw panel (b), the lines of the tablet in ax and their bars in bar_ax."""
     text = pd.read_parquet(
         ROOT / "data" / "corpus" / "tablets.parquet",
         columns=["tablet", "text"]).set_index("tablet").loc[TABLET, "text"]
@@ -78,9 +86,7 @@ def panel_diary(ax, bar_ax, years) -> None:
         centre = (top + y - 1.0) / 2.0
         bar_ax.barh(centre, max(np.log10(count), 0.03), height=0.66,
                     color=colour, alpha=0.9, zorder=3)
-        # The label carries both the count and the information it represents,
-        # since the score is built from the second and the first is what a
-        # reader can picture.
+        # Each label gives the count n and its bits, log2(701 / n).
         bits = np.log2(len(years) / count)
         label = (f"all {len(years)}, 0.0 bits" if count >= len(years)
                  else f"{count}, {bits:.1f} bits")

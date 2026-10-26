@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
-"""How often the published year survives, and how large a set that costs.
+"""Draw Fig. 4, the inclusion of the published year in the benchmark of 179 dated records.
 
-Every number here is retrospective and every one is paired with the size of the
-answer it comes with, because a recall figure quoted without the set it refers
-to is the easiest way to make broad ambiguity look like precise dating.
+Panel (a) shows the percentage of records whose published year is among the
+first n candidate years. Its log axis ends at all 701 years. Dots mark the
+values at one, three and ten years for the records with decisive clauses.
+Panel (b) shows the percentage of records whose published year is in the first
+group, or in the first two groups, of tied years. Both panels split the records
+into those with decisive clauses, all records and supporting-only records.
+
+The script reads data/benchmark/benchmark_results.parquet and
+data/benchmark/ranking_candidates.parquet, and writes figures/fig4_benchmark.pdf.
 """
 
 from __future__ import annotations
@@ -26,16 +32,12 @@ sys.path.insert(0, str(ROOT))
 from tools import cal  # noqa: E402
 
 
-ORDER = ["tier", "decisive_families", "primary_bits", "support_bits",
-         "contradict"]
-
-
 def positions(candidates: pd.DataFrame) -> np.ndarray:
-    """How many candidate years must be accepted to include the published one.
+    """For each record, the number of years accepted in ranked order up to its published year.
 
-    Candidates are ordered by the same quantities the method reports, and ties
-    are counted pessimistically, so a year tied with four others counts as five
-    years accepted rather than one. Nothing here breaks a tie arbitrarily.
+    The years are ordered by the ranking of Eq. 5. A year that ties with the
+    published year counts as accepted, so a published year tied with four
+    others counts as five years.
     """
     out = []
     for _, group in candidates.groupby("tablet", sort=False):
@@ -53,14 +55,13 @@ def positions(candidates: pd.DataFrame) -> np.ndarray:
 
 def curve(ax, place: np.ndarray, colour: str, label: str,
           anchors: bool, candidate_count: int) -> None:
+    """Draw the percentage of records included at each number of accepted years."""
     grid = np.arange(1, candidate_count + 1)
     recall = np.array([(place <= n).mean() * 100 for n in grid])
     ax.plot(grid, recall, color=colour, linewidth=1.6, zorder=3, label=label)
     if not anchors:
         return
-    # One, three and ten. Beyond ten the accepted years are members of the
-    # same recurrence lattice rather than neighbouring years, so a wider count
-    # measures periodicity rather than dating.
+    # Dots at one, three and ten accepted years.
     for n, (dx, dy) in zip((1, 3, 10), ((7, -4), (7, -4), (7, -4))):
         value = (place <= n).mean() * 100
         ax.plot([n], [value], "o", markersize=4.6, color=fs.ORANGE,
@@ -71,6 +72,7 @@ def curve(ax, place: np.ndarray, colour: str, label: str,
 
 
 def dress(ax, candidate_count: int) -> None:
+    """Set the log axis and the labels of panel (a)."""
     ax.set_xscale("log")
     ax.set_xlim(0.85, candidate_count * 1.20)
     ax.set_ylim(0, 104)
@@ -87,7 +89,7 @@ def dress(ax, candidate_count: int) -> None:
 
 
 def panel_groups(ax, sample) -> None:
-    """How many distinct physical explanations must be considered."""
+    """Draw panel (b), the inclusion of the published year in the first one and two groups."""
     groups = [
         (f"decisive clauses, {int(sample.decisive.sum())}",
          sample.decisive, fs.BLUE),
@@ -96,7 +98,7 @@ def panel_groups(ax, sample) -> None:
         (f"supporting only, {int((~sample.decisive).sum())}",
          ~sample.decisive, fs.FAINT),
     ]
-    # Later groups add no record, so the panel stops at two.
+    # The panel stops at two groups, because the third and fourth add no record.
     ranks, width = [1, 2], 0.26
     for offset, (label, mask, colour) in enumerate(groups):
         part = sample[mask]
@@ -144,8 +146,8 @@ def main() -> Path:
         curve(axes[0], place, colour, label,
               anchors=label.startswith("decisive"),
               candidate_count=candidate_count)
-    # Bottom right, where the three curves have already separated and the
-    # annotations along them are not competing for space.
+    # The legend goes at the bottom right, where the three curves are apart and
+    # leave room beside the dots.
     axes[0].legend(loc="lower right", handlelength=1.4, handletextpad=0.5,
                    borderpad=0.3, labelspacing=0.3)
     axes[0].set_ylabel("Published year included (%)")

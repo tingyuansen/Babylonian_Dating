@@ -1,5 +1,25 @@
 #!/usr/bin/env python3
-"""Read-only deterministic tools exposed inside a sanitized blind workspace."""
+"""Give an agent read-only commands that parse and score the text of one record.
+
+The script runs in a blind workspace that holds a copy of tools/ and a
+case.json with the record's identifier and translated text. The workspace holds
+no published date. Each command prints JSON:
+
+    summary            the record's length, months and number of clauses
+    statements         the parser's clauses, with their fields (step 1)
+    rank               strict set, safety set, first three groups (step 3)
+    check YEAR         the verdict of each clause in one candidate year (step 2)
+    compare YEAR ...   the verdicts of each clause in several years
+    ablate INDEX ...   the rank output with some clauses removed
+    search TERM        up to 20 passages of the text that hold a term
+    context INDEX      the text around one clause
+
+A year is BCE unless --era gives AD or ASTRO (astronomical numbering).
+scripts/agent/mcp_server.py uses input_year and statement_record of this file.
+
+Usage, inside the workspace:
+    python blind_case_tools.py rank
+"""
 
 from __future__ import annotations
 
@@ -20,6 +40,7 @@ from tools import years as yr  # noqa: E402
 
 
 def load_case() -> tuple[dict, str, list[S.Statement], list[str], np.ndarray]:
+    """Read case.json, with its clauses, months and the 701 candidate years."""
     case = json.loads((HERE / "case.json").read_text())
     text = case["text"]
     sts = S.extract(text)
@@ -29,12 +50,18 @@ def load_case() -> tuple[dict, str, list[S.Statement], list[str], np.ndarray]:
 
 
 def statement_record(index: int, st: S.Statement) -> dict:
+    """The fields of one clause, with its index in the parser's list."""
     out = asdict(st)
     out["index"] = index
     return out
 
 
 def scores_record(sts, months, years) -> dict:
+    """The sets, the first three groups and the first 40 ranked years of the clauses.
+
+    In each ranked year, decisive_families is the number of clocks K,
+    primary_bits the decisive bits I_D and support_bits the supporting bits I_S.
+    """
     scores = S.candidate_scores(sts, months, years)
     order = scores.order
     levels = S.evidence_levels(scores, max_levels=3)
@@ -71,7 +98,7 @@ def scores_record(sts, months, years) -> dict:
 
 
 def input_year(value: int, era: str) -> int:
-    """Convert a blind-tool command year to astronomical numbering."""
+    """Convert a year of era BCE, AD or ASTRO to astronomical numbering (1 BCE is 0)."""
     era = era.upper()
     if era == "ASTRO":
         return int(value)

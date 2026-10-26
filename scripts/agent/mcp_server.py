@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
-"""Read-only MCP server for the astronomical tools of the paper's three steps.
+"""Serve the read-only astronomical tools of steps 1 to 3 to an agent through MCP.
 
-Agents call these tools through the Model Context Protocol (MCP). Each tool
-wraps code the pipeline already runs. The parser and the verdicts come from
-tools/statements.py, the decision from scripts/inference/date_all.py, and the
-calendar, sky and eclipse tables from tools/cal.py, sky.py and eclipses.py.
+Agents call these tools through the Model Context Protocol (MCP), as in step 2
+of Fig. 1. Each tool wraps code that the pipeline runs. The parser and the
+verdicts come from tools/statements.py, the decision from
+scripts/inference/date_all.py, and the calendar, sky and eclipse tables from
+tools/cal.py, sky.py and eclipses.py.
 
-The server is blind in the same way as blind_case_tools.py. A tool takes text
-or explicit parameters from the caller and reads only the physical tables in
-data/physical. It never opens the corpus, the catalogue, the results or the
-audit ledgers, so it can return no published year and no record identifier.
+A tool takes text or explicit values from the caller, and it reads only the
+physical tables in data/physical. The server does not open the corpus, the
+catalogue, the results or the audit ledgers. Its output holds no published year
+and no record identifier. blind_case_tools.py works in the same way.
 
     extract_clauses       the parser's clauses in a passage, with their fields
     clause_verdict        one clause in one candidate year, or in all 701
@@ -52,12 +53,14 @@ Body = Literal["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn"]
 
 
 def astro_year(year: int, era: str) -> int:
+    """A year of era BCE, AD or ASTRO in astronomical numbering."""
     if era.upper() not in {"BCE", "AD", "ASTRO"}:
         raise ValueError("era must be BCE, AD or ASTRO")
     return blind.input_year(year, era)
 
 
 def candidate_year(year: int, era: str) -> int:
+    """Like astro_year, but refuse a year outside the 701 candidate years."""
     value = astro_year(year, era)
     if not yr.FIRST_CANDIDATE_ASTRO <= value <= yr.LAST_CANDIDATE_ASTRO:
         raise ValueError(f"{yr.year_label(value)} is outside the 701 "
@@ -83,6 +86,7 @@ def physical_jd(year: int, month: int, day: int, era: str,
 
 
 def julian_date(jd: float) -> dict:
+    """A Julian day with its Julian calendar year, month and day."""
     y, m, d = cal.from_jd(jd)
     return {"jd": round(float(jd), 6), "julian_year_astro": y,
             "julian_year": yr.year_label(y), "julian_month": m,
@@ -108,11 +112,13 @@ def clause_record(index: int, st: S.Statement) -> dict:
 
 
 def number(value) -> float | None:
+    """A float rounded to four places, or None for a missing value."""
     value = float(value)
     return None if math.isnan(value) else round(value, 4)
 
 
 def words(value) -> str | None:
+    """A text field, or None for a missing value."""
     return value if isinstance(value, str) else None
 
 
@@ -120,10 +126,13 @@ def extract_clauses(text: str) -> dict:
     """Read a passage of translated text into the parser's clauses (step 1).
 
     Each clause has its fields (kind, planet, sign, star, month, day and so
-    on), its passage and offsets, the parser rule that read it, its restored
-    and omitted marks, and whether its type is decisive. Month and day
-    headings in the passage govern the clauses after them. The index of a
-    clause is its position in this list. clause_verdict takes that index.
+    on), its passage and offsets, and the parser rule that read it. restored
+    marks text that the editors restored, and omitted marks an event that the
+    scribe did not observe. decisive_type is true when the type and marks of
+    the clause allow the decisive tier, and evidence_families names its
+    clocks. Month and day headings in the passage govern the clauses after
+    them. The index of a clause is its position in this list, and
+    clause_verdict takes that index.
     """
     statements, months = parse(text)
     return {"months": months, "clause_count": len(statements),
@@ -137,12 +146,12 @@ def clause_verdict(text: str, index: int, year: int | None = None,
 
     The clause is clause number index of extract_clauses on the same text,
     so the headings of the passage still govern it. With a year, the result
-    is the verdict and the reason the tools give. Without a year, the result
-    counts agree, contradict and untestable over the 701 candidate years,
-    626 BCE to AD 75, and lists the agreeing years. bits is
-    -log2(agreeing years / testable years) for this clause alone (Eq. 1).
-    score_text can give a clause fewer bits, when other clauses agree in
-    exactly the same years.
+    is the verdict and the reason that the tools give. Without a year, the
+    result counts agree, contradict and untestable over the 701 candidate
+    years, 626 BCE to AD 75, and lists the agreeing years. bits is
+    log2(testable years / agreeing years) for this clause alone (Eq. 1 of
+    the paper). In score_text, clauses with the same verdicts in all years
+    share these bits equally.
     """
     statements, months = parse(text)
     if not 0 <= index < len(statements):
@@ -175,12 +184,18 @@ def score_text(text: str) -> dict:
     """Score a passage in all 701 candidate years and decide (step 3).
 
     This runs the scoring and the decision of scripts/inference/date_all.py
-    unchanged. The strict set holds the years no other year beats on decisive
-    clocks and decisive bits. The safety set adds each year that one misread
-    decisive clause could have pushed out. first_groups are the first three
-    groups of tied years in rank order. decision is committed, ranked or
-    decline, with its basis and reason. Each clause lists the years of each
-    set in which it agrees, contradicts or is untestable.
+    on the parser's clauses of the passage. The strict set holds the years
+    that no other year beats on decisive clocks K and decisive bits I_D. The
+    safety set adds each year that enters the strict set when one decisive
+    source statement is removed. decision is committed, ranked or decline,
+    with its basis and reason.
+
+    first_groups are the first three groups of tied years in rank order. Each
+    group gives its tier, K (decisive_families), I_D (primary_bits), I_S
+    (support_bits) and its contradictions. decisive_clocks, decisive_bits and
+    supporting_bits are the highest K, I_D and I_S in the strict set. Each
+    clause lists the years of each set in which it agrees, contradicts or is
+    untestable.
     """
     years = [int(y) for y in cal.candidate_years()]
     result = date_all.astronomy_one("passage", require_text(text), years)
@@ -211,10 +226,11 @@ def babylonian_to_julian(year: int, month: str, day: int,
                          era: Era = "BCE") -> dict:
     """Convert a Babylonian date to a Julian day and a Julian calendar date.
 
-    year is the year in which the Babylonian year begins. month is a Roman
-    numeral I to XII, or VI2 or XII2 for a doubled month. The Julian date is
-    the daytime of the Babylonian day, which began at the sunset before. The
-    calendar is Parker and Dubberstein (1956), 626 BCE to AD 75.
+    year is the Julian year in which the Babylonian year begins. month is a
+    Roman numeral I to XII, or VI2 or XII2 for an intercalary month. The
+    Julian date is the daytime of the Babylonian day, which began at the
+    sunset before. The calendar is Parker and Dubberstein (1956), 626 BCE to
+    AD 75.
     """
     value = astro_year(year, era)
     name = S.canonical_month(month.strip())
@@ -241,8 +257,8 @@ def julian_to_babylonian(year: int, month: int, day: int,
     """
     jd = physical_jd(year, month, day, era)
     value = astro_year(year, era)
-    # A Babylonian year begins in spring, so the date falls in this one or
-    # in the one before.
+    # A Babylonian year begins in spring, so the date falls in the Babylonian
+    # year that begins in its Julian year or in the year before.
     for babylonian_year in (value, value - 1):
         starts = sorted((start, name) for name in cal.MONTHS
                         if (start := cal.month_start_jd(babylonian_year, name))
@@ -270,9 +286,9 @@ def body_position(body: Body, year: int, month: int, day: int,
 
     year, month and day are a proleptic Julian date, and hour counts from
     its midnight, the instant the verdicts use for a calendar day. The
-    longitude is the tropical longitude of date plus Britton's offset, and a
-    sign is a 30-degree bin of it, Aries first. The ephemeris is geocentric
-    and covers 700 BCE to AD 76.
+    longitude is the tropical longitude of date plus the offset of Britton
+    (Eq. 8 of the paper), and a sign is a 30-degree bin of it, Aries first.
+    The ephemeris is geocentric and covers 700 BCE to AD 76.
     """
     if body not in sky.BODIES:
         raise ValueError(f"body must be one of {', '.join(sky.BODIES)}")
@@ -293,10 +309,13 @@ def eclipses_near(year: int, month: int, day: int, era: Era = "BCE",
                   kind: Literal["lunar", "solar"] | None = None) -> dict:
     """List the eclipses within some days of a Julian date, with Babylon status.
 
-    local_status is robust_visible, robust_not_visible or delta_t_sensitive
-    over the three Delta T trials. agreement_eligible is true when an eclipse
-    of that kind can agree with a clause. Times are Universal Time. The
-    catalogue is NASA's Five Millennium Canon.
+    days is the half-width of the window, at most 200, and kind keeps only
+    lunar or only solar eclipses. local_status is robust_visible or
+    robust_not_visible when the three Delta T trials give the same result,
+    and delta_t_sensitive when they differ. agreement_eligible is true when
+    the eclipse can make an eclipse clause of its kind agree. Times are
+    Universal Time. The catalogue is the Five Millennium Canon of Espenak and
+    Meeus (NASA).
     """
     if not 0 < days <= 200:
         raise ValueError("days must be more than 0 and at most 200")

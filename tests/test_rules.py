@@ -1,4 +1,13 @@
-"""Offline checks of calendar and filter rules that an external review found wrong."""
+"""Offline tests of the Sirius dates, the month windows and the ADART IV text filter.
+
+The Sirius scheme must give each phase a date in each candidate year, except the
+last appearance in the first year. A time offset must reach the cached solstice
+and Sirius dates. A month window holds the night that opens the month, and a
+clause without a month heading is tested over its whole year. The ADART IV input
+loses its year numbers and rulers and keeps the other text exactly.
+
+    python3 tests/test_rules.py
+"""
 from __future__ import annotations
 
 import sys
@@ -21,7 +30,7 @@ class SiriusSchemeTest(unittest.TestCase):
         for phase in ("rising", "acronychal"):
             self.assertTrue(all(S.sirius_scheme_date(y, phase) for y in YEARS), phase)
         # The last appearance is counted from the solstice of the year before,
-        # so only the first candidate year lacks it.
+        # so only the first candidate year has no date for it.
         missing = [y for y in YEARS if S.sirius_scheme_date(y, "setting") is None]
         self.assertEqual(missing, [YEARS[0]])
 

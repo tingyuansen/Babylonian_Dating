@@ -1,45 +1,38 @@
 #!/usr/bin/env python3
-"""Assign reproducible coarse text-property cohorts to dated diaries.
+"""Group the dated diaries into cohorts by the evidence that their text keeps.
 
-An accuracy figure over the whole corpus answers no useful question, because the
-population mixes three incompatible cases. Tablets that state their own era year,
-where dating is a lookup and the astronomy contributes nothing. Tablets composed
-by joining fragments, where the published date may rest on the physical join and
-no text-only method can reach it. And tablets where the editor reasoned from the
-astronomy in the surviving text, which is the only case where a comparison means
-anything.
+Reads data/corpus/evidence.parquet and writes data/corpus/cohorts.parquet. The
+benchmark ledger (scripts/audit/build_benchmark.py) and the sensitivity audit
+(SI Appendix, section S7) carry these cohorts as strata. Benchmark membership
+does not depend on them.
 
-The cohorts use deterministic regex properties only. Model labels in
-``evidence.parquet`` do not enter them. Nothing here reads success.
+The cohorts separate three kinds of record. Some state their own era year, so
+the year follows from the text without astronomy. Some join several fragments,
+and the published date may rest on the join, which the text does not show. In
+the rest, the editors dated the tablet from its astronomy.
 
-The split is a two by two. Whether the surviving text carries evidence capable
-of fixing a year, and whether it states a regnal or era year.
+The cohorts use only the regular-expression marks of classify_evidence.py. They
+read no model label and no dating result. Two marks define them, whether the
+text has an outer planet or an eclipse, and whether it states an era year.
 
-    testable_checked   strong astronomy, era year also stated. Testable, and the
-                       stated year gives an independent check on the answer. The
-                       era statement is WITHHELD from the agent.
-    testable           strong astronomy, no era year stated. Testable, with the
-                       published date as the only reference.
-    weak_evidence      astronomical content but no outer planet and no eclipse,
-                       typically lunar intervals and inner planets. Probably
-                       hard, possibly not impossible, and NOT excluded. A run
-                       recorded lunar intervals dating tablets on occasion, so
-                       these are tested and only reclassified if the diagnostic
-                       shows the text cannot support the published date.
-    lookup_only        era year stated but no usable astronomy.
-    no_text            nothing readable survives. The only honest exclusion.
+    testable_checked   outer planet or eclipse, and an era year. The stated
+                       year gives a check on the published date.
+    testable           outer planet or eclipse, and no era year. The published
+                       date is the only reference.
+    weak_evidence      other astronomy only, mostly lunar distances and inner
+                       planets. These records stay in the tests.
+    lookup_only        an era year, and no outer planet or eclipse.
+    no_text            none of these marks, mostly records without text.
 
-The era statement is never given to the agent in either testable cohort. On the
-first it exists only as a second opinion on the published date, which is worth
-having because the published dates are themselves astronomical in origin.
+The dating does not read a stated year in any cohort. It compares the result
+with that year only after dating (SI Appendix, section S1). This check is
+useful because many published dates were themselves derived from astronomy.
 
-Joins are flagged rather than excluded. The edition's introduction confirms that
-joining fragments was part of how the corpus was dated, so a published date may
-rest on a join that no text-only method can reach. Report performance with and
-without them rather than deciding in advance.
+The column joined marks tablets of two or more fragments. They stay in the
+tests, so results can be reported with and without them.
 
 Usage:
-    python3 build_cohort.py
+    python3 scripts/source/build_cohort.py
 """
 
 from __future__ import annotations
@@ -68,7 +61,7 @@ def main() -> int:
     e = e.assign(era=era, outer=outer, astro=astro, joined=joined,
                  cohort_source="regex")
 
-    # Any astronomical or chronological content at all, however weak.
+    # Any mark of astronomy or of a stated year.
     any_content = (e.lunar_regex | e.inner_regex | e.outer_regex
                    | e.eclipse_regex | era)
 

@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
-"""What each part of the method is actually worth, on the same dated corpus.
+"""Draw SI Fig. S1, the sensitivity of the benchmark to the settings of the method.
 
-Three quantities have to be read together. Removing a capability rarely loses
-the published year outright, because the safety rules are built to avoid that;
-what it does is widen the set the method must report. A configuration that
-looks sharper in the middle panel and worse in the right-hand one is not an
-improvement, it is a method throwing the answer away.
+Each row is one configuration of the sensitivity audit (SI Appendix, section
+S7). The first is the baseline, and each other row changes one convention,
+removes one rule or clock, or changes one scoring policy. The values are for
+the benchmark records with decisive clauses, and dashed orange lines mark the
+baseline. Panel (a) shows the percentage with the published year in the first
+group. Panel (b) shows the median number of years in that group, on a log axis.
+Panel (c) shows the percentage with the published year in the strict set, on an
+axis that starts at 84%.
+
+The script reads data/benchmark/sensitivity_summary.parquet and writes
+figures/figS1_sensitivity.pdf.
 """
 
 from __future__ import annotations
@@ -26,8 +32,8 @@ sys.path.insert(0, str(ROOT))
 
 from tools import years as yr  # noqa: E402
 
-# Printed name and group for every configuration the audit runs, in the order
-# they are drawn.
+# The key, row label and group of each configuration that
+# scripts/audit/audit_sensitivity.py runs, in the order of the rows.
 CONFIGS = [
     ("baseline", "Baseline", "Baseline"),
     ("cubit_at_2_2_degrees", "Cubit at 2.2 degrees", "Conventions varied"),
@@ -90,7 +96,7 @@ GROUP_COLOUR = {
 
 
 def validate_configurations(summary: pd.DataFrame) -> None:
-    """Refuse to silently omit a completed sensitivity configuration."""
+    """Raise an error unless the configurations of the audit match CONFIGS one to one."""
     expected = {key for key, _, _ in CONFIGS}
     actual = set(summary.index)
     missing = expected - actual
@@ -127,6 +133,7 @@ def layout():
 
 
 def panel(ax, rows, values, baseline, xlabel, left, height):
+    """Draw one panel, a dot for each configuration and a dashed baseline."""
     ax.axvline(baseline, color=fs.ORANGE, linewidth=0.8,
                linestyle=(0, (3.0, 2.2)), zorder=1)
     for key, group, y in rows:
@@ -154,9 +161,7 @@ def main() -> Path:
         1, 3, figsize=(fs.FULL_WIDTH, max(4.15, height * 0.145)),
         gridspec_kw={"width_ratios": [1.0, 0.92, 0.62], "wspace": 0.085})
 
-    # Reported in equivalence classes, the same unit as the headline result,
-    # because a lattice of years the evidence cannot separate is one physical
-    # explanation rather than many candidates.
+    # Panel (a) counts the first group of tied years, as Fig. 4b does.
     leading = (summary.leading_group_rate * 100).to_dict()
     panel(axes[0], rows, leading, leading["baseline"],
           "Published year in\nfirst group (%)", 0.0, height)

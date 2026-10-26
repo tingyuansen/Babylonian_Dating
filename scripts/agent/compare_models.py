@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
-"""Compare three language models in the pilot of the model review, on ten records.
+"""Compare three language models in a pilot of the language-model review, on ten records.
 
-Before the full run, gpt-6-luna and two models of the previous release, the
-small gpt-5.6-luna and the larger gpt-5.6-terra, reviewed and searched the
-same ten records of ADART I to III with the same prompts and checks. Their
-outputs are in data/clauses/model_review_pilot/. This script tests each
-model's accepted modifications and search additions at the published year
-with the current rules, and writes the counts to
+The models are gpt-6-luna, the small gpt-5.6-luna and the larger gpt-5.6-terra.
+They reviewed and searched the same ten records of ADART I to III (step 1), with
+the same prompts and checks. Their outputs are in data/clauses/model_review_pilot/.
+This script tests the accepted modifications and the search additions of each
+model at the published year, with the current rules. It writes the counts, with
+the number of calls and the cost of each model, to
 data/clauses/model_review_pilot/comparison.json.
 
-It makes no model call. The pilot used an earlier version of the search's
-normalization prompt, so its clauses are not those of the full run.
+The script makes no model call. The pilot's search used a different
+normalization prompt from the full run, so its clauses differ from those of the
+full run.
 
 Usage:
     python scripts/agent/compare_models.py
@@ -52,6 +53,7 @@ def statement(saved: str, start=None, end=None) -> S.Statement:
 
 
 def tally(verdicts: list[str]) -> dict:
+    """The number of agree, contradict and untestable verdicts."""
     return {result: verdicts.count(result) for result in ("agree", "contradict", "untestable")}
 
 

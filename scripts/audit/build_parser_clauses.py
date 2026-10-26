@@ -1,10 +1,17 @@
 #!/usr/bin/env python3
-"""Build a line-level provenance ledger for deterministic text extraction.
+"""Write each parser clause of ADsD with its tablet lines and its verdict at the published year.
 
-This is an evaluation artifact, not an inference path. Extraction receives only
-the exact ADsD translation. Published dates are joined afterward solely to
-measure forward agreement. Each output row links one normalized statement to
-the source line(s), parser rule, semantic tier, and deterministic verdict.
+The parser reads only the ADsD translation of each record (step 1). Each row
+gives one parser clause with its fields, its passage, the tablet lines it
+comes from, its parser rule and its tier. The published years are read after
+all clauses are built. They give each clause its verdict at the published
+year, as counted for the parser clauses in SI Appendix, Table S4.
+
+build_benchmark.py, build_paper_counts.py and scripts/site/build_site_data.py
+read this file. The dating of steps 2 and 3 does not.
+
+Output:
+    data/clauses/parser_clauses.parquet
 """
 
 from __future__ import annotations
@@ -24,6 +31,9 @@ from tools import statements as S
 from tools import years as yr  # noqa: E402
 
 
+# The origin of each parser rule, for the column rule_origin. A label that
+# names the agent marks a rule that the coding agent of step 1 proposed or
+# checked.
 RULE_ORIGIN = {
     "typed_eclipse": "source_semantics_local_parser",
     "measured_normal_star": "source_semantics_local_parser",
@@ -53,11 +63,15 @@ RULE_ORIGIN = {
 
 
 def encoded(value) -> str:
+    """Return compact JSON for a value kept in one parquet cell."""
     return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
 
 
 def source_lines(group: pd.DataFrame) -> list[dict]:
-    """Offsets matching the newline join used by fetch_texts.py."""
+    """Give each translated line of a record its span in the record text.
+
+    The spans follow fetch_texts.py, which joins the lines with newlines.
+    """
     rows = []
     cursor = 0
     for line in group.itertuples(index=False):
@@ -78,12 +92,13 @@ def source_lines(group: pd.DataFrame) -> list[dict]:
 
 
 def overlapping(lines: list[dict], start: int, end: int) -> list[dict]:
+    """Return the lines that overlap the span from start to end."""
     return [line for line in lines
             if line["end"] > start and line["start"] < end]
 
 
 def context_source(text: str, statement: S.Statement) -> str:
-    """Label how the month attached to a positional statement was obtained."""
+    """Label where the month of a clause comes from."""
     if statement.month is None:
         return "missing_or_lost"
     if (statement.kind in {"in_sign", "station", "entry", "last_app"}
@@ -98,8 +113,8 @@ def main() -> int:
         "--out", type=Path, default=HERE / "data" / "clauses" / "parser_clauses.parquet")
     args = parser.parse_args()
 
-    # Extraction is answer-blind. The reference table below is loaded only
-    # after every source-derived row has been constructed.
+    # The parser reads the text alone. The published years are read only
+    # after all clauses are built.
     tablets = pd.read_parquet(
         HERE / "data" / "corpus" / "tablets.parquet", columns=["tablet", "text"])
     raw_lines = pd.read_parquet(
@@ -143,10 +158,9 @@ def main() -> int:
                 "tablet_text_sha256": hashlib.sha256(
                     text.encode("utf-8")).hexdigest(),
                 "parser_rule": statement.parser_rule,
-                # A clause recovered by reading through an editorial bracket
-                # keeps the origin of the grammar that recognised it, with the
-                # restoration recorded separately, because the reading and the
-                # grammar are different claims.
+                # A clause read across the brackets of a restoration takes the
+                # origin of its rule without the suffix _bracket. The column
+                # restored records the restoration.
                 "rule_origin": RULE_ORIGIN.get(
                     statement.parser_rule.removesuffix("_bracket"),
                     "unclassified_rule_origin"),

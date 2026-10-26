@@ -1,59 +1,58 @@
 #!/usr/bin/env python3
-"""Classify what chronological evidence each tablet actually preserves.
+"""Mark the kinds of chronological evidence that the text of each diary keeps.
 
-This is the input to the evaluation cohort. A tablet can only be scored fairly
-against the published date if we know what a dater had to work with, and that
-cannot be read off the catalogue. It has to come from the text.
+Reads data/corpus/tablets.parquet and lines.parquet, and writes
+data/corpus/evidence.parquet. build_cohort.py groups the records by these
+marks, and scripts/audit/build_benchmark.py copies them into the benchmark
+ledger. The marks come from the text, because the catalogue does not record
+what evidence a tablet keeps.
 
-Two passes. A deterministic one first, because most of the signal is in fixed
-vocabulary and a regex is free, reproducible and does not hallucinate. Then a
-model pass in parallel over the same tablets, which catches what patterns miss,
-principally era statements phrased unusually and planetary positions written
-across a damaged line.
-
-Where the two disagree the record keeps both, since the disagreements are
-exactly the tablets worth looking at by hand.
+The marks come from regular expressions on the English translation. For a
+record without a translation, the script searches the transliteration. The
+columns era_llm, outer_llm, note and agree come from an earlier pass of a
+language model over the same texts, with the prompt in MODEL_PROMPT. The script
+keeps these columns from the existing file. The cohorts use only the regular
+expressions.
 
 Fields written per tablet:
 
     era_regex / era_llm        an era or regnal year stated in the text
     outer_regex / outer_llm    a position for Jupiter, Saturn or Mars
-    inner, lunar, eclipse      other evidence classes, regex only
-    n_joins                    fragments composing the tablet, from museum_no
-    agree                      whether the two passes concur on era and outer
+    inner_regex, lunar_regex, eclipse_regex
+                               other kinds of evidence, regular expressions only
+    n_joins                    number of joined fragments, from museum_no
+    agree                      whether the two passes agree on era and outer
 
 Usage:
-    python3 classify_evidence.py                # regex only, seconds
-    python3 classify_evidence.py --llm          # adds the model pass
-    python3 classify_evidence.py --llm --limit 40
+    python3 scripts/source/classify_evidence.py
+    python3 scripts/source/classify_evidence.py --limit 40    # the first 40 records only
 """
 
 from __future__ import annotations
 
 import argparse
-import json
 import re
-import sys
 from pathlib import Path
 
 import pandas as pd
 
 HERE = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(HERE / "scripts"))
 
 OUTER = r"(Jupiter|Saturn|Mars)"
 INNER = r"(Venus|Mercury)"
 SIGNS = (r"(Aries|Taurus|Gemini|Cancer|Leo|Virgo|Libra|Scorpi[ou]s|Sagittarius|"
          r"Capricorn|Aquarius|Pisces)")
 
-# The diaries write planets as Sumerograms. About a sixth of the corpus is
-# transliterated but untranslated, so evidence must be findable in either form.
+# The transliteration writes the planets as Sumerograms. About one record in
+# seven has a transliteration but no translation, so the patterns also search
+# these forms.
 SUMERO = {
     "jupiter": r"MUL[₂2]?\.?BABBAR|SAG\.ME\.GAR",
     "saturn": r"GENNA|SAG\.U[ŠS]",
-    # Mars only as the Akkadian word. AN alone is the determinative for god and
-    # heaven, one of the commonest signs in the corpus, and matching it fired on
-    # 57 of 61 transliterated tablets while the real word matched none.
+    # Mars matches as the Akkadian word, as MUL.AN, or as AN before ina, ana,
+    # MEŠ or KI. AN alone is the determinative for god and heaven, one of the
+    # most common signs. A pattern for AN alone matched 57 of the 61
+    # transliterated tablets.
     "mars": r"ṣal-bat-a-nu|MUL\.AN|\bAN\b(?=\s*(?:ina|ana|MEŠ|KI))",
     "mercury": r"GU[₄4]\.UD",
     "venus": r"dele-bat|DELE\.BAT",
@@ -73,18 +72,21 @@ PAT = {
     # A regnal or era year. The diaries write these as "year N of king X" or as
     # a bare "year N" heading a section.
     "era": re.compile(r"\byear\s+\d+\b", re.I),
-    # A planet placed in a constellation, or a station, which is equally dating.
+    # An outer planet in a sign, or its station or retrograde motion.
     "outer": re.compile(rf"{OUTER}[^.]{{0,80}}(?:{SIGNS}|stationary|retrograde)"
                         rf"|(?:{SIGNS})[^.]{{0,40}}{OUTER}", re.I),
     "inner": re.compile(rf"{INNER}[^.]{{0,80}}(?:{SIGNS}|first appearance|"
                         rf"last appearance)", re.I),
-    # The Moon measured against a reference star, the commonest and weakest.
+    # The Moon measured against a reference star. This kind is the most common
+    # and carries the least information.
     "lunar": re.compile(r"\bmoon\b[^.]{0,90}(cubit|finger|below|above|"
                         r"in front of|behind)", re.I),
     "eclipse": re.compile(r"\beclipse\b", re.I),
 }
 
-SYSTEM = """You are reading a translated Babylonian astronomical diary.
+# The prompt of the earlier model pass that wrote era_llm, outer_llm and note.
+# The script does not call a model.
+MODEL_PROMPT = """You are reading a translated Babylonian astronomical diary.
 Answer only with a JSON object, no prose, with exactly these keys:
 
   "era": true if the text states a year of a king or of a named era
@@ -105,9 +107,7 @@ dele-bat is Venus. MU followed by a number is a year."""
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--llm", action="store_true")
     ap.add_argument("--limit", type=int, default=0)
-    ap.add_argument("--workers", type=int, default=12)
     ap.add_argument("--out", type=Path, default=HERE / "data" / "corpus" / "evidence.parquet")
     args = ap.parse_args()
 
@@ -123,7 +123,7 @@ def main() -> int:
     t = t[t.project.isin(["adsd/adart1", "adsd/adart2", "adsd/adart3"])].copy()
     t["text"] = t.tablet.map(text).fillna("")
     t["tlit"] = t.tablet.map(tlit).fillna("")
-    # Tablets ADsD transliterated but never translated are read in Akkadian.
+    # A record without English text is searched in its transliteration.
     t["lang"] = t.text.str.len().gt(0).map({True: "en", False: "tlit"})
     t["n_joins"] = t.museum_no.fillna("").apply(
         lambda s: len(re.split(r"\s*\+\s*", s)) if s.strip() else 0)
@@ -135,49 +135,11 @@ def main() -> int:
     if args.limit:
         t = t.head(args.limit)
 
-    if args.llm:
-        from agent.llm import ask_many, CHEAP
-        have = t[(t.text.str.len() > 0) | (t.tlit.str.len() > 0)]
-        print(f"model pass over {len(have)} tablets, {args.workers} in parallel")
-        # Long tablets are truncated. The dating evidence clusters early and a
-        # full tablet would cost more than the answer is worth.
-        prompts = [(a if a else "TRANSLITERATION ONLY, no translation exists:\n" + b)[:6000]
-                   for a, b in zip(have.text, have.tlit)]
-        out = ask_many(SYSTEM, prompts, model=CHEAP, workers=args.workers,
-                       max_tokens=200)
-        era, outer, note = {}, {}, {}
-        bad = 0
-        for tid, raw in zip(have.tablet, out):
-            if not raw:
-                bad += 1
-                continue
-            m = re.search(r"\{.*\}", raw, re.S)
-            if not m:
-                bad += 1
-                continue
-            try:
-                d = json.loads(m.group(0))
-            except json.JSONDecodeError:
-                bad += 1
-                continue
-            era[tid] = bool(d.get("era"))
-            outer[tid] = bool(d.get("outer"))
-            note[tid] = str(d.get("note", ""))[:90]
-        print(f"  {len(era)} parsed, {bad} unusable")
-        t["era_llm"] = t.tablet.map(era)
-        t["outer_llm"] = t.tablet.map(outer)
-        t["note"] = t.tablet.map(note)
-        both = t.dropna(subset=["era_llm"])
-        t["agree"] = (t.era_regex == t.era_llm) & (t.outer_regex == t.outer_llm)
-        print(f"  regex and model agree on {int(both.era_regex.eq(both.era_llm).sum())}"
-              f"/{len(both)} for era, "
-              f"{int(both.outer_regex.eq(both.outer_llm).sum())}/{len(both)} for outer planets")
-
     out = t.drop(columns=["text", "tlit"])
 
-    # A deterministic rerun preserves existing model columns unless --llm is
-    # requested, keeping rebuild behavior monotonic.
-    if not args.llm and args.out.exists():
+    # The model columns of the existing output are kept, so a rebuild does not
+    # lose them.
+    if args.out.exists():
         prev = pd.read_parquet(args.out)
         keep = [c for c in ("era_llm", "outer_llm", "note", "agree")
                 if c in prev.columns and c not in out.columns]

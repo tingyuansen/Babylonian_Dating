@@ -1,15 +1,25 @@
 #!/usr/bin/env python3
-"""Calibrate elongation-only first/last appearance thresholds, then hold out.
+"""Fit and test elongation thresholds for the first and last appearance of each planet.
 
-This script is deliberately an admission gate, not a parameter factory. It fits
-only tablets in ``testable_checked`` (whose era statements independently pin
-their dates), then reports the untouched ``testable`` cohort. A threshold is
-not promoted into ``tools/statements.py`` unless that holdout is reliable.
+A planet first or last appears near a certain elongation from the Sun. The
+ephemeris holds longitudes but no altitudes at Babylon. So the script tests
+only the signed elongation of the planet from the Sun on the stated date.
 
-The ephemeris stores longitude but not local altitude. The model here therefore
-tests the narrow claim available to it: the signed Sun-planet elongation at an
-appearance date. Three residual quantiles expose sensitivity instead of hiding
-one favourable tolerance.
+For each planet, kind of appearance and side of the sky, the threshold is
+the median elongation of the training records. These come from the
+testable_checked cohort, whose stated era year gives a check on the published
+date. The script then tests the thresholds on the testable cohort, which the
+fit does not use. A tolerance is the larger of 2 degrees and a quantile of the
+training residuals, and the script reports the quantiles 0.75, 0.9 and 1.0.
+
+The rules in tools/statements.py do not use these thresholds. They test a
+first or last appearance for its sign only (SI Appendix, Table S2).
+
+Reads data/corpus/tablets.parquet and data/corpus/cohorts.parquet, and writes
+data/physical/visibility_calibration.parquet.
+
+Usage:
+    python3 scripts/physical/calibrate_visibility.py
 """
 
 from __future__ import annotations
@@ -36,6 +46,13 @@ APPEARANCE = re.compile(
 
 
 def observations() -> pd.DataFrame:
+    """Return each first and last appearance of a planet in the dated records.
+
+    Each row holds the oriented elongation on the stated date in the published
+    year. An appearance needs a month, a day and a known side of the sky. The
+    function leaves out an appearance marked as omitted, expected or ideal,
+    and one with a restored date.
+    """
     tablets = pd.read_parquet(HERE / "data" / "corpus" / "tablets.parquet")
     cohorts = pd.read_parquet(HERE / "data" / "corpus" / "cohorts.parquet").set_index(
         "tablet")
@@ -53,6 +70,10 @@ def observations() -> pd.DataFrame:
                        or bool(re.search(r"\b(?:expected|ideal)\b", tail, re.I)))
             month, day, offset, restored = S.eclipse_context(
                 tablet.text, match.start())
+            # The sign makes the elongation of a visible planet positive. A
+            # planet seen in the east has a negative elongation. An outer
+            # planet with no stated side first appears in the east and last
+            # appears in the west.
             orientation = 0
             if direction == "east":
                 orientation = -1

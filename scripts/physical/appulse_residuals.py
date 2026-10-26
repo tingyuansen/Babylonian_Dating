@@ -1,25 +1,30 @@
 #!/usr/bin/env python3
-"""Measure how close an appulse really is, at years that are already known.
+"""Measure how far stated distances to Normal Stars lie from computed ones.
 
-The tablets say things like "the moon was 1 1/2 cubits behind beta Geminorum".
-Turning that into a test needs a tolerance, and a tolerance chosen by eye is a
-free parameter dressed up as a fact. This script measures residuals at each
-tablet's published reference year. That makes it a transparent retrospective
-calibration diagnostic, not an independent validation set.
+A clause such as "the moon was 1 1/2 cubits behind beta Geminorum" agrees with
+a year if the computed position lies within a tolerance of the stated one. The
+tolerances of 3 degrees for the Moon and 2 degrees for a planet were chosen
+from the residuals that this script measures (Methods, SI Appendix, section S4).
+The residuals use the published years of ADART I to III, which include the
+benchmark, so the sensitivity audit also tests other tolerances (section S7).
 
-What comes out is a distribution. Its bulk is observation error, the ephemeris
-being far better than the eye, plus lunar parallax, which this geocentric grid
-does not model and which reaches about a degree. Its tail is statements whose
-day or month has been misassigned, and those should be visible as a separate
-population rather than blended into the tolerance.
+Reads data/corpus/tablets.parquet and writes data/physical/appulse_residuals.parquet.
+Each parser clause that places the Moon or a planet against a Normal Star, with a
+month and a day, enters. The script computes the body's longitude near the
+stated day of the published year. It records the smallest gap to the stated
+position, and prints percentiles of the gaps for each body.
 
-Read the two directions separately. "in front of" and "behind" give a longitude
-difference directly. "above" and "below" are latitude, which the grid does not
-carry, so those only say the body was near the star in longitude, and their
-residual means something different.
+Most residuals come from errors of observation and from lunar parallax. Parallax
+reaches about one degree, and the geocentric grid does not include it. A tail of
+large residuals points to clauses with a wrong day or month.
+
+The script compares longitudes only. For "in front of" and "behind", the stated
+distance is in longitude. For "above" and "below" it is in latitude, which
+tools.sky does not give, so the residual says only how near in longitude the
+body was to the star.
 
 Usage:
-    python3 appulse_residuals.py
+    python3 scripts/physical/appulse_residuals.py
 """
 
 from __future__ import annotations
@@ -63,8 +68,9 @@ def main() -> int:
             if start is None:
                 skipped["no calendar"] += 1
                 continue
-            # The Moon moves about 13 degrees a day; fine sampling keeps the
-            # residual distribution from measuring grid spacing.
+            # The Moon moves about 13 degrees a day. A step of 0.02 days, about
+            # a quarter of a degree for the Moon, keeps the step out of the
+            # residuals.
             jds = np.arange(start + st.day - 2.0, start + st.day + 0.5, 0.02)
             want = (sky.star(st.star)[0] + st.offset) % 360.0
             d = np.abs((sky.lon(st.planet, jds) - want + 180.0) % 360.0 - 180.0)

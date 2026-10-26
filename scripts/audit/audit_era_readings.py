@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 """Read the era and regnal years that the texts state, and check them at the published years.
 
-The output is data/benchmark/era_readings.parquet. Dating never reads it, because
-a year stated in the text enters only after the candidate sets are final.
+It reads data/corpus/tablets.parquet and writes data/benchmark/era_readings.parquet,
+one row per stated year. Dating does not read this file, because a year stated
+in the text enters only after the candidate sets are final (SI Appendix,
+section S1).
+
+Usage:
+    python3 scripts/audit/audit_era_readings.py [--out PATH]
 """
 
 from __future__ import annotations
@@ -32,10 +37,10 @@ def main() -> int:
             dated = pd.notna(tablet.bce_first)
             published_bce = int(tablet.bce_first) if dated else None
             published = yr.bce_to_astro(published_bce) if dated else None
-            # "150/149" is the one Babylonian year beginning in 150 BCE;
-            # bce_second is the Julian year it ends in, not a second year.
-            # A tablet spanning two years ("303/301") ends with the year
-            # beginning in bce_second + 1.
+            # A date such as "150/149" names one Babylonian year. It begins in
+            # 150 BCE and ends in 149 BCE, the value of bce_second. A tablet
+            # that spans two years, such as "303/301", ends with the year that
+            # begins in bce_second + 1.
             last = (yr.bce_to_astro(int(tablet.bce_second) + 1)
                     if dated and pd.notna(tablet.bce_second) else published)
             lo, hi = ((published, max(published, last))

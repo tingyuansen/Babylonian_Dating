@@ -1,8 +1,13 @@
-"""Offline checks of the model review's code-side rules.
+"""Offline tests of the rules that code applies in the language-model review.
 
-No model is called. The checks cover what code decides whatever the model
-says: what the model is shown, which unobserved mark a clause gets, and when a
-cited passage may change or drop a clause.
+The review is in scripts/agent/model_review.py (SI Appendix, section S2). No
+model is called. Code applies these rules whatever the model says. The tests
+cover what the model is shown, which clauses get the unobserved mark, and when a
+cited passage may change or drop a clause. They also cover how a passage is
+found in the text, how a proposed clause is checked, and the client's schema
+check and rate limiter.
+
+    python3 tests/test_model_review.py
 """
 from __future__ import annotations
 
@@ -22,6 +27,7 @@ _spec.loader.exec_module(v)
 
 
 def payload_for(text: str, st: S.Statement) -> dict:
+    """The review request that the model receives for one clause of the text."""
     return v.review_payload(v.blind(text), v.record_token("X100000"), 0, st)
 
 

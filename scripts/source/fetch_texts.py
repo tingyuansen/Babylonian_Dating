@@ -1,28 +1,26 @@
 #!/usr/bin/env python3
-"""Fetch transliteration and published translation for every diary of ADART I to III.
+"""Download the transliteration and translation of the diaries of ADART I to III.
 
-The bulk JSON download carries the transliteration but not the line-by-line
-English. The rendered pages carry both, so the text is taken from there. This is
-the same material the inherited corpus holds, fetched directly rather than
-through anyone's intermediate copy, which is the point.
+The bulk JSON download of ADsD holds the transliteration but not the English
+translation of each line. The HTML page of each tablet holds both, so the script
+reads these pages. The translations are those of Sachs and Hunger, with the
+later collations of ADsD. All of it is under CC0.
 
-Everything is CC0. The translations are Sachs and Hunger's, as reproduced by the
-ADsD edition with its post-publication collations.
+Reads the list of tablets from data/source/adsd/adsd.zip, which fetch_adsd.py
+writes. Writes data/source/adsd/texts.jsonl, one JSON record per tablet, which
+build_corpus.py reads:
 
-Output is one JSONL file:
+    tablet, project, source, n_lines, lines[{label, translit, translation}], text
 
-    tablet, project, designation, lines[{label, translit, translation}], text
-
-Politeness. Modest concurrency and a small delay between requests. This hits a
-university server maintained by people doing us a favour by publishing openly.
-
-TLS note. Verification fails against the anaconda CA bundle on this machine, so
-the system store is tried first and the fallback is announced rather than silent.
+The script sends a few requests at a time, with a short pause after each, to
+spare the ORACC server. For TLS it tries the system certificate store first,
+then the default one. If both fail, it prints a warning and continues without
+verification.
 
 Usage:
-    python3 fetch_texts.py                 # all volumes
-    python3 fetch_texts.py --limit 20      # smoke test
-    python3 fetch_texts.py --projects adsd/adart1
+    python3 scripts/source/fetch_texts.py                 # all volumes
+    python3 scripts/source/fetch_texts.py --limit 20      # short test
+    python3 scripts/source/fetch_texts.py --projects adsd/adart1
 """
 
 from __future__ import annotations
@@ -44,6 +42,7 @@ _ctx = None
 
 
 def ctx() -> ssl.SSLContext:
+    """Return the SSL context for ORACC, chosen once and then reused."""
     global _ctx
     if _ctx is None:
         for cand in (ssl.create_default_context(cafile=SYSTEM_CA),
@@ -79,12 +78,11 @@ ATF_LINE = re.compile(r"^(\d+'?)\.\s+(.*)$")
 
 
 def parse_atf(raw: str) -> list[dict]:
-    """Fallback for tablets ADsD transliterates but has not translated.
+    """Read the lines of a page that holds raw ATF text in place of a table.
 
-    About a fifth of the diaries serve raw ATF rather than a rendered table.
-    They carry the transliteration and a lemmatisation line but no English. The
-    lemmatisation is kept, since it glosses each word and is most of what a
-    translation would give.
+    ADsD gives such a page for about one diary in seven. It holds the
+    transliteration and a lemmatisation of each line, but no English. The
+    lemmatisation is kept, because it glosses each word.
     """
     flat = strip_tags(raw)
     # ATF runs from the @obverse marker to the end of the text block.
@@ -112,11 +110,11 @@ def parse_atf(raw: str) -> list[dict]:
 
 
 def parse(raw: str) -> list[dict]:
-    """One entry per rendered line, using the table structure rather than text.
+    """Read one entry per line from the HTML table of a tablet.
 
-    ORACC marks each line as a <tr class="l"> holding a label span, a tlit cell
-    and a t1 xtr cell. Parsing the table structure prevents adjacent line
-    transliteration and translation cells from being merged.
+    ORACC marks each line as a <tr class="l"> row with a label span, a tlit
+    cell and a t1 xtr cell. Reading these cells keeps the text of each line
+    apart from the text of the next line.
     """
     out = []
     for row in ROW_RE.findall(raw):
@@ -133,7 +131,8 @@ def parse(raw: str) -> list[dict]:
 
 
 def fetch_one(project: str, tablet: str, retries: int = 3) -> dict | None:
-    url = f"{ROOT}/{project}/{tablet}/html"
+    """Download and read the page of one tablet. Return None if all retries fail."""
+    url =f"{ROOT}/{project}/{tablet}/html"
     for attempt in range(retries):
         try:
             with urllib.request.urlopen(url, context=ctx(), timeout=90) as r:

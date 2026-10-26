@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Candidate-year sets for the ranked ADART IV entries.
+"""Draw SI Fig. S2, the strict sets of the ranked ADART IV entries.
 
-Each row corresponds to one of the ranked ADART IV entries. A dark mark
-indicates that the corresponding Babylonian year is admitted by that entry's
-strict candidate set. The rows are ordered from the narrowest candidate set to
-the widest, so the figure shows both the discrete recurrence structure and the
-overall spread of the prospective results.
+Each row is one ADART IV entry that step 3 ranks. A dark mark is a year of its
+strict set among the 701 candidate years. The rows run from the narrowest
+strict set at the top to the widest at the bottom. Many sets repeat at a
+regular spacing, as an entry with one clock gives (SI Appendix, section S9).
+
+The script reads data/results/adart_iv_dates.parquet and writes
+figures/figS2_adart_iv.pdf.
 """
 
 from __future__ import annotations
@@ -35,11 +37,11 @@ def main() -> Path:
     )
     ranked = prospective[prospective.claim.eq("ranked")].copy()
 
-    # Candidate years considered by the paper.
+    # The 701 candidate years, 626 BCE to AD 75.
     years = np.array(cal.candidate_years(), dtype=int)
     year_to_position = {year: position for position, year in enumerate(years)}
 
-    # Sort entries from narrowest candidate set to widest.
+    # The strict sets, from the narrowest to the widest.
     sets = sorted(
         (
             sorted(int(y) for y in row.strict_years_astro)

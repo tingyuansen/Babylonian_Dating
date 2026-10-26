@@ -1,9 +1,11 @@
-"""Parse the two NASA five-millennium eclipse catalogue text formats.
+"""Read the NASA five-millennium catalogues of lunar and solar eclipses.
 
-The NASA catalogues are the immutable event inventory.  In addition to the
-date and greatest-eclipse coordinates, retain the catalogue Delta T and
-magnitudes needed by :mod:`build_eclipses` to calculate local circumstances at
-Babylon.  Catalogue times are dynamical time (TT/TD), not Universal Time.
+The catalogues are those of Espenak and Meeus, in data/source/nasa_eclipses/.
+The two files have different text formats. read_catalog returns the date and
+place of greatest eclipse, and also the Delta T, magnitudes and durations.
+build_eclipses.py uses these to compute the visibility at Babylon (SI
+Appendix, section S4). build_ephemeris.py uses the dates in its checks.
+Catalogue times are in dynamical time (TT or TD).
 """
 
 from __future__ import annotations
@@ -17,7 +19,10 @@ MON = {m: i + 1 for i, m in enumerate(
 
 
 def coordinate(token: str) -> float:
-    """A catalogue coordinate such as ``24S`` or ``143.8W`` to degrees."""
+    """Convert a catalogue coordinate such as ``24S`` or ``143.8W`` to degrees.
+
+    South and west are negative.
+    """
     m = re.fullmatch(r"(\d+(?:\.\d+)?)([NSEW])", token)
     if not m:
         raise ValueError(f"not a catalogue coordinate: {token!r}")
@@ -26,12 +31,15 @@ def coordinate(token: str) -> float:
 
 
 def number(token: str) -> float | None:
-    """A numeric catalogue field, with ``-`` represented as missing."""
+    """Return a numeric catalogue field, or None for ``-``."""
     return None if token == "-" else float(token)
 
 
 def read_catalog(path: Path, kind: str, lo: int, hi: int) -> list[dict]:
-    """Catalogue records between astronomical years ``lo`` and ``hi``."""
+    """Return the records of one catalogue from astronomical year ``lo`` to ``hi``.
+
+    ``kind`` is "lunar" or "solar", and selects the format of the file.
+    """
     if kind not in {"lunar", "solar"}:
         raise ValueError("kind must be lunar or solar")
     if kind == "lunar":
@@ -58,8 +66,8 @@ def read_catalog(path: Path, kind: str, lo: int, hi: int) -> list[dict]:
         if not lo <= year <= hi:
             continue
         fields = tail.split()
-        # After greatest-eclipse time both formats give Delta T, lunation,
-        # Saros, then eclipse type.  The remaining fields differ by catalogue.
+        # After the time of greatest eclipse, both formats give Delta T,
+        # lunation, Saros and eclipse type.  The later fields differ.
         delta_t_seconds = float(fields[0])
         lunation = int(fields[1])
         saros = int(fields[2])

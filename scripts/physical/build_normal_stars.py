@@ -1,46 +1,57 @@
 #!/usr/bin/env python3
-"""Extract the Normal Star catalogue from the ADART volume I introduction.
+"""Build the table of the Normal Stars from the introduction to ADART I.
 
-The tablets give the Moon's and the planets' positions as distances from about
-thirty reference stars near the ecliptic, so without this table the largest
-single class of statement in the corpus cannot be tested at all.
+The Normal Stars are about thirty reference stars near the ecliptic. The
+diaries give positions of the Moon and the planets as distances from them.
+These clauses are the most common type in the corpus (SI Appendix, Table S3).
+The rules of step 2 read the star positions from this table (SI Appendix,
+section S4 and Table S2).
 
-The input is data/source/adart_i/normal_stars.txt, the 32 rows of the table
-as `pdftotext -layout` reads them from the scan of the introduction. The scan
-itself is not distributed. The numeric fields survive `pdftotext`. Greek
-letters require reconstruction because the PDF font maps them onto
-punctuation, so "eta Piscium" arrives as `!"Piscium`.
+Input and output:
 
-Punctuation to Greek is recovered rather than guessed. Six of the entries are
-stars whose identity is not in doubt, and they pin the mapping. `LUGAL`, "The
-King", is Regulus, and its listed ecliptic latitude of 0.35 degrees matches
-Regulus sitting almost exactly on the ecliptic. The Jaw of the Bull is
-Aldebaran, the rear Twin star is Pollux, the front Twin is Castor. Those fix
-alpha, beta and eta, and every remaining glyph then resolves consistently
-across all twelve constellations.
+    data/source/adart_i/normal_stars.txt    the 32 rows of the table, as
+                                            ``pdftotext -layout`` reads them
+                                            from the scan of the introduction
+    data/physical/normal_stars.parquet      one row per star, with its
+                                            longitude and latitude in the
+                                            J2000 ecliptic
 
-The table gives ecliptic longitude and latitude at -600, -300 and 0, in the
-equinox of each date. Each epoch is reduced to the fixed J2000 ecliptic with
-the Lieske precession build_ephemeris.py uses for its of-date frame, inverted,
-so the stars and the planets share one frame. Two independent checks follow
-from that and neither is anything the transcription knows.
+The scan is not distributed. pdftotext reads the numbers correctly, but the
+PDF font maps the Greek letters onto punctuation. So "eta Piscium" reads as
+``!"Piscium``. GLYPH gives the letter of each mark.
 
-  1. The three reduced longitudes must agree. Of date, longitude advances by
-     about 4.15 degrees per 300 years, which is precession.
-  2. The three reduced latitudes must agree. Of date, latitude is very nearly
-     constant, precession being almost a rotation about the ecliptic pole.
+Stars of certain identity fix the first marks. Regulus, "The King" (LUGAL),
+lies almost on the ecliptic, and the table gives it a latitude of 0.35
+degrees. The Jaw of the Bull is Aldebaran, the rear Twin is Pollux and the
+front Twin is Castor. These stars fix alpha and beta, and the other marks then
+give one consistent set of stars in all eleven constellations of the table.
 
-Both catch misread digits. The catalogue prints one longitude as 67.77 where it
-means 167.77, and one latitude as 6.19 where it means 5.19, and the checks find
-both without being told.
+The table gives the ecliptic longitude and latitude of each star at the years
+-600, -300 and 0, in the equinox of each date. The script converts each epoch
+to the fixed J2000 ecliptic with the inverse of the precession in
+build_ephemeris.py. The stars and the planets then share one frame. This gives
+two checks on the transcription.
 
-Output is in the fixed J2000 ecliptic frame, to match the ephemeris. A star's
-position there is constant, so the three epochs collapse to one number and their
-disagreement is a measure of the transcription's quality, and of the stars'
-proper motion over 600 years, which the table includes.
+  1. The three converted longitudes must agree. In the frame of date, the
+     longitude grows by about 4.15 degrees in 300 years from precession.
+  2. The three converted latitudes must agree. In the frame of date, the
+     latitude stays almost constant, because precession is almost a rotation
+     about the ecliptic pole.
+
+These checks find misread digits. The input gives alpha Virginis a longitude
+of 67.77 for 167.77, and beta Tauri a latitude of 6.19 for about 5.2. The
+script finds and corrects both.
+
+In the J2000 frame the position of a star is fixed, so the script stores the
+mean of the three epochs. Their spread comes from errors of transcription and
+from the proper motion of the star over 600 years, which the table includes.
+The script writes nothing if the three longitudes of a star spread more than
+0.2 degrees from their mean. It also writes nothing if the latitude of one of
+six stars of certain identity differs from its modern value by 0.5 degrees or
+more.
 
 Usage:
-    python3 build_normal_stars.py
+    python3 scripts/physical/build_normal_stars.py
 """
 
 from __future__ import annotations
@@ -60,7 +71,7 @@ from scripts.physical.build_ephemeris import (  # noqa: E402
     precess_ecliptic_j2000_to_date,
 )
 
-# The font's punctuation for each Greek letter, fixed by the six named stars.
+# The Greek letter for each punctuation mark of the PDF font.
 GLYPH = {"!": "eta", "#": "beta", "$": "alpha", "%": "zeta", "&": "mu",
          "'": "gamma", "(": "theta", ")": "delta", "*": "epsilon", "+": "rho"}
 
@@ -74,26 +85,25 @@ J2000_JD = 2451545.0
 ROW = re.compile(r"^([!#$%&'()*+])\"?\s*([A-Z][a-z]+)\s+(.*)$")
 PAIR = re.compile(r"(-?\s?\d+\.\d+)\s*/\s*(-?\s?\d+\.\d+)")
 
-# Stars whose identity is beyond doubt, with their modern J2000 ecliptic
-# latitude. Used only to verify, never to build.
+# Six stars of certain identity, with their modern J2000 ecliptic latitudes.
+# The script uses them only as a check of the output.
 ANCHORS = {("alpha", "Tauri"): -5.47, ("beta", "Geminorum"): 6.68,
            ("alpha", "Geminorum"): 10.09, ("alpha", "Leonis"): 0.47,
            ("alpha", "Virginis"): -2.06, ("alpha", "Scorpii"): -4.57}
 
 
 def to_date(lon: float, lat: float, year: float) -> tuple[float, float]:
-    """Fixed J2000 ecliptic -> mean ecliptic and equinox of ``year``."""
+    """Convert a J2000 ecliptic position to the mean ecliptic and equinox of ``year``."""
     jd = J2000_JD + (year - 2000) * 365.25
     lon_d, lat_d = precess_ecliptic_j2000_to_date(lon, lat, jd)
     return float(lon_d), float(lat_d)
 
 
 def to_j2000(lon: float, lat: float, year: float) -> tuple[float, float]:
-    """Mean ecliptic and equinox of ``year`` -> fixed J2000 ecliptic.
+    """Convert a position in the mean ecliptic and equinox of ``year`` to the J2000 ecliptic.
 
-    Inverts the ephemeris's precession by iteration rather than with a second
-    formula, so a star reduced here and precessed back by build_ephemeris.py
-    lands where it started.
+    The function inverts the precession of build_ephemeris.py by iteration.
+    That precession then takes the result back to the input position.
     """
     lon0, lat0 = lon, lat
     for _ in range(20):
@@ -135,16 +145,12 @@ def main() -> int:
     for r in rows:
         lon, lat = list(r["lon"]), list(r["lat"])
 
-        # Longitude must advance by precession alone. A step far from that is a
-        # misread leading digit, and the other two epochs say what it should be.
-        #
-        # Both comparisons are made against the *median* of the untouched
-        # values and correct at most one epoch. Comparing each value against
-        # the mean of the other two flags all three when one is wrong, and then
-        # corrects using values already corrupted by the same outlier.
-        # Longitudes also run through 360, beta Arietis sitting at 357.9 and
-        # 2.0, so the arithmetic has to be circular or the wrap looks like an
-        # error and gets "fixed" by 180 degrees.
+        # In J2000 the three longitudes should agree. A value more than 1
+        # degree from the others is a misread digit, and the other two epochs
+        # give its value. The reference is the epoch closest to the other two,
+        # so one wrong value cannot move it. At most one epoch is corrected.
+        # Differences are taken modulo 360 degrees, because beta Arietis runs
+        # from 357.88 to 2.02.
         pos = [to_j2000(L, B, e) for L, B, e in zip(lon, lat, EPOCHS)]
         ref = [x for x, _ in pos]
         k = int(np.argsort([
@@ -159,7 +165,8 @@ def main() -> int:
             fixed.append("lon")
             pos = [to_j2000(L, B, e) for L, B, e in zip(lon, lat, EPOCHS)]
 
-        # Reduced latitude is nearly constant, so an outlier is a misread digit.
+        # In J2000 the three latitudes should agree. A value more than 0.25
+        # degrees from their median is a misread digit.
         med = float(np.median([b for _, b in pos]))
         dev = [abs(b - med) for _, b in pos]
         if max(dev) > 0.25:
@@ -171,7 +178,8 @@ def main() -> int:
             fixed.append("lat")
             pos = [to_j2000(L, B, e) for L, B, e in zip(lon, lat, EPOCHS)]
 
-        # Refer to the fixed J2000 ecliptic, where the position is constant.
+        # The circular mean of the three J2000 longitudes, and the largest
+        # distance of one of them from it.
         j2000 = [x for x, _ in pos]
         c = np.mean(np.exp(1j * np.radians(j2000)))
         r["lon_j2000"] = float(np.degrees(np.angle(c)) % 360.0)

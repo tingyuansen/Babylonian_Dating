@@ -1,20 +1,10 @@
-"""Shared plotting style, so every figure renders with the same typography.
+"""Set the fonts, sizes, colours and saving of the figures of the paper.
 
-The principle
-carried over is the important part: a figure is scaled by LaTeX to the width of
-its slot, so if the figure is drawn wider than that slot its text shrinks by the
-same factor and the fonts stop matching between figures. Drawing at exactly the
-slot width means every figure is placed at unit scale, and a 9 pt label is 9 pt
-everywhere. Hence the fixed widths below and the deliberate refusal of
-bbox="tight".
-
-One thing does change from the source style. That paper is AASTeX and sets a
-serif body font; this one loads helvet and makes sans the default family, so the
-figures are drawn in sans here. The rule is that figure labels match the words
-around them, and following the rule means changing the font, not keeping it.
-
-Widths are computed from this document's geometry: a4paper is 8.27 in wide with
-0.65 in margins on each side, leaving a 6.97 in text block.
+Each figure script in scripts/figures/ calls use() before it draws and save()
+to write figures/<name>.pdf. A figure is drawn at a fixed width in inches,
+FULL_WIDTH, and saved at its drawn size without bbox="tight". At that width on
+the page, its text keeps its sizes in points, so all figures share one type
+size. Text is set in a sans-serif face.
 """
 
 from __future__ import annotations
@@ -23,13 +13,10 @@ from pathlib import Path
 
 import matplotlib as mpl
 
-FULL_WIDTH = 6.97        # inches, the full text block
-COLUMN_WIDTH = 3.38      # inches, half the block with a gutter
+FULL_WIDTH = 6.97        # inches, the width of a full-width figure
 
-# A restrained palette. INK for structure and primary marks, BLUE and ORANGE as
-# the two contrasting data colours, GREY for context that must recede. The
-# sequence in SUPPORT is for the one figure that genuinely has many categories,
-# ordered light to dark so that rank reads off the shade rather than the hue.
+# INK draws axes and text. BLUE, ORANGE and GREEN are the data colours, and
+# GREY, FAINT and PALE draw the context.
 INK = "#1A1A1A"
 BLUE = "#3B75AF"
 ORANGE = "#C4552B"
@@ -37,10 +24,6 @@ GREEN = "#4A7A57"
 GREY = "#7A7F87"
 FAINT = "#B9BFC7"
 PALE = "#E8EAED"
-MARKER_FACE = "white"
-
-# Light to dark, for nested cumulative bands (Top 1 through Top 20).
-DEPTH = ["#DCE4EE", "#B6C6DC", "#8AA5C6", "#5E82AF", "#3B75AF", "#28517A"]
 
 RC = {
     "font.family": "sans-serif",
@@ -78,6 +61,7 @@ RC = {
 
 
 def use() -> None:
+    """Apply the style to matplotlib."""
     mpl.rcParams.update(RC)
 
 

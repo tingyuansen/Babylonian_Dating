@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
-"""Trace astronomy-consequential ADART IV corrigenda into the digital corpus.
+"""Check whether ADsD holds the ADART IV corrections that can change a date.
 
-ADART IV, PDF pages 83--86 (printed pp. LVIII--LXI), contains many corrections
-to volumes I--III.  This ledger includes every correction that can change an
-astronomical body, event, time, day/month context, measured relation, or the
-reference date used by this repository.  Bibliographic, historical, spelling,
-scribe-name, object-description, and join-only notes are outside that declared
-scope.  Nothing in this script silently edits the archived ADsD bytes.
+ADART IV corrects readings and dates of ADART I to III on PDF pages 83 to 86
+(printed pages LVIII to LXI). This script lists the 27 corrections that can
+change an astronomical body, event, time, day or month, measured relation or
+published date. It leaves out bibliographic, historical and spelling notes,
+scribe names, object descriptions and notes on joins alone. For each
+correction, it searches the ADsD translation for the corrected and the old
+wording. SI Appendix, section S1 reports the result.
+
+Outputs:
+    data/benchmark/adart_iv_corrigenda.parquet         one row per correction
+    data/benchmark/adart_iv_corrigenda_summary.json    counts and hashes
 """
 
 from __future__ import annotations
@@ -36,9 +41,11 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-# ``expected`` and ``superseded`` are deliberately narrow witnesses in the
-# current English translation. A missing match means that the relevant line is
-# absent or too broken in ADsD, not that the book's correction is false.
+# Each row gives the PDF page, the place in ADART IV, the ADsD record, the kind
+# of correction and a summary. Then come a pattern for the corrected wording, a
+# pattern for the old wording, and whether the correction changes the date.
+# The patterns are narrow. A missing match means that the ADsD line is absent
+# or too broken to match.
 CORRECTIONS = [
     (83, "-651 i 16", "X106510", "body_and_target",
      "Observation probably Jupiter ca. 3 degrees west of alpha Librae.",
@@ -128,10 +135,10 @@ def main() -> None:
         else:
             status = "corrected_clause_absent_or_too_broken_in_adsd"
 
-        # A correction affects the current numeric result only if it either
-        # changes the reference label or changes a statement the current parser
-        # actually emits. Manual review of the emitted-statement diff found no
-        # non-label correction in this section that meets the latter condition.
+        # A correction changes a score only if it changes the published date or
+        # a clause that the parser reads. A review by hand of the parser clauses
+        # found no such clause among these corrections. A correction of the date
+        # counts if ADsD holds it.
         current_metric_effect = status == "incorporated_reference_label"
         rows.append({
             "source_pdf_page": page,

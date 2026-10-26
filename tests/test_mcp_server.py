@@ -1,4 +1,13 @@
-"""Offline checks of the read-only MCP server in scripts/agent/mcp_server.py."""
+"""Offline tests of the read-only MCP server in scripts/agent/mcp_server.py.
+
+Each tool runs once on a short text. The tests check the list of tools, the
+fields and values of each output, and the refusal of bad input. Neither the
+outputs nor the server's code may name a field that holds a published date. The
+tools may read only the tables in data/physical/. Two tests need the mcp package
+and are skipped without it.
+
+    python3 tests/test_mcp_server.py
+"""
 from __future__ import annotations
 
 import asyncio
@@ -37,7 +46,7 @@ def keys(value) -> set[str]:
 class McpServerTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        # Every tool runs once, and every table it opens is recorded.
+        # Each tool runs once, and each table that it opens is recorded.
         cls.tables = []
         read = pd.read_parquet
 
@@ -143,7 +152,7 @@ class McpServerTest(unittest.TestCase):
             self.assertEqual(path.parent, physical, path)
 
     def test_source_names_no_answer_column(self):
-        # The same scan verify.py runs over the modules that build candidate
+        # The scan that verify.py runs over the modules that build candidate
         # sets, with comments and docstrings removed.
         source = Path(server.__file__).read_text(encoding="utf-8")
         code = "\n".join(line for line in source.splitlines()

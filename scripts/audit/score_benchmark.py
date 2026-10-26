@@ -1,29 +1,31 @@
 #!/usr/bin/env python3
-"""Run backward inference over a sample of dated tablets, and score it honestly.
+"""Date and score the benchmark of 179 dated records, for Fig. 4 and the benchmark results.
 
-The number that matters is not how often a statement agrees at the published
-year. A window wide enough to agree with everything discriminates between
-nothing, so forward agreement can be improved by making the method worse. What
-matters is whether the published year outscores the other six hundred.
+Phase 1 dates each benchmark record from its reviewed clauses and its text
+alone. Phase 2 then reads the published years and the cohorts, and scores the
+candidate sets. Among the columns of each record:
 
-Four figures are reported and they mean different things.
+    truth_in_top_evidence_group   the first group holds the published year
+    truth_evidence_group_rank     the group that holds it, from 1 at the top
+    truth_in_strict               the strict set holds it
+    truth_in_safety               the safety set holds it
+    unique                        the strict set holds it alone
+    strict_count, safety_count    the sizes of the two sets
 
-    unique           the strict set holds the published year alone
-    truth_in_strict  the strict set holds it, possibly with other years
-    truth_in_safety  the safety set holds it
-    strict_count     how many years the strict set holds, which is the
-                     tablet's own ceiling
+The size of the strict set shows how far the surviving astronomy limits the
+year of the record.
 
-A large strict set is not a failure. It is a statement about how much the
-surviving text can determine, and it is knowable in advance of any method.
+Outputs:
+    data/benchmark/benchmark_results.parquet       one row per record
+    data/benchmark/benchmark_clause_bits.parquet   one row per clause, with its bits
 
 Usage:
-    python3 backward_sample.py [--n 40] [--min-statements 3]
-    python3 backward_sample.py --weighting count  # historical baseline
+    python3 scripts/audit/score_benchmark.py [--weighting count] [--n N]
 
-The default evaluates the complete independently dated population. ``--n`` is
-an explicit, fixed-seed diagnostic subsample and must not overwrite a reported
-full-population result unless the user intentionally supplies that option.
+The default weighting, skill, is the scoring of steps 2 and 3. --weighting
+selects another, as some runs of the sensitivity audit do. With --n N, the
+script scores a random sample of N records, with a fixed seed. Both options
+write to the default outputs unless --out and --statement-out are given.
 """
 
 from __future__ import annotations
@@ -55,9 +57,9 @@ def main() -> int:
                     default=HERE / "data" / "benchmark" / "benchmark_clause_bits.parquet")
     args = ap.parse_args()
 
-    # Phase 1 is deliberately limited to identifier and surviving text. The
-    # reference date and stratification metadata are not loaded until every
-    # candidate set has been frozen below.
+    # Phase 1 reads only the identifier and the text of each record. The
+    # published years and the cohorts are read after all candidate sets are
+    # computed.
     tb = pd.read_parquet(
         HERE / "data" / "corpus" / "tablets.parquet", columns=["tablet", "text"])
     tb = tb[tb.text.notna()]
@@ -80,9 +82,8 @@ def main() -> int:
         sts = reviewed.get(r.tablet, [])
         usable = [s for s in sts
                   if not (s.kind == "eclipse" and s.omitted)]
-        # Population membership was frozen before this harnessing cycle.  Use
-        # the pre-registered extractable-fact count for the optional threshold
-        # rather than allowing a parser edit to add or remove evaluation cases.
+        # The threshold uses the parser clause counts of the fixed benchmark,
+        # so that a change to the parser cannot add or remove a record.
         frozen_n = (int(frozen_population.loc[
             r.tablet, "n_frozen_extractable_facts"])
             if r.tablet in eligible_ids else 0)
@@ -104,12 +105,9 @@ def main() -> int:
         ]
         levels = S.evidence_levels(scores)
         reported_levels = levels[:3]
-        # A reported level is normally one exact predicate equivalence class.
-        # It need not be: two candidate years can explain equally many decisive
-        # families with equal information and still disagree about which
-        # statements they satisfy. That is a real tie between two physical
-        # explanations, so it is disclosed as co-ranked subgroups rather than
-        # broken by an arbitrary rule. The count is reported, not suppressed.
+        # The years of a group usually share all their verdicts. Two years can
+        # also tie on all scores and differ in their verdicts. Such a group
+        # stays whole, and co_ranked counts these groups among the first three.
         co_ranked = sum(not level["predicate_exact"]
                         for level in reported_levels)
         top_evidence_group = levels[0]["years_astro"]
@@ -147,8 +145,8 @@ def main() -> int:
             "safety_count": len(safety),
         })
 
-    # Phase 2 evaluates already-frozen inference. Truth and cohort fields can
-    # change metrics and strata, but cannot change a candidate year or score.
+    # Phase 2 reads the published years and the cohorts, and scores the
+    # candidate sets of phase 1.
     d = pd.DataFrame(inferred)
     references = pd.read_parquet(
         HERE / "data" / "corpus" / "tablets.parquet",
@@ -192,6 +190,8 @@ def main() -> int:
         outranks = ((scores.priority > scores.priority[truth_i])
                     | ((scores.priority == scores.priority[truth_i])
                        & (scores.score > scores.score[truth_i] + 1e-12)))
+        # The rank of the published year by the clocks K, then the decisive
+        # bits I_D, alone.
         rank = int(outranks.sum()) + 1
         evaluated.append({
             "rank": rank,
@@ -212,12 +212,9 @@ def main() -> int:
         [d.reset_index(drop=True), pd.DataFrame(evaluated)], axis=1)
     d.to_parquet(args.out, index=False)
 
-    # How far each surviving clause narrows the calendar, recorded per
-    # statement rather than per tablet. This is the quantity that separates a
-    # clue which is common from one which is informative, and it is measured
-    # over the same configured candidate calendar as everything else. It carries no
-    # reference year: ``agreeing_years`` counts years the clause agrees with,
-    # not years anyone believes.
+    # One row per clause, with the numbers of agreeing and testable years and
+    # the bits u_j of Eq. 1 in the main text. These rows hold no published
+    # year.
     statement_rows = []
     for tablet, text, sts in cand:
         scores = score_cache[tablet]

@@ -1,32 +1,35 @@
 #!/usr/bin/env python3
-"""Build the Parker--Dubberstein (1956) Babylonian calendar from OCR text.
+"""Build the Babylonian calendar of the 701 candidate years from Parker and Dubberstein.
 
-The 1956 Brown University Press scan is image-only.  First run
-``scripts/physical/ocr_parker_dubberstein.py`` to OCR PDF pages 43--63.  This
-script then parses that OCR product, applies a small transparent ledger of
-visually verified OCR corrections, and writes the physical calendar.
+The calendar gives the Julian date of each Babylonian month start in step 2
+(Methods, and SI Appendix, section S3). It holds the 701 Babylonian years from
+626 BCE to AD 75, and the last year runs into Julian AD 76. Years use
+astronomical numbering, so 626 BCE is -625, 1 BCE is 0 and AD 75 is 75.
 
-All computational years use astronomical numbering:
+Inputs, which ocr_parker_dubberstein.py writes from PDF pages 43 to 63 of the
+1956 tables:
 
-    626 BCE -> -625
-    1 BCE   -> 0
-    AD 1    -> 1
-    AD 75   -> 75
+    data/source/parker_dubberstein/calendar_ocr.txt        OCR text of the tables
+    data/source/parker_dubberstein/intercalary_slots.csv   doubled month of each
+                                                           thirteen-month year
 
-The output must contain exactly 701 Babylonian years, 626 BCE through AD 75.
-The final Babylonian year extends into Julian AD 76.
+Outputs:
 
-Which month a thirteen-month year doubled is read from the printed column
-(U II or A II) into ``data/source/parker_dubberstein/intercalary_slots.csv`` by
-``ocr_parker_dubberstein.py --slots``.  Every thirteen-month year must appear in
-that ledger and no twelve-month year may.
+    data/physical/calendar.parquet                one row per month start
+    data/physical/calendar_ocr_corrections.csv    OCR corrections applied in this run
 
-Important: Parker--Dubberstein itself prints four month-start intervals of 28
-or 31 days.  Those are preserved and listed in ``PRINTED_IRREGULAR_GAPS``;
-any other interval outside 29--30 days, within a year or across a year
-boundary, stops the build.  The source is not altered merely to force all
-month lengths to 29/30 days.  Independent astronomical checking is done by
-``check_calendar_against_sky.py`` after this build step.
+ROW_OVERRIDES and SOURCE_FIXES hold the OCR corrections. Each was checked on
+the scan and restores the printed date.
+
+The script writes nothing if a check fails. Each year needs 12 or 13 month
+starts, and each thirteen-month year needs an entry in the slot file. Months
+must last 29 or 30 days. The only exceptions are four intervals of 28 or 31
+days that the table prints, listed in PRINTED_IRREGULAR_GAPS. From 380 BCE on,
+the thirteen-month years must follow the standard nineteen-year cycle.
+check_calendar_against_sky.py then compares the month starts with the new moons.
+
+Usage:
+    python3 scripts/physical/build_calendar.py [--parse-only]
 """
 
 from __future__ import annotations
@@ -50,18 +53,16 @@ DEFAULT_OUT = ROOT / "data" / "physical" / "calendar.parquet"
 DEFAULT_CORRECTIONS = ROOT / "data" / "physical" / "calendar_ocr_corrections.csv"
 DEFAULT_SLOTS = ROOT / "data" / "source" / "parker_dubberstein" / "intercalary_slots.csv"
 
-# Deliberately no word boundary before the month.  Tesseract occasionally
-# fuses the printed rollover year to a month token, e.g. ``3891/27``.  The
-# month normalizer below recovers the trailing valid month number.
+# No word boundary before the month, so a date fused to the character before
+# it still matches.  extract_dates drops a match whose month is not 1 to 12,
+# such as 891/27 from the fused cell ``3891/27``.
 DATE_RE = re.compile(r"(\d{1,3})/(\d{1,2})")
 PAGE_MARKER = re.compile(r"^===== PDF PAGE (\d+) =====$")
 PRE_HEAD = re.compile(r"^[*.,\s]*(Ac|\d{1,3})\s+(\d{3})\b")
-SE_HEAD = re.compile(r"^[*.,\s]*(\d{1,3})\b")
 
-# A very small number of rows are especially unstable across Tesseract builds.
-# For these rows we transcribe the complete printed row directly from the 1956
-# scan rather than trying to repair one token at a time.  This is still an OCR
-# correction, not an astronomical reconstruction.
+# Rows that Tesseract reads differently from one version to the next.  Each
+# entry holds the complete row as printed in the 1956 scan, and it replaces
+# the OCR reading of that row.
 ROW_OVERRIDES = {
     yr.bce_to_astro(308): {
         "page": 53,
@@ -89,10 +90,10 @@ ROW_OVERRIDES = {
     },
 }
 
-# Visually checked against the 1956 scan.  These are OCR corrections only;
-# they do not alter the printed Parker--Dubberstein dates.
-# Keys are Babylonian years in astronomical numbering.  A year in
-# ROW_OVERRIDES is replaced whole and never reaches this table.
+# Single OCR errors, each checked against the 1956 scan.  Each correction
+# restores the printed date.  Keys are Babylonian years in astronomical
+# numbering.  A year in ROW_OVERRIDES is replaced whole and does not use
+# this table.
 SOURCE_FIXES = {
     yr.bce_to_astro(479): {
         "page": 47,
@@ -178,10 +179,10 @@ SOURCE_FIXES = {
     },
 }
 
-# The only month-start intervals outside 29--30 days that the 1956 table
-# prints, each checked on the scan.  Keyed by Babylonian year and the index of
-# the month the interval ends at; index 1 is the interval from the last month
-# start of the year before.
+# The four intervals between month starts that the 1956 table prints with 28
+# or 31 days, each checked on the scan.  The key is the Babylonian year and
+# the index of the month at which the interval ends.  Index 1 is the interval
+# from the last month start of the year before.
 PRINTED_IRREGULAR_GAPS = {
     (yr.bce_to_astro(600), 8): 28.0,  # 9/12 -> 10/10, p. 43
     (yr.bce_to_astro(530), 1): 31.0,  # 531 BCE 2/23 -> 530 BCE 3/26, p. 45
@@ -189,11 +190,11 @@ PRINTED_IRREGULAR_GAPS = {
     (yr.bce_to_astro(314), 5): 31.0,  # 7/3 -> 8/3, p. 52
 }
 
-# Standard nineteen-year cycle.  From 380 BCE onward the table must follow it
-# in which years have thirteen months.  Its placement of the doubled month
-# (second Ululu when the BCE year is 9 mod 19, otherwise second Addaru) is only
-# a cross-check on the printed column: it matches every printed row from
-# 380 BCE on but not all of the earlier ones.
+# The standard nineteen-year cycle.  From 380 BCE on, the table must give
+# thirteen months in the years of the cycle.  The cycle doubles Ululu when the
+# BCE year is 9 mod 19, and Addaru in the other years.  The calendar takes the
+# doubled month from the print, and the cycle rule is only a cross-check.  It
+# agrees with each printed row from 380 BCE on, and with some earlier rows.
 CYCLE = 19
 STANDARD_BCE_RESIDUES = {1, 4, 7, 9, 12, 15, 18}
 STANDARD_ASTRO_RESIDUES = {(1 - value) % CYCLE for value in STANDARD_BCE_RESIDUES}
@@ -202,23 +203,25 @@ REGULAR_CYCLE_START_ASTRO = yr.bce_to_astro(380)
 
 
 def tidy(line: str) -> str:
-    """Repair mechanical OCR spacing in row heads without guessing dates."""
+    """Repair the spacing of an OCR row head.  The dates stay as read."""
     line = line.strip()
-    # OCR can prefix table rows with rules/bars/braces.
+    # Table rules, bars or braces that OCR reads before a row.
     line = re.sub(r"^[^A-Za-z0-9]+", "", line)
 
-    # A stray OCR letter can precede a numeric table row, e.g. ``i 141 171``.
+    # A stray letter before a numeric row, as in ``i 141 171``.
     line = re.sub(r"^[A-Za-z]\s+(?=\d)", "", line)
 
-    # Examples: ``3.314`` -> ``3 314`` and ``42, 363`` -> ``42 363``.
+    # A point or comma between the regnal year and the BCE year, as in
+    # ``3.314`` or ``42, 363``.
     line = re.sub(r"^(\d{1,3})[.,]\s*(\d{3})(?=\s)", r"\1 \2", line)
 
-    # Sometimes the three-digit BCE year is fused directly to Nisanu,
-    # e.g. ``7 3524/6`` -> ``7 352 4/6``.
+    # The BCE year fused to the Nisanu date, as in ``7 3524/6`` for
+    # ``7 352 4/6``.
     line = re.sub(r"^(\d{1,3})\s+(\d{3})(?=\d{1,2}/)", r"\1 \2 ", line)
 
-    # Tesseract occasionally fuses a one/two-digit regnal year and the
-    # three-digit BCE year: ``4526`` -> ``4 526``, ``7515`` -> ``7 515``.
+    # The regnal year fused to the BCE year, as in ``4526`` for ``4 526``.
+    # The split applies only to a BCE year from 311 to 626 and a regnal year
+    # up to 100.
     fused = re.match(r"^(\d{4,6})\s+(?=\d{1,3}/)", line)
     if fused:
         blob = fused.group(1)
@@ -231,15 +234,15 @@ def tidy(line: str) -> str:
 
 
 def extract_dates(line: str) -> list[tuple[int, int]]:
-    """Extract plausible Julian month/day cells from one OCR row."""
+    """Return the Julian month and day cells of one OCR row."""
     dates: list[tuple[int, int]] = []
     for month_text, day_text in DATE_RE.findall(line):
         month = int(month_text)
         day = int(day_text)
 
-        # Do not reinterpret an impossible month such as ``44/7`` as
-        # ``4/7``.  Such tokens are usually OCR damage to the printed
-        # Julian rollover year (for example 441), not calendar dates.
+        # A token with an impossible month, such as ``44/7``, is dropped.
+        # It usually comes from a damaged Julian rollover year, such as 441,
+        # and reading it as ``4/7`` would add a date that the table lacks.
         if 1 <= month <= 12 and 1 <= day <= 31:
             dates.append((month, day))
 
@@ -250,10 +253,10 @@ def apply_source_fix(
     year_astro: int,
     dates: list[tuple[int, int]],
 ) -> tuple[list[tuple[int, int]], dict | None]:
-    """Apply a visually verified correction when that OCR defect is present.
+    """Apply the correction in SOURCE_FIXES for this year, if the OCR error is present.
 
-    Returns the dates and a ledger record, or no record when the reading
-    already had the printed value and nothing changed.
+    Return the dates and a ledger record.  The record is None if the OCR
+    already read the printed value.
     """
     fix = SOURCE_FIXES.get(int(year_astro))
     if fix is None:
@@ -264,8 +267,8 @@ def apply_source_fix(
     target = tuple(fix["date"]) if "date" in fix else None
     targets = [tuple(x) for x in fix.get("dates", [])]
 
-    # If a different Tesseract version already read the correction correctly,
-    # do nothing.  An insertion would otherwise duplicate a date already read.
+    # Another Tesseract version may read the date correctly.  The fix then
+    # does nothing, so that an insertion cannot add the date a second time.
     if target is not None and target in dates and fix["action"] != "replace_last":
         return dates, None
     if targets and all(t in dates for t in targets):
@@ -307,7 +310,7 @@ def apply_source_fix(
 
 
 def heading(line: str) -> str | None:
-    """Return a ruler/era heading from the table, if this line is one."""
+    """Return the ruler or era heading of the table if the line is one, or else None."""
     s = " ".join(line.strip().split())
     if not s or "/" in s or any(ch.isdigit() for ch in s):
         return None
@@ -323,12 +326,11 @@ def heading(line: str) -> str | None:
 
 
 def parse_se_year(line: str, expected_se: int | None = None) -> int | None:
-    """Recover the Seleucid-era year from an OCR row head robustly.
+    """Return the Seleucid Era (SE) year of an OCR row head.
 
-    Some scans turn the left table rule into a stray leading ``1``.  Rather
-    than trusting the first integer, inspect the numeric prefix before the
-    first month/day token and look for a pair satisfying the printed
-    Seleucid/BCE or Seleucid/AD relation.
+    Some scans read the left table rule as a stray leading ``1``, so the
+    first number can be wrong.  The function searches the numbers before the
+    first date for a pair with SE + BCE = 312 or SE - AD = 311.
     """
     date_match = DATE_RE.search(line)
     prefix = line[:date_match.start()] if date_match else line
@@ -336,21 +338,22 @@ def parse_se_year(line: str, expected_se: int | None = None) -> int | None:
     if not nums:
         return None
 
-    # The Seleucid table is sequential.  When the expected SE year is
-    # explicitly present in the OCR prefix, prefer it over a corrupted civil
-    # year in the second column (e.g. printed ``309 3`` OCRed as ``309 93``).
+    # The Seleucid rows run in order.  If the expected SE year is among the
+    # numbers, take it, even when OCR damaged the civil year, as in ``309 93``
+    # for the printed ``309 3``.
     if expected_se is not None and expected_se in nums:
         return expected_se
 
-    # Best case: an adjacent printed pair is internally consistent.
+    # Two adjacent numbers that fit the SE relation.
     for a, b in zip(nums, nums[1:]):
         if 1 <= a <= 311 and 1 <= b <= 311 and a + b == 312:
             return a
         if 312 <= a <= 386 and 1 <= b <= 75 and a - b == 311:
             return a
 
-    # With a normal two-column head, use the printed civil year to repair a
-    # damaged SE number (e.g. SE 10 OCRed as 40 while BCE 302 is intact).
+    # With two or more numbers, derive the SE year from the civil year in the
+    # second column.  This repairs a damaged SE number, such as SE 10 read as
+    # 40 beside an intact 302 BCE.
     if len(nums) >= 2:
         first, second = nums[0], nums[1]
         derived = []
@@ -366,14 +369,18 @@ def parse_se_year(line: str, expected_se: int | None = None) -> int | None:
                 return first
             return min(derived, key=lambda x: abs(x - first))
 
-    # Fused civil-year/Nisanu cells leave only the SE number before the first
-    # slash (e.g. ``305 74/2`` or ``313 24/3``).
+    # If the civil year is fused to the Nisanu date, only the SE number comes
+    # before the first date, as in ``305 74/2`` or ``313 24/3``.
     first = nums[0]
     return first if 1 <= first <= 386 else None
 
 
 def parse_rows(text: str) -> tuple[list[dict], list[dict]]:
-    """Parse all 701 calendar rows from the OCR product."""
+    """Parse the calendar rows from the OCR text.
+
+    Return the rows, with the OCR corrections applied, and the ledger of
+    the corrections.
+    """
     rows: list[dict] = []
     corrections: list[dict] = []
     current_page: int | None = None
@@ -423,7 +430,7 @@ def parse_rows(text: str) -> tuple[list[dict], list[dict]]:
         override = ROW_OVERRIDES.get(int(bab_year_astro))
         if override is not None:
             printed = [tuple(x) for x in override["dates"]]
-            # Logged only when this OCR run actually misread the row.
+            # The ledger records an override only if this OCR run misread the row.
             if printed != dates:
                 corrections.append({
                     "bab_year_astro": int(bab_year_astro),
@@ -453,7 +460,7 @@ def parse_rows(text: str) -> tuple[list[dict], list[dict]]:
 
 
 def to_jd(year: int, month: int, day: int) -> float:
-    """Proleptic Julian date -> JD; year uses astronomical numbering."""
+    """Return the Julian day of a proleptic Julian date, with an astronomical year."""
     a = (14 - month) // 12
     yy = year + 4800 - a
     mm = month + 12 * a - 3
@@ -516,7 +523,11 @@ def intercalary_slot(bab_year_astro: int, n_months: int,
 
 
 def validate_rows(rows: list[dict]) -> bool:
-    """Hard structural checks on the OCR transcription."""
+    """Check the parsed rows, and return False if any check fails.
+
+    The checks cover missing, extra and repeated years, the number of months
+    in each year, the length of each month and the nineteen-year cycle.
+    """
     ok = True
     by_year = {int(row["bab_year_astro"]): row for row in rows}
     expected = set(int(y) for y in yr.candidate_years())
@@ -615,7 +626,11 @@ def validate_rows(rows: list[dict]) -> bool:
 
 
 def validate_slots(rows: list[dict], slots: dict[int, str]) -> bool:
-    """The slot ledger must cover exactly the thirteen-month years."""
+    """Check that the slot file lists the thirteen-month years and no others.
+
+    Also print the years where the printed doubled month differs from the
+    cycle rule.
+    """
     ok = True
     thirteen = {int(r["bab_year_astro"]) for r in rows if len(r["dates"]) == 13}
     missing = sorted(thirteen - set(slots))
@@ -689,8 +704,7 @@ def main() -> int:
     ]
     df = df.sort_values(["bab_year_astro", "month_index"]).reset_index(drop=True)
 
-    # Final diagnostics before writing.
-    counts = df.groupby("bab_year_astro").n_months.first()
+    counts =df.groupby("bab_year_astro").n_months.first()
     span = df.groupby("bab_year_astro").julian_year_astro.nunique()
     n_years = int(df.bab_year_astro.nunique())
     n_intercalary = int(counts.eq(13).sum())

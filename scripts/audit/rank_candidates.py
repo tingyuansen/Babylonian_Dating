@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-"""Write every candidate year of each benchmark record, with its scores and rank.
+"""Write all 701 candidate years of each benchmark record, with their scores and rank.
 
-Phase 1 scores all 701 candidate years of each record before any published
-year is loaded. Phase 2 then attaches the published year, so that Fig. 4 and
-the paper can say how far down the ranking the published year lies. The output
-is data/benchmark/ranking_candidates.parquet.
+Phase 1 scores the candidate years of each record from its reviewed clauses,
+before any published year is read. Phase 2 then adds the published year. Fig.
+4a uses the output to find how far down the ranking the published year lies.
+
+Output:
+    data/benchmark/ranking_candidates.parquet   one row per record and candidate year
 
 Usage:
-    python3 scripts/audit/rank_candidates.py
+    python3 scripts/audit/rank_candidates.py [--out PATH]
 """
 
 from __future__ import annotations
@@ -27,10 +29,8 @@ from tools import cal, clauses, statements as S  # noqa: E402
 from tools import years as yr  # noqa: E402
 
 
-# A score level is ordered only by scientific fields. The final chronological
-# order used for display is deliberately absent.  We also retain a hash of the
-# full per-statement outcome vector so that an apparent score tie can be
-# audited as genuine predicate equivalence rather than assumed to be one.
+# The entries of the ranking r(y) of Eq. 5 in the main text, in order. Years
+# that tie on all of them form one group. The year itself is not a key.
 EVIDENCE_KEY_COLUMNS = [
     "tier", "decisive_families", "primary_bits", "support_bits",
     "contradict",
@@ -38,7 +38,7 @@ EVIDENCE_KEY_COLUMNS = [
 
 
 def infer_candidates() -> pd.DataFrame:
-    """Build the candidate matrix while catalogue dates remain unloaded."""
+    """Score all candidate years of each benchmark record, before any published year is read."""
     texts = pd.read_parquet(
         HERE / "data" / "corpus" / "tablets.parquet", columns=["tablet", "text"])
     frozen = pd.read_parquet(
@@ -62,13 +62,16 @@ def infer_candidates() -> pd.DataFrame:
             continue
         scores = S.candidate_scores(
             statements, S.months_in(tablet.text), years, weighting="skill")
-        # Keep supporting-only tablets.  Their primary score is deliberately
-        # flat, but the already licensed supporting predicates still define a
-        # truth-blind secondary order.  They are evaluated as a separate
-        # expansion cohort and are never relabeled decisive from their result.
+        # Supporting-only records stay. Their I_D is zero in all years, and
+        # their I_S still orders the years. The benchmark scores them as a
+        # separate group.
         active = int((scores.decisive & (scores.weights > 0)).sum())
         order_position = np.empty(len(years), dtype=int)
         order_position[scores.order] = np.arange(1, len(years) + 1)
+        # The column tier is 0 in the strict set, 1 in the rest of the safety
+        # set and 2 elsewhere. It is t(y) of Eq. 5, counted the other way. The
+        # columns decisive_families, primary_bits and support_bits hold K, I_D
+        # and I_S.
         tier = np.where(scores.strict, 0, np.where(scores.safety, 1, 2))
         for i, year in enumerate(years):
             rows.append({
@@ -89,10 +92,9 @@ def infer_candidates() -> pd.DataFrame:
                 "agree": int(scores.agree[i]),
                 "contradict": int(scores.contradict[i]),
                 "untestable": int(scores.untestable[i]),
-                # This hashes the full per-statement agree/contradict/untestable
-                # vector. Equal hashes mean that the implemented astronomy
-                # literally cannot distinguish the two candidates, not merely
-                # that two aggregate scores happen to tie.
+                # A hash of the verdicts of all clauses in this year. Two years
+                # with equal hashes have the same verdicts, so no score can
+                # separate them.
                 "verdict_signature_sha256": hashlib.sha256(
                     scores.outcomes[i].tobytes()).hexdigest(),
             })
@@ -100,7 +102,7 @@ def infer_candidates() -> pd.DataFrame:
 
 
 def add_reference(candidates: pd.DataFrame) -> pd.DataFrame:
-    """Attach evaluation labels only after every candidate score is frozen."""
+    """Add the published year of each record, after all candidate years are scored."""
     reference = pd.read_parquet(
         HERE / "data" / "corpus" / "tablets.parquet",
         columns=["tablet", "bce_first"])
@@ -113,7 +115,7 @@ def add_reference(candidates: pd.DataFrame) -> pd.DataFrame:
 
 
 def evidence_levels(group: pd.DataFrame) -> pd.DataFrame:
-    """Attach dense scientific score levels without a year-based tie-break."""
+    """Number the groups of tied years of one record, from 1 at the top of the ranking."""
     keys = group[EVIDENCE_KEY_COLUMNS].drop_duplicates().sort_values(
         EVIDENCE_KEY_COLUMNS,
         ascending=[True, False, False, False, True],

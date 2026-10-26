@@ -1,35 +1,32 @@
 #!/usr/bin/env python3
 """Join the ADsD catalogue to the fetched text, one record per tablet.
 
-This is the only corpus builder. It reads nothing outside this directory, so
-the whole dataset can be rebuilt from `fetch_adsd.py` and `fetch_texts.py`
-without reference to any earlier project.
+This script builds the corpus of 417 dated diary records of ADART I to III
+(Methods, Corpus, and SI Appendix, section S1). It reads only the files that
+fetch_adsd.py and fetch_texts.py write to data/source/adsd/. ADsD also holds
+the other genres of ADART V and VI, which the paper does not use.
 
-Only the diaries of ADART I to III enter. ADsD also holds the other genres of
-ADART V and VI, which the paper does not use.
+The published year comes from the catalogue field `date_bce`, written as
+`262/1`. This is one Babylonian year, which spans two Julian years.
+The table keeps both years, as bce_first and bce_second. The benchmark scores
+bce_first, the Julian year in which the Babylonian year begins.
 
-Ground truth comes from the catalogue's `date_bce`, written as `262/1`, which is
-the Babylonian year across the two Julian years it spans. Both are kept, since
-which one a method should be scored against is a choice the evaluation has to
-make explicitly rather than inherit.
+Outputs:
 
-Output is two parquet tables in `data/`.
+    data/corpus/tablets.parquet   one row per tablet, with the catalogue fields
+    data/corpus/lines.parquet     one row per line, with transliteration and translation
 
-    tablets.parquet   one row per tablet, everything a stratification needs
-    lines.parquet     one row per line, with transliteration and translation
-
-Record fields:
+Fields of tablets.parquet:
 
     tablet, project, designation, bce_first, bce_second, ancient_year,
-    museum_no, months_recorded, period, provenience, lon, lat,
-    n_lines, lines[{label, translit, translation}], text
+    museum_no, months_recorded, text_comments, copy, photo, accession_no,
+    period, provenience, lon, lat, n_lines, text
 
-The volume-span check at the end must pass. It compares the dates recovered here
-against the spans printed on the published editions and exits non-zero if they
-disagree.
+At the end, the script compares the range of dates in each volume with the
+range that the edition prints. It exits with status 1 if they differ.
 
 Usage:
-    python3 build_corpus.py
+    python3 scripts/source/build_corpus.py
 """
 
 from __future__ import annotations
@@ -48,15 +45,13 @@ PUBLISHED_SPAN = {"adsd/adart1": (652, 262),
 
 
 def load_catalogue(raw: Path) -> dict[str, dict]:
-    """Catalogue entries, with each tablet assigned to its true volume.
+    """Return the catalogue entries, each with the ADART volume that holds it.
 
-    The per-volume catalogues overlap, since each sub-project lists the whole
-    diary corpus. Taking the project field from whichever file is read first
-    puts every tablet in ADART I. The master corpus.json carries a proxies map
-    from tablet to owning sub-project and that is the authority, but it does
-    not cover every tablet. For the rest the identifier settles it: the digit
-    after the X is the volume number, which holds for every tablet the proxies
-    map does cover.
+    The catalogues of the volumes overlap, because each lists the whole diary
+    corpus. The project field of the first file read would put every tablet in
+    ADART I. The proxies map in the master corpus.json gives the volume of most
+    tablets. For the others, the digit after the X of the identifier gives the
+    volume. This rule agrees with the proxies map for each tablet in the map.
     """
     owner: dict[str, str] = {}
     master = raw / "adsd.zip"
@@ -83,12 +78,12 @@ def load_catalogue(raw: Path) -> dict[str, dict]:
 
 def split_date(date_bce: str, designation: str = "") -> tuple[
         int | None, int | None]:
-    """Parse the catalogue's date field into first and last BCE year.
+    """Parse the catalogue date field into the first and the last year BCE.
 
-    Almost every entry is a single Babylonian year written across the two Julian
-    years it spans, with the second abbreviated: `262/1` is 262/261 and `310/09`
-    is 310/309. One tablet is a multi-year excerpt written `303-301`, which is a
-    range rather than a span, so both ends are taken as given.
+    Almost all entries give one Babylonian year as the two Julian years that
+    it spans, with the second year shortened. For example, `262/1` is
+    262/261 and `310/09` is 310/309. One tablet is an excerpt of several years,
+    written `303-301`, and the function returns both ends as written.
     """
     d = (date_bce or "").strip()
     m = re.match(r"^(\d+)-(\d+)$", d)
@@ -102,9 +97,8 @@ def split_date(date_bce: str, designation: str = "") -> tuple[
     if str(first - 1).endswith(suffix):
         return first, first - 1
 
-    # Two catalogue rows have transposed/malformed abbreviated spans. Their
-    # designations preserve the astronomical negative year: -73 means
-    # astronomical year -73, or the Babylonian year 74/73 BCE.
+    # Two catalogue rows have a malformed short form. Their designations give
+    # the year in astronomical numbering, so -73 is the Babylonian year 74/73 BCE.
     negative = re.search(r"(?:^|\s)-(\d+)", designation or "")
     if negative:
         astronomical = int(negative.group(1))
@@ -148,9 +142,8 @@ def main() -> int:
             "ancient_year": c.get("ancient_year", ""),
             "museum_no": c.get("museum_no", ""),
             "months_recorded": c.get("months_recorded", ""),
-            # The editors' own notes. Some identify an eclipse with a date, or
-            # flag an error in the tablet, which is the closest thing we have to
-            # a record of how a date was reached.
+            # The notes of the editors. Some name an eclipse and its date, or
+            # note an error on the tablet.
             "text_comments": c.get("text_comments", ""),
             "copy": c.get("copy", ""),
             "photo": c.get("photo", ""),
@@ -163,12 +156,9 @@ def main() -> int:
             "text": t.get("text", ""),
         })
 
-    # Two tables rather than nested JSON. One row per tablet for everything a
-    # selection or a stratification needs, one row per line for the text. Both
-    # are parquet, so they load in a second and carry their own schema.
     import pandas as pd
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    # The years stay floating point, so that a missing date is NaN.
+    # The years are floats, so that a missing date can be NaN.
     pd.DataFrame([{k: v for k, v in r.items() if k != "lines"} for r in rows]) \
         .astype({"bce_first": "float64", "bce_second": "float64"}) \
         .to_parquet(args.out.parent / "tablets.parquet", index=False)

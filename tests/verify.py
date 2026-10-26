@@ -1,28 +1,33 @@
 #!/usr/bin/env python3
-"""Prove that this directory works, and that its results follow from its data.
+"""Check that the repository is complete and that its results follow from its data.
 
-Run this first, before reading anything else and before changing anything. It
-checks the environment and the data, runs each tool's own self-check, and dates
-a tablet whose answer is known. Then it audits the tree.
+It checks the Python packages and the data tables, and runs the self-check of
+each astronomical tool. It tests the parser on short texts and dates record
+X301492 (Fig. 3), whose year is known. Then it checks the whole tree:
 
-- Every SHA-256 that a result records must match the file it names.
-- Every summary must follow from the rows it summarises, and every saved table
-  from the script that writes it.
+- Each SHA-256 that a result records matches the file it names.
+- Each summary follows from the rows it summarizes, and each table that a fast
+  script writes is the same when that script writes it again.
 - The benchmark, the public results, the ranked candidates, the sensitivity
-  baseline and the held-out test must be one run, record by record.
-- The repository holds only what README.md, the Makefile and data/columns.csv
-  describe.
+  baseline and the held-out test come from one run, record by record.
+- The repository holds only what the READMEs, the Makefile and
+  data/columns.csv describe, and each folder README names each file in its
+  folder.
 
-It does not run the tests. ``make check`` runs them, then this file. The book
-scans and the full text read from ADART IV are not distributed.
-data/source/not_distributed.csv names where a reader puts each file, and records
-its SHA-256. A file that is there is checked against that value. When it is
-absent, the checks use the recorded value, and say so.
+Run it from the repository root. ``make check`` runs the tests in tests/ and
+then this file:
 
     python3 tests/verify.py
 
-Exit code 0 means the directory is sound.
-Anything else means stop and read the failure before working.
+Each check prints one line, "ok" or "FAIL". Exit code 0 means that all checks
+pass. If a check in the first sections fails, such as a missing package or data
+table, the run stops there. Any later FAIL means that a committed result, or the
+content of the tree, does not match the code and data.
+
+The book scans, and the files that hold text read from ADART IV, are not
+distributed. data/source/not_distributed.csv records the SHA-256 of each. A
+file that is present is checked against that value, and an absent file is
+replaced by that value, with a printed note.
 """
 
 from __future__ import annotations
@@ -48,9 +53,9 @@ sys.path.insert(0, str(HERE))
 REQUIRED = ["numpy", "pandas", "scipy", "pyarrow", "swisseph", "requests",
             "matplotlib"]
 OPTIONAL = {"jplephem": "only needed to rebuild the ephemeris from a kernel"}
-# Row counts are kept only where they are a fixed property of the sources or
-# of the design. Every other table is checked below against the code that
-# writes it or the rows it summarises.
+# Row counts are fixed here only where the sources or the design fix them.
+# The other tables are checked below against the code that writes them or the
+# rows that they summarize.
 DATA = {
     "corpus/tablets.parquet": 417,
     "corpus/lines.parquet": None,
@@ -76,9 +81,11 @@ DATA = {
     "benchmark/adart_iv_corrigenda.parquet": None,
 }
 
-# The benchmark was frozen before any candidate set met a published date. Its
-# membership is pinned here, so no rebuild can move a record in or out. The
-# value is the SHA-256 of the sorted record identifiers, one per line.
+# The benchmark was fixed before any candidate set was compared with a
+# published date. These values pin its membership, so no rebuild can move a
+# record in or out. Each is the SHA-256 of sorted record identifiers, one per
+# line. The first covers the 179 benchmark records, and the second the 112 of
+# them that had a decisive clause when the benchmark was fixed.
 FROZEN_ELIGIBLE_IDS_SHA256 = (
     "d2914bbc371a2faabc30a7a03320b8f112739161cbbc0a38c0ea63b2b4e04fae")
 FROZEN_YEAR_BEARING_IDS_SHA256 = (
@@ -90,8 +97,10 @@ TOP_LEVEL = {"README.md", "LICENSE", "CITATION.cff", "Makefile", "requirements.t
              "tests", "tools"}
 TRANSIENT_DIRS = {"tmp", "output", ".pytest_cache", ".mypy_cache",
                   ".ruff_cache", ".ipynb_checkpoints", ".cache"}
+# The folders that have a README, which names each file in the folder.
+FOLDERS = ("data", "docs", "scripts", "skills", "tests", "tools")
 # Markdown files besides the README at the root.
-DOCUMENTS = {"skills/dating_protocol.md"}
+DOCUMENTS = {f"{folder}/README.md" for folder in FOLDERS} | {"skills/dating_protocol.md"}
 FILE_TOKEN = re.compile(
     r"[\w./+-]+\.(?:py|parquet|jsonl?|csv|md|tex|pdf|png|jpg|ttf|txt|zip|bib"
     r"|mmd|sty|cls|bst|ldf)")
@@ -114,9 +123,9 @@ def ok(label: str, good: bool, detail: str = "") -> bool:
 def not_distributed() -> dict[str, str]:
     """The files the public tree leaves out, with their recorded SHA-256.
 
-    These are the book scans and the full text read from ADART IV. Each is a
-    row of data/source/not_distributed.csv, which names the file by its path
-    from the root and gives its SHA-256.
+    These are the book scans, and the files that hold text read from ADART IV.
+    Each is a row of data/source/not_distributed.csv, which names the file by
+    its path from the root and gives its SHA-256.
     """
     table = HERE / "data" / "source" / "not_distributed.csv"
     if not table.exists():
@@ -133,8 +142,8 @@ def digest(rel: str) -> str:
     """SHA-256 of a file in the tree, by its path from the root.
 
     A file that is not distributed gives the value that
-    data/source/not_distributed.csv records for it, so every hash recorded elsewhere is
-    still checked against one fixed value. Any other missing file gives
+    data/source/not_distributed.csv records for it. Hashes recorded elsewhere
+    are then checked against this one value. Any other missing file gives
     "missing", which matches no recorded hash.
     """
     if rel not in _digests:
@@ -255,7 +264,13 @@ def tree() -> tuple[list[str], list[str]]:
 
 
 def zodiac_guard_violations() -> list[str]:
-    """Return source files that bypass or refit the published zodiac model."""
+    """The source files that bypass or refit the zodiac relation of Britton (Eq. 8).
+
+    A hit is a file that names another zodiac offset or a zodiac fitted to the
+    diaries. A file that takes a sign directly from a longitude of date is also
+    a hit. tools/sky.py must keep the functions and the two constants of the
+    relation.
+    """
     forbidden = [
         "ARIES" + "0",
         "aries" + "0",
@@ -351,7 +366,7 @@ def audit(t0: float, scratch: Path) -> int:
     import pandas as pd
 
     # Tables that a script writes in a few seconds are written again into a
-    # scratch directory while the other checks run, and compared at the end.
+    # scratch directory while the other checks run. They are compared at the end.
     # Each job lists the files it writes, and {0}, {1}, ... in its command
     # stand for their places in the scratch directory.
     rebuilds = [
@@ -428,9 +443,10 @@ def audit(t0: float, scratch: Path) -> int:
     ok("tools/eclipses.py self-check", eclipses.check())
 
     head("the calendar against the Moon")
-    # A Babylonian month begins at first crescent, so every tabulated month
-    # start should sit a short fixed distance after a computed conjunction.
-    # The book and the JPL kernel know nothing about each other.
+    # A Babylonian month begins at first crescent, so each calendar month
+    # start should fall a day or two after a computed new moon. The
+    # calendar comes from the printed tables of Parker and Dubberstein, and the
+    # new moons come from JPL DE441. The two sources are independent.
     import numpy as np
     sys.path.insert(0, str(HERE / "scripts"))
     from scripts.physical.check_calendar_against_sky import conjunctions, to_jd
@@ -457,8 +473,11 @@ def audit(t0: float, scratch: Path) -> int:
     tb = pd.read_parquet(HERE / "data" / "corpus" / "tablets.parquet")
     r = tb[tb.tablet == "X301492"].iloc[0]
 
-    # Month I after Month XII belongs to the next Babylonian year, and a day
-    # heading from the old month must not leak across that boundary.
+    # Short texts that test the rules of the parser for headings,
+    # restorations and clause types (SI Appendix, section S2), and some
+    # verdicts. The first test puts Month I after Month XII in the next
+    # Babylonian year. A day heading of the old month must not carry across
+    # that boundary.
     context_text = ("Month XII, The 5th, Jupiter was in Pisces. "
                     "Month I, Mars was in Aries.")
     pos = context_text.index("Mars")
@@ -715,7 +734,7 @@ def audit(t0: float, scratch: Path) -> int:
             }) == list(row.top_three_evidence_groups_years_astro)
         ), axis=1)
     frozen_records = pd.read_parquet(HERE / "data" / "benchmark" / "benchmark_records.parquet")
-    # The benchmark records with decisive clauses: their result keeps at least one.
+    # The benchmark records whose current result keeps a decisive clause.
     active_ids = (set(frozen_records.loc[frozen_records.tool_benchmark_eligible, "tablet"])
                   & set(dated.loc[dated.n_decisive_statements.fillna(0).gt(0), "tablet"]))
     active_public = dated[dated.tablet.isin(active_ids)]
@@ -783,8 +802,10 @@ def audit(t0: float, scratch: Path) -> int:
         columns=["tablet", "bce_first", "bce_second"])
     audited = committed.merge(references, on="tablet")
     audited = audited[audited.bce_first.notna()]
-    # "150/149" is the one Babylonian year beginning in 150 BCE; bce_second
-    # is the Julian year it ends in, so the years run to -bce_second.
+    # A catalogue date such as "150/149" names the Babylonian year that begins
+    # in 150 BCE and ends in 149 BCE. In astronomical numbering, the year that
+    # ends in bce_second BCE is -bce_second. A commitment may fall in any year
+    # from the one that begins in bce_first to that one.
     commitment_agrees = audited.apply(
         lambda row: yr.bce_to_astro(int(row.bce_first))
         <= int(row.strict_years_astro[0])
@@ -800,8 +821,8 @@ def audit(t0: float, scratch: Path) -> int:
        and facts.source_translation.fillna("").str.len().gt(0).all()
        and facts.parser_rule.fillna("").str.len().gt(0).all()
        and facts.rule_origin.ne("unclassified_rule_origin").all())
-    # Numerical outcomes changed with the new predicate. Validate against
-    # freshly reconstructed source-grounded clauses, not the old totals.
+    # The verdict of each parser clause at its published year is computed
+    # again from the text, and must match the stored verdict.
     text_records = pd.read_parquet(HERE / "data/corpus/tablets.parquet",
                                   columns=["tablet", "text", "bce_first"])
     forward_current = {}
@@ -857,9 +878,9 @@ def audit(t0: float, scratch: Path) -> int:
        and backward.top_three_evidence_groups_size.between(1, len(years)).all())
     ranking_candidates = pd.read_parquet(
         HERE / "data" / "benchmark" / "ranking_candidates.parquet")
-    # Check each reported subgroup against the full-verdict signature of the
-    # ranked candidates. A co-ranked level may hold more than one subgroup and
-    # must not be rejected just for being co-ranked.
+    # A verdict signature is the hash of a year's verdicts on all clauses. The
+    # years of one reported subgroup must share one signature, and different
+    # subgroups must differ. A group of tied years may hold several subgroups.
     signatures_by_tablet = {
         tablet: group.set_index("candidate_year_astro").verdict_signature_sha256.to_dict()
         for tablet, group in ranking_candidates.groupby("tablet", sort=False)}
@@ -879,9 +900,10 @@ def audit(t0: float, scratch: Path) -> int:
        public_subgroups_match)
 
     head("provenance")
-    # Every SHA-256 that a result records, with the file it names. The frozen
-    # population's generator hash is old on purpose. Its membership is pinned
-    # above instead, and it is not listed here.
+    # Each SHA-256 that a result records, with the file it names. The
+    # benchmark file records the hash of the script that fixed it, at that
+    # time. That script has changed since, and its hash is left out here. The
+    # two hashes of record identifiers above pin the membership instead.
     tool_hashes = {
         "date_all_sha256": "scripts/inference/date_all.py",
         "statements_sha256": "tools/statements.py",
@@ -943,9 +965,10 @@ def audit(t0: float, scratch: Path) -> int:
                   "data/benchmark/adart_iv_corrigenda.parquet"),
                  ("adart_iv_corrigenda_summary.json", corrigenda["source_pdf_sha256"],
                   adart_iv_pdf)]
-    # The Mathpix manifest is the record of the job, with the paths of its
-    # day. Of what it hashes, the tree keeps the line reading, and a reader
-    # can supply the scan. The MMD exports and the searchable copy are not kept.
+    # The Mathpix manifest records the OCR job, with the file paths of that
+    # time. Of the files that it hashes, the scan and the line reading are
+    # checked here. Neither is distributed (data/source/not_distributed.csv),
+    # and the MMD exports are not kept.
     recorded += [("mathpix_manifest.json", mathpix["outputs"]["lines.json"]["sha256"],
                   ocr_lines),
                  ("mathpix_manifest.json", mathpix["source_sha256"], adart_iv_pdf)]
@@ -966,9 +989,9 @@ def audit(t0: float, scratch: Path) -> int:
 
     head("one run, record by record")
     # The benchmark, the public results, the ranked candidates, the
-    # sensitivity audit and the per-clause bits come from separate scripts. They must
-    # agree on every record. Each field that reads the published year is
-    # scored again here, from the sets and the catalogue.
+    # sensitivity audit and the bits of each clause come from separate scripts.
+    # They must agree record by record. Each field that uses the published
+    # year is scored again here, from the candidate sets and the catalogue.
     from scripts.audit import audit_sensitivity, rank_candidates
     catalogue = pd.read_parquet(
         HERE / "data" / "corpus" / "tablets.parquet",
@@ -1038,9 +1061,10 @@ def audit(t0: float, scratch: Path) -> int:
                 and row.display_top3_min_abs_error
                 == min(abs(truth - year) for year in display[:3])):
             differ["truth"].append(tablet)
-        # The public verdicts give every clause's verdict in each year of the
-        # safety set, so the full-verdict signature of each of those years can
-        # be computed again: agree 1, contradict -1, untestable 0, as int8.
+        # The public results give the verdict of each clause in each year of
+        # the safety set. The verdict signature of each such year is computed
+        # again from them, with agree as 1, contradict as -1 and untestable as
+        # 0, in int8.
         records = json.loads(mine.statement_verdicts_json)
         position = {year: i for i, year in enumerate(safety)}
         outcomes = np.zeros((len(safety), len(records)), dtype=np.int8)
@@ -1082,8 +1106,8 @@ def audit(t0: float, scratch: Path) -> int:
                 and base.strict_count == len(strict) and base.safety_count == len(safety)
                 and base.active_decisive == row.active_decisive
                 and base.decisive == row.decisive
-                # The sensitivity audit keeps four levels and ranks a year
-                # below them as 99.
+                # The sensitivity audit keeps four groups, and gives rank 99
+                # to a year below them.
                 and base.truth_group_rank == (row.truth_evidence_group_rank
                                               if row.truth_evidence_group_rank <= 4 else 99)
                 and base.truth_strict == row.truth_in_strict
@@ -1124,8 +1148,8 @@ def audit(t0: float, scratch: Path) -> int:
            HERE / "data" / "benchmark" / "sensitivity_summary.parquet")))
     information = pd.read_parquet(
         HERE / "data" / "benchmark" / "benchmark_clause_bits.parquet")
-    # A public verdict is decisive when its clause is of the decisive tier and
-    # carries bits.
+    # The public results mark a clause as decisive when it is of the decisive
+    # tier and carries bits.
     clause_fields = {"index": "statement_index", "kind": "kind", "planet": "planet",
                      "parser_rule": "parser_rule", "restored": "restored",
                      "omitted": "omitted", "decisive": "active",
@@ -1151,9 +1175,10 @@ def audit(t0: float, scratch: Path) -> int:
     fingerprint = hashlib.sha256(json.dumps(
         {rel: digest(rel) for rel in scope_builder.SCORE_DEPENDENCIES},
         sort_keys=True).encode()).hexdigest()
-    # The builder copies the dependency list of the review script, which is
-    # one of the dependencies. Read that script's own list from its source,
-    # without importing it.
+    # build_paper_counts.py copies its list of score dependencies from
+    # scripts/agent/model_review.py, which is on the list itself. That script's
+    # own list is read from its source, without importing it, and the two
+    # lists must be the same.
     producer = next(rel for rel in scope_builder.SCORE_DEPENDENCIES
                     if rel.startswith("scripts/"))
     produced = [ast.literal_eval(statement.value)
@@ -1218,8 +1243,8 @@ def audit(t0: float, scratch: Path) -> int:
     head("held-out test")
     from scripts.audit import audit_held_out as held
     held_runs = pd.read_parquet(HERE / "data" / "benchmark" / "held_out_runs.parquet")
-    # The published years enter again from the catalogue, so each row is
-    # scored here rather than read back.
+    # Each row is scored again here, with the published years read from the
+    # catalogue.
     rescored = held.evaluate(held_runs.drop(columns=[
         "truth_astro", "truth_in_strict", "truth_in_safety", "truth_group_rank"]))
     rounds = {entry["round"]: entry for entry in held_summary["rounds"]}
@@ -1325,8 +1350,8 @@ def audit(t0: float, scratch: Path) -> int:
     text_files = [ocr_lines, "data/corpus/adart_iv_tablets.parquet",
                   "data/corpus/adart_iv_lines.parquet"]
     if all((HERE / rel).is_file() for rel in text_files):
-        # The optical reading holds every page of the scan in order, and as many
-        # lines with text as the searchable copy was given.
+        # The OCR reading must hold each page of the scan in order, and as many
+        # lines of text as were laid over the searchable PDF.
         pages = mathpix["source_pages"]
         ocr_pages = json.loads((HERE / ocr_lines).read_text(encoding="utf-8"))["pages"]
         read_lines = sum(1 for page in ocr_pages for line in page.get("lines", [])
@@ -1420,9 +1445,10 @@ def audit(t0: float, scratch: Path) -> int:
        and corrigenda["reference_labels_already_incorporated"] == int(labels.sum())
        and corrigenda["non_label_corrections_changing_current_scores"]
        == int((corrigenda_rows.current_metric_effect & ~labels).sum()))
-    # No module that produces a candidate set may so much as name a reference
-    # date. The answer enters only in the scoring phase, after every candidate
-    # set is frozen, and this is the check that keeps it that way.
+    # No module that builds a candidate set may name a column that holds a
+    # published date. Comments and docstrings are skipped. The published dates
+    # enter only when the benchmark is scored, after the candidate sets are
+    # final.
     answer_columns = re.compile(
         r"bce_first|bce_second|ancient_year|reference_year|\btruth\b")
     blind = sorted((HERE / "tools").glob("*.py"))
@@ -1447,9 +1473,9 @@ def audit(t0: float, scratch: Path) -> int:
                       (HERE / rel).read_text(encoding="utf-8")))]
     ok("every Python file declares its purpose in a module docstring",
        not undeclared, ", ".join(undeclared[:4]))
-    # The Makefile names every script that runs: the rebuild, the figures, the
-    # site, and the scripts outside the rebuild. A module that another script
-    # imports is a library.
+    # The Makefile names each script that runs, in the rebuild, the figures,
+    # the site and the lists of scripts outside the rebuild. A script that
+    # another script imports counts as a library.
     makefile = "\n".join(line.split("#", 1)[0] for line in
                          (HERE / "Makefile").read_text(encoding="utf-8").splitlines())
     figures_line = re.search(r"^FIGURES\s*:=\s*(.+)$", makefile, re.M)
@@ -1477,17 +1503,39 @@ def audit(t0: float, scratch: Path) -> int:
     patterns = ignore_patterns()
     scans = {Path(rel).name for rel in NOT_DISTRIBUTED}
     ghosts = []
-    text = (HERE / "README.md").read_text(encoding="utf-8")
-    for token in re.findall(r"`([^`\s]+)`", text):
-        if (not FILE_TOKEN.fullmatch(token) or token.startswith((".", "/", "~"))
-                or not re.search(r"[A-Za-z]", Path(token).stem)):
+    for readme in ["README.md"] + [f"{folder}/README.md" for folder in FOLDERS]:
+        path = HERE / readme
+        if not path.is_file():
+            ghosts.append(readme)
             continue
-        if ((HERE / token).exists() or Path(token).name in names or Path(token).name in scans
-                or any(fnmatch.fnmatch(Path(token).name, Path(p.strip("/")).name)
-                       for p in patterns)):
-            continue
-        ghosts.append(token)
-    ok("the README names no file that is gone", not ghosts, ", ".join(ghosts[:4]))
+        for token in re.findall(r"`([^`\s]+)`", path.read_text(encoding="utf-8")):
+            if (not FILE_TOKEN.fullmatch(token) or token.startswith((".", "/", "~"))
+                    or not re.search(r"[A-Za-z]", Path(token).stem)):
+                continue
+            if ((HERE / token).exists() or (path.parent / token).exists()
+                    or Path(token).name in names or Path(token).name in scans
+                    or any(fnmatch.fnmatch(Path(token).name, Path(p.strip("/")).name)
+                           for p in patterns if Path(p.strip("/")).name.strip("*?"))):
+                continue
+            ghosts.append(f"{readme}: {token}")
+    ok("the READMEs name no file that is gone", not ghosts, ", ".join(ghosts[:4]))
+
+    # Each folder README names each file in its folder. It names a script by its
+    # path in scripts/, and a module or a test by its name. In data/, docs/ and
+    # skills/ it names each entry at the top of the folder.
+    unnamed = []
+    for folder in FOLDERS:
+        readme = HERE / folder / "README.md"
+        text = readme.read_text(encoding="utf-8") if readme.is_file() else ""
+        inside = [rel[len(folder) + 1:] for rel in files if rel.startswith(folder + "/")]
+        if folder in ("scripts", "tools", "tests"):
+            wanted = sorted(rel if folder == "scripts" else Path(rel).name for rel in inside
+                            if rel.endswith(".py") and Path(rel).name != "__init__.py")
+        else:
+            wanted = sorted({rel.split("/")[0] for rel in inside} - {"README.md"})
+        unnamed += [f"{folder}/{name}" for name in wanted if f"`{name}" not in text]
+    ok("each folder README names each file in its folder", not unnamed,
+       ", ".join(unnamed[:4]))
 
     # data/columns.csv describes each data file in a row with no column, and
     # each column of a table in a row of its own.
@@ -1497,11 +1545,12 @@ def audit(t0: float, scratch: Path) -> int:
         with dictionary.open(encoding="utf-8", newline="") as handle:
             described = {row["file"] for row in csv.DictReader(handle) if not row["column"]}
     undocumented = [rel for rel in files if rel.startswith("data/")
+                    and rel != "data/README.md"
                     and rel[len("data/"):] not in described]
     markdown = [rel for rel in files if rel.endswith(".md")
                 and rel != "README.md" and rel not in DOCUMENTS]
     ok("every data file is described in data/columns.csv, and the only Markdown "
-       "files are the README and the protocol",
+       "files are the READMEs and the protocol",
        not undocumented and not markdown, ", ".join((undocumented + markdown)[:4]))
     top = {rel.split("/")[0] for rel in files + dirs}
     transient = [rel for rel in dirs if Path(rel).name in TRANSIENT_DIRS]

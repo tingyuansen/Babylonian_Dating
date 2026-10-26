@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
-"""Score the frozen test on the dated addenda of ADART IV.
+"""Score the registered test on the dated addenda of ADART IV.
 
-The test is registered in data/benchmark/addenda_registration.json. This
-script reads the candidate sets that date_adart_iv_addenda.py wrote, and only
-then the published years that build_adart_iv_addenda.py wrote. It computes the
-scores that the registration names, for the texts that ADART IV does not link
-to a text of ADART I to III, and in a separate row for the texts that it
-links. It changes no candidate set.
+data/benchmark/addenda_registration.json registers the test. This script first
+reads the candidate sets that date_adart_iv_addenda.py wrote. Only then does
+it read the published years that build_adart_iv_addenda.py wrote. It computes
+the scores that the registration names. The texts that ADART IV links to a
+text of ADART I to III get a separate row.
 
 A text counts as included when its first group, or its strict set, holds the
-published year, or one of the two years of a heading such as No. -212/1. The
-benchmark rates beside them are those of the benchmark records with
-decisive clauses, from data/paper_counts/counts.json.
+published year. For a heading with two years, such as No. -212/1, either year
+counts. Beside these rates stand those of the benchmark records with decisive
+clauses, from data/paper_counts/counts.json. The script also checks the blind
+input, and it records the SHA-256 of its inputs and of the code of the test.
+
+Its input holds the ADART IV text, which is not distributed. The Makefile
+lists the script under REGISTERED_TEST, outside make rebuild.
 
 Output:
     data/benchmark/addenda_results.json
@@ -21,7 +24,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import re
 import subprocess
 import sys
 from pathlib import Path
@@ -41,6 +43,7 @@ CORPUS = HERE / "data" / "corpus" / "adart_iv_addenda_tablets.parquet"
 CORPUS_SUMMARY = HERE / "data" / "corpus" / "adart_iv_addenda_summary.json"
 COUNTS = HERE / "data" / "paper_counts" / "counts.json"
 OUT = HERE / "data" / "benchmark" / "addenda_results.json"
+# The code of the test, whose SHA-256 the output records.
 CODE = [
     "scripts/source/build_adart_iv_addenda.py",
     "scripts/inference/date_adart_iv_addenda.py",
@@ -52,8 +55,8 @@ CODE = [
     "tools/eras.py", "tools/years.py",
     "skills/dating_protocol.md",
 ]
-# What the registration freezes: the rules, the tools, the corpus filters and
-# the physical tables.
+# The paths that the registration fixes. They hold the rules, the tools, the
+# corpus filters, the physical tables and the source data.
 FROZEN_PATHS = ["tools", "skills", "scripts/inference/date_all.py",
                 "scripts/inference/date_adart_iv.py",
                 "scripts/source/build_adart_iv_corpus.py", "data/physical",
@@ -74,7 +77,7 @@ def median(series: pd.Series):
 
 
 def frozen_files_match(commit: str) -> bool | None:
-    """Whether the frozen files equal those of the registered commit."""
+    """Return whether the fixed paths match the registered commit, or None if git cannot tell."""
     try:
         done = subprocess.run(["git", "diff", "--quiet", commit, "--", *FROZEN_PATHS],
                               cwd=HERE, capture_output=True)
@@ -155,9 +158,9 @@ def main() -> int:
         "note_evidence": list(row.note_evidence),
     } for row in linked.itertuples()]
 
-    # Checks of the blind input. A year, king or ruler whose word a bracket
-    # splits, such as [Y]ear, is not matched by the corpus filter. Each such
-    # passage is listed with the clauses that the parser read from it.
+    # Checks of the blind input. The corpus filter misses a word for a year,
+    # king or ruler that a bracket splits, such as [Y]ear. The output lists
+    # each such passage with the number of clauses that the parser read from it.
     corpus = pd.read_parquet(CORPUS, columns=["tablet", "astronomy_text"])
     split = []
     for row in corpus.itertuples():

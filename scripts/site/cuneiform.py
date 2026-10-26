@@ -1,12 +1,14 @@
-"""Turn the edition's transliteration back into cuneiform signs, for the site.
+"""Turn the edition's transliteration back into cuneiform signs, for the page in docs/.
 
 The sign list is ORACC's OSL (data/source/osl/osl.asl, CC0). Each sign there
-lists its readings and its Unicode glyph. A line of transliteration, such as
-"GE₆ 8 USAN GU₄ . ⸢ UD ⸣ [ e MUL₂ - IGI - ša₂ ...", is split into its signs, and
-each reading is looked up. Square brackets mark broken signs and half brackets
-damaged ones. A whole number below 60 is drawn as tens and units, as the
-Diaries write it. A reading that the list does not hold stays in Latin letters,
-so no sign is guessed.
+lists its readings and its Unicode glyph. A line of transliteration is split into
+its signs, and each reading is looked up in the list. An example line is
+"GE₆ 8 USAN GU₄ . ⸢ UD ⸣ [ e MUL₂ - IGI - ša₂ ...".
+
+Square brackets mark broken signs and half brackets damaged ones. A whole number
+below 60 is drawn as tens and units, as the Diaries write it. A reading that the
+list does not hold stays in Latin letters. scripts/site/build_site_data.py calls
+this module.
 """
 
 from __future__ import annotations
@@ -39,7 +41,7 @@ def sign_table(path: Path = OSL) -> dict[str, str]:
             name = line.split(None, 1)[1].strip()
             values.append(name.lower())
         elif line.startswith("@form "):
-            in_form = True              # a variant form: its readings are not the sign's own
+            in_form = True              # a variant form, whose readings stay with the form
         elif line.startswith("@@"):
             in_form = False
         elif line.startswith("@ucun") and not in_form and glyph is None:
@@ -55,18 +57,22 @@ def sign_table(path: Path = OSL) -> dict[str, str]:
             close()
             glyph, values, in_form = None, [], False
     close()
-    for v in clash:                     # a reading of two signs cannot be drawn safely
+    for v in clash:                     # a reading of two signs has no single glyph
         table.pop(v, None)
     return table
 
 
-# ADART I writes the index of a reading with an accent: á for 2 and à for 3.
+# ADART I writes the index of a reading with an accent, á for 2 and à for 3.
 ACUTE = dict(zip("áéíúÁÉÍÚ", "aeiuAEIU"))
 GRAVE = dict(zip("àèìùÀÈÌÙ", "aeiuAEIU"))
 
 
 def normalize(reading: str) -> str:
-    """A reading in the form of the sign list: index in subscript, h for ḫ, lower case."""
+    """Return a reading in the form of the sign list.
+
+    The form is lower case, with h for ḫ. An accent becomes a subscript index,
+    so á becomes a₂ and à becomes a₃.
+    """
     out, index = "", ""
     for ch in reading:
         if ch in ACUTE:
@@ -80,10 +86,12 @@ def normalize(reading: str) -> str:
 
 
 def _glyph(key: str, table: dict[str, str]) -> str | None:
+    """The glyph of a reading, or else of its variant form marked ~a."""
     return table.get(key) or table.get(f"{key}~a")
 
 
 def _number(n: int, table: dict[str, str]) -> str | None:
+    """The glyphs of a number below 60, as tens and then units."""
     tens, units = divmod(n, 10)
     parts = ([f"{tens}(u)"] if tens else []) + ([f"{units}(diš)"] if units else [])
     glyphs = [_glyph(p, table) for p in parts]
@@ -93,18 +101,19 @@ def _number(n: int, table: dict[str, str]) -> str | None:
 def to_cuneiform(translit: str, table: dict[str, str]) -> list[list]:
     """The signs of one line, as [kind, text, state, reading] items.
 
-    kind is "sign", "latin", "gap" or "space"; state is "", "damaged" or "broken", and
+    kind is "sign", "latin", "gap" or "space". state is "", "damaged" or "broken", and
     for a gap also "unread" (an illegible sign) or "blank" (an empty space on the clay).
     """
     out: list[list] = []
     broken = damaged = omitted = False
     note: list[str] | None = None
-    # Rebuild the words: the edition spaces its hyphens and dots.
+    # Rebuild the words, because the edition puts spaces around its hyphens and dots.
     text = re.sub(r"\s*-\s*", "-", translit or "")
     text = re.sub(r"\s+\.\s+", ".", text)
     # A counted unit such as "3( BARIG )" is one sign, 3(barig).
     text = re.sub(r"(\d)\(\s*([^()\s]+)\s*\)", r"\1(\2)", text)
-    # Three dots mark lost signs; keep them apart from the dots that join signs.
+    # Three dots mark lost signs. One character keeps them apart from the dots
+    # that join signs.
     text = text.replace("...", "…")
     for word in text.split():
         before = len(out)
@@ -155,7 +164,7 @@ def to_cuneiform(translit: str, table: dict[str, str]) -> list[list]:
                 core = token.strip("?!*#")
                 if not core or omitted or core in ("+", "×"):
                     continue
-                # "1+" or "+2": a number with more signs lost beside it.
+                # A number such as "1+" or "+2" has more signs lost beside it.
                 core = re.sub(r"^\+(?=\d)|(?<=\d)\+$", "", core)
                 if core.startswith("…") or core == "..":
                     out.append(["gap", "", "broken", "…"])

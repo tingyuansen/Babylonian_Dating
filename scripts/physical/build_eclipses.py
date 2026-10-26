@@ -1,28 +1,31 @@
 #!/usr/bin/env python3
-"""Build the eclipse table and local circumstances at Babylon.
+"""Build the table of eclipses with their visibility at Babylon.
 
-The archived NASA five-millennium catalogues supply the global event inventory,
-greatest-eclipse time in dynamical time, catalogue Delta T, and global eclipse
-properties.  Swiss Ephemeris then calculates the local circumstances at one
-fixed Babylon coordinate for the catalogue Delta T and for its plus/minus one
-standard-error alternatives.  The output distinguishes robust local
-visibility, robust local non-visibility, and Delta-T-sensitive cases.
+Reads the NASA five-millennium catalogues of Espenak and Meeus in
+data/source/nasa_eclipses/ and writes data/physical/eclipses.parquet. The
+eclipse rule of step 2 reads this table (SI Appendix, section S4 and Table S2).
 
-The site is the approximate centre of Babylon published by Olof Pedersen,
-``Babylon: The Great City`` (2021), p. 12: 32 deg 32 min 30 sec N,
-44 deg 25 min 30 sec E (WGS84).  Altitude is set to zero because the historical
-local horizon is not reconstructed; this is a geometric-horizon calculation.
+The catalogues give each eclipse, its time of greatest eclipse in dynamical
+time, its Delta T and its global properties. Swiss Ephemeris then computes the
+circumstances at Babylon for three values of Delta T. These are the catalogue
+value and one standard error either side. The column local_status says whether
+the eclipse is visible in all three trials, in none or in some.
 
-Only a locally visible umbral phase of a lunar eclipse is eligible for the
-inference code's decisive tier.  A solar eclipse is agreement-eligible whenever
-its local visibility is robust to all three Delta T trials; its computed
-magnitude is retained as a descriptive quantity, not used as an admission
-threshold.  The statement scorer keeps every solar eclipse in the supporting
-tier until an independent forward gate is available.
+The site is the approximate centre of Babylon given by Olof Pedersen in
+``Babylon: The Great City`` (2021), p. 12. It lies at 32 deg 32 min 30 sec N and
+44 deg 25 min 30 sec E (WGS84). The altitude is zero and the horizon is
+geometric, because the ancient local horizon is not reconstructed.
 
-Years are stored in astronomical numbering throughout. The default physical
-span is 700 BCE through AD 76, slightly wider than the 626 BCE--AD 75 candidate
-calendar.
+A lunar eclipse can agree with a clause only if its umbral phase is visible at
+Babylon in all three trials. A solar eclipse can agree if it is visible in all
+three trials. Its local magnitude is stored but sets no threshold. The scoring
+keeps all solar eclipses in the supporting tier.
+
+Years use astronomical numbering. The table spans 700 BCE to AD 76, a little
+wider than the candidate years from 626 BCE to AD 75.
+
+Usage:
+    python3 scripts/physical/build_eclipses.py
 """
 
 from __future__ import annotations
@@ -47,21 +50,21 @@ BABYLON_LON = 44.0 + 25.0 / 60.0 + 30.0 / 3600.0
 BABYLON_ALT_M = 0.0
 BABYLON_GEOPOS = (BABYLON_LON, BABYLON_LAT, BABYLON_ALT_M)
 
-# Espenak and Meeus give this standard-error expression for Delta T over the
-# interval that contains the entire project calendar (1000 BCE to AD 1200).
-# Three fixed trials keep the classification reproducible and transparent.
+# The three trials use the catalogue Delta T and one standard error either
+# side.  delta_t_sigma_seconds gives the standard error of Espenak and Meeus
+# for 1000 BCE to AD 1200, which contains the whole calendar.
 DELTA_T_SIGMA_MULTIPLIERS = (-1.0, 0.0, 1.0)
 LOCAL_MATCH_TOLERANCE_DAYS = 1.0
 LOCALITY_SCHEMA = "babylon-local-eclipse-v2"
 
 
 def delta_t_sigma_seconds(astro_year: int) -> float:
-    """One-sigma Delta T uncertainty used by the NASA eclipse canon."""
+    """Return one standard error of Delta T in seconds, as in the NASA eclipse canon."""
     return 0.8 * ((float(astro_year) - 1820.0) / 100.0) ** 2
 
 
 def _lunar_visible_phase(flags: int) -> str:
-    """Highest lunar-eclipse phase that is locally above the horizon."""
+    """Return the deepest phase of a lunar eclipse that is above the horizon at Babylon."""
     total_visible = bool(
         flags & (swe.ECL_TOTBEG_VISIBLE | swe.ECL_TOTEND_VISIBLE)
         or (flags & swe.ECL_TOTAL and flags & swe.ECL_MAX_VISIBLE)
@@ -79,6 +82,7 @@ def _lunar_visible_phase(flags: int) -> str:
 
 
 def _solar_visible_phase(flags: int) -> str:
+    """Return the type of a solar eclipse as seen from Babylon."""
     if flags & swe.ECL_TOTAL:
         return "total"
     if flags & swe.ECL_ANNULAR:
@@ -89,7 +93,11 @@ def _solar_visible_phase(flags: int) -> str:
 
 
 def _local_trial(row, delta_t_seconds: float) -> dict:
-    """Calculate whether this catalogue event is locally observable."""
+    """Compute whether a catalogue eclipse is visible at Babylon for one Delta T.
+
+    The local eclipse that Swiss Ephemeris finds must lie within one day of
+    the catalogue time, or the eclipse counts as not visible.
+    """
     swe.set_delta_t_userdef(float(delta_t_seconds) / 86400.0)
     catalogue_ut = float(row.jd) - float(delta_t_seconds) / 86400.0
     function = (swe.lun_eclipse_when_loc if row.kind == "lunar"
@@ -123,7 +131,10 @@ def _local_trial(row, delta_t_seconds: float) -> dict:
 
 
 def local_circumstances(row) -> dict:
-    """Summarize three fixed Delta T trials for one catalogue event."""
+    """Run the three Delta T trials for one catalogue eclipse.
+
+    Return its local status and phase, and whether it can agree with a clause.
+    """
     sigma = delta_t_sigma_seconds(int(row.astro_year))
     delta_ts = [
         float(row.delta_t_seconds) + multiplier * sigma
@@ -225,7 +236,7 @@ def main() -> int:
         for row in df.itertuples()
     ]
 
-    # Human-readable convenience only; astro_year remains the canonical field.
+    # A label for readers.  The computations use astro_year.
     df["year_label"] = [yr.year_label(int(value)) for value in df.astro_year]
 
     print("calculating local circumstances at Babylon", flush=True)
@@ -247,6 +258,8 @@ def main() -> int:
         f"{len(df)} eclipses from {yr.year_label(args.first_astro)} "
         f"to {yr.year_label(args.last_astro)}"
     )
+    # At each catalogue time, the Moon must lie within 2 degrees of the Sun
+    # for a solar eclipse, or of the point opposite the Sun for a lunar one.
     for kind, want in (("solar", 0.0), ("lunar", 180.0)):
         part = df[df.kind == kind]
         separation = np.abs(
@@ -270,6 +283,8 @@ def main() -> int:
         print(f"  {kind:<5} local statuses {counts}; "
               f"agreement-eligible {int(eligible.get(kind, 0))}")
 
+    # Each eclipse that can agree must be visible in all three trials, and a
+    # lunar one must also show a partial or total phase.
     good = (df.local_status.isin(
         {"robust_visible", "robust_not_visible", "delta_t_sensitive"}).all()
         and (~df.agreement_eligible

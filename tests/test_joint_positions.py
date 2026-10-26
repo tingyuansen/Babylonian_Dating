@@ -1,4 +1,14 @@
-"""Offline regression checks for simultaneous planetary sign statements."""
+"""Offline tests of joint claims, such as "Jupiter and Mars were in Leo".
+
+The parser splits such a statement into linked clauses, one per planet. The
+tools test them as one claim, which agrees only when all the planets are in the
+sign together (SI Appendix, section S4). Other tests cover the tier of a joint
+claim and the equal share of its bits. For the safety set, the whole source
+statement must be removed at once (section S6). Two further tests cover the
+Sirius clause type and a short stay in a sign between two daily positions.
+
+    python3 tests/test_joint_positions.py
+"""
 from __future__ import annotations
 
 import sys
@@ -116,8 +126,8 @@ class JointPositionsTest(unittest.TestCase):
         np.testing.assert_array_equal(scores.priority, [1, 0])
 
     def test_subdaily_retrograde_crossing_is_found(self):
-        # Both daily endpoints are in Aries, but the parabola reaches Taurus
-        # between them. A daily boolean mask would miss this interval entirely.
+        # Both daily positions are in Aries, but the spline reaches Taurus
+        # between them. A test of the daily positions alone would miss this interval.
         spline = CubicSpline([0., 1.], np.radians([29., 29.]),
                              bc_type=((1, np.radians(8)), (1, np.radians(-8))))
         sky._sign_occupancy_for.cache_clear()

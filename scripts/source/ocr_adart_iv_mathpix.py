@@ -1,12 +1,26 @@
 #!/usr/bin/env python3
-"""Submit, monitor, and download the canonical ADART IV Mathpix OCR.
+"""Read the scan of ADART IV with Mathpix OCR, and keep the text of each line.
 
-The Mathpix Files API needs only the server-side API key stored as ``MATHPIX``
-in ``~/.env``. The source SHA-256 is used as the idempotency key, so retrying a
-live or completed submission cannot create a second billable job. The script
-never prints or stores the credential. It keeps the line-level JSON, the only
-output the pipeline reads, and an audit manifest. Mathpix's other formats hold
-crops of the printed pages, which are under copyright, so none is requested.
+The script submits the scan, polls the job and downloads the result (SI
+Appendix, section S9). The scan is under copyright and is not distributed. A
+reader with the book puts it at data/source/adart_iv/scan.pdf.
+
+Outputs, in data/source/adart_iv/:
+
+    mathpix_lines.json      OCR text of each line with its page, which
+                            build_adart_iv_corpus.py reads
+    mathpix_manifest.json   job, options, status, and size and SHA-256 of each file
+
+The Mathpix Files API needs the API key MATHPIX, from the environment or from
+~/.env. The script never prints or stores the key. The SHA-256 of the scan is
+the idempotency key, so a repeated submission does not start a second paid job.
+The other Mathpix formats hold crops of the printed pages, so the script
+requests none of them. It also removes from the text the e-mail address at the
+foot of each page and the links to page crops.
+
+Usage:
+    python3 scripts/source/ocr_adart_iv_mathpix.py --all
+    python3 scripts/source/ocr_adart_iv_mathpix.py --submit | --poll | --download
 """
 
 from __future__ import annotations
@@ -29,9 +43,9 @@ DEFAULT_SOURCE = HERE / "data" / "source" / "adart_iv" / "scan.pdf"
 DEFAULT_OUT = HERE / "data" / "source" / "adart_iv"
 API = "https://api.mathpix.com/files/v1"
 # Each page of the scan carries at its foot the e-mail address of the account
-# that downloaded the book. It is personal data and not part of the book, so
-# the line-level OCR keeps this placeholder in its place.
-# Mathpix reads the address both in plain and in full-width characters.
+# that downloaded the book. This personal data is replaced by REMOVED. The
+# pattern also matches the full-width characters that Mathpix reads for some
+# addresses.
 EMAIL = re.compile(r"[\w.+-]+[@＠][\w-]+(?:[.．][\w-]+)+")
 REMOVED = "[e-mail address removed]"
 # Mathpix links each figure region to a crop of the scanned page on its server.
@@ -41,7 +55,7 @@ IMAGE = re.compile(r"!\[[^\]]*\]\(https://cdn\.mathpix\.com/[^)]*\)"
 
 
 def sha256(path: Path) -> str:
-    """Return a streaming SHA-256 without loading a large PDF into memory."""
+    """Return the SHA-256 of a file, read in blocks of 1 MB."""
     digest = hashlib.sha256()
     with path.open("rb") as stream:
         for block in iter(lambda: stream.read(1024 * 1024), b""):
@@ -50,7 +64,10 @@ def sha256(path: Path) -> str:
 
 
 def mathpix_key(env_path: Path) -> str:
-    """Load only MATHPIX from a dotenv file without evaluating shell code."""
+    """Return the key MATHPIX from the environment, or else from a dotenv file.
+
+    The file is read as text and never run as shell code.
+    """
     if os.environ.get("MATHPIX"):
         return os.environ["MATHPIX"]
     pattern = re.compile(r"^\s*(?:export\s+)?MATHPIX\s*=\s*(.*?)\s*$")
@@ -62,7 +79,11 @@ def mathpix_key(env_path: Path) -> str:
 
 
 def request_json(response: requests.Response) -> dict:
-    """Raise with a redacted API error and return a JSON object."""
+    """Return the JSON body of a Mathpix response.
+
+    If the request failed, raise an error with the status and at most 1000
+    characters of the body.
+    """
     try:
         body = response.json()
     except ValueError as exc:
@@ -78,7 +99,7 @@ def request_json(response: requests.Response) -> dict:
 
 
 def submit(source: Path, out: Path, headers: dict[str, str]) -> dict:
-    """Submit one idempotent direct-upload job and write the first manifest."""
+    """Upload the scan as one OCR job and write the first manifest."""
     source_hash = sha256(source)
     options = {"metadata": {"improve_mathpix": False}}
     with source.open("rb") as stream:
@@ -122,11 +143,10 @@ def load_manifest(out: Path) -> dict:
 
 
 def poll(manifest: dict, out: Path, headers: dict[str, str], interval: int) -> dict:
-    """Poll until OCR and every requested conversion are ready.
+    """Poll the job until Mathpix reports it completed.
 
-    Mathpix can mark the primary MMD OCR ``completed`` while a requested PDF
-    conversion is still ``processing``. Treating that intermediate state as
-    final produces a misleading 404 ``format_not_ready`` at download time.
+    Each status is written to the manifest. The function raises an error if
+    the OCR or a format conversion fails.
     """
     file_id = manifest["mathpix_file_id"]
     last = None
@@ -173,12 +193,11 @@ def poll(manifest: dict, out: Path, headers: dict[str, str], interval: int) -> d
 
 
 def redact(path: Path) -> tuple[int, int]:
-    """Replace every e-mail address and remove every link to a page crop in the
-    strings of a JSON file, and count both.
+    """Remove e-mail addresses and links to page crops from a JSON file.
 
-    The strings are changed after parsing, so an escape such as \\n before an
-    address stays intact. Mathpix writes compact JSON, so the file is written
-    back in that form and is otherwise unchanged.
+    Return the number of addresses and links removed. The strings are edited
+    after parsing, so an escape such as \\n before an address stays intact.
+    The file is written back as compact JSON, the form that Mathpix writes.
     """
     count = images = 0
 
@@ -203,7 +222,7 @@ def redact(path: Path) -> tuple[int, int]:
 
 
 def download(manifest: dict, out: Path, headers: dict[str, str]) -> dict:
-    """Download the line-level OCR and hash it."""
+    """Download the OCR of each line, clean it, and record its hash in the manifest."""
     file_id = manifest["mathpix_file_id"]
     outputs = {"lines.json": out / "mathpix_lines.json"}
     records = dict(manifest.get("outputs", {}))
@@ -215,8 +234,8 @@ def download(manifest: dict, out: Path, headers: dict[str, str]) -> dict:
                 "Mathpix reported conversion status error")
             print(f"skipped {extension}: Mathpix conversion failed")
             continue
-        # A retry after a late conversion must not redownload already retained
-        # artifacts. Recompute their hashes so the manifest remains complete.
+        # A file from an earlier download is kept as it is. Its hash is
+        # computed again, so that the manifest stays complete.
         if path.exists() and path.stat().st_size:
             records[extension] = {
                 "path": str(path.relative_to(HERE)),

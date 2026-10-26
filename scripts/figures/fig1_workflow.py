@@ -1,24 +1,27 @@
 #!/usr/bin/env python3
-"""The workflow in three steps, drawn in code as a vector figure.
+"""Draw Fig. 1, the workflow in three steps, as a vector figure.
 
-The figure carries no data. Its numbers come from a small worked example that
-this module computes, so each number follows from what the figure shows.
+The figure shows no corpus data. Its numbers come from a small worked example
+that this module computes, so each number follows from what the figure shows.
+It writes figures/fig1_workflow.pdf.
 
 Step 1 reads a passage of the translation into a clause with its fields and its
 two marks. The rule-based parser makes the clause, and the language model checks
-it and adds the clauses that the parser missed. Step 2 gives eight clauses a verdict in eight of the 701 candidate years.
-The bits of each row follow from that row by Eq. 1. The tier is set by type and
-not by bits, so one supporting row carries 2.0 bits and one decisive row 0.2
-bits. All decisive rows agree in one column only, the year T.
+it and adds the clauses that the parser missed.
+
+Step 2 gives eight clauses a verdict in eight of the 701 candidate years. The
+bits of each row follow from that row by Eq. 1. The tier follows from the type
+of a clause, whatever its bits, so one supporting row carries 2.0 bits and one
+decisive row 0.2 bits. The decisive rows all agree in one column, the year T.
 
 Step 3 draws three clocks over 91 years. Mars agrees with many years, Jupiter
 with one year in about 11.86 and Saturn with short runs about 29.46 years apart.
-The three clocks meet at T only. T leads on K and on the decisive bits I_D, so
+The three clocks meet at T alone. T leads on K and on the decisive bits I_D, so
 it alone forms the strict set S (Eqs. 2 and 3). The supporting bits I_S use the
 same scale as I_D, and they only order the years.
 
-Everything is drawn on one axes whose units are inches of the printed figure,
-so a length in the code is a length on the page.
+All parts are drawn on one axes in inches of the printed figure, so a length
+in the code is a length on the page.
 """
 
 from __future__ import annotations
@@ -79,7 +82,8 @@ def row_bits(verdicts: str) -> tuple[int, int, float]:
 
 
 def check_grid() -> None:
-    """The decisive rows agree in column T only, and bits do not set the tier."""
+    """Check that the decisive rows share column T alone, and that a supporting
+    row has more bits than a decisive row."""
     decisive = [v for v, d in VERDICTS if d]
     shared = [c for c in range(8) if all(v[c] == "a" for v in decisive)]
     assert shared == [T_COLUMN]
@@ -89,7 +93,7 @@ def check_grid() -> None:
 
 
 def clocks() -> dict[str, set[int]]:
-    """The years that each clock agrees with. The three meet at T only."""
+    """The years that each clock agrees with. The three clocks meet at T alone."""
     jupiter = {T + round(11.86 * k) for k in range(-4, 5)}
     jupiter = {y for y in jupiter if 0 <= y <= YEARS}
     saturn = set()
@@ -220,7 +224,7 @@ def highlight(lines, inside, margin=SIGN_MARGIN):
     """The box around a run of whole signs on one line, with an even margin.
 
     The run is the rightmost one whose box stays inside the tablet and cuts no
-    other sign, so the zoom to the translation crosses little of the tablet.
+    other sign. The zoom to the translation then crosses little of the tablet.
     """
     row = lines[SIGN_LINE]
     others = [sign for signs in lines for sign in signs]
@@ -485,7 +489,8 @@ def main() -> Path:
     panel_compute(ax, *PANELS[1])
     panel_decide(ax, *PANELS[2], clocks())
 
-    # The written protocol fixes steps 1 and 3. The held-out test checked its rules.
+    # The written protocol above the panels, with arrows to steps 1 and 3, and a
+    # note on the held-out test (SI Appendix, section S8).
     cy = 3.41
     title = text(ax, 0, cy + 0.065, "written protocol", fontweight="bold")
     note = text(ax, 0, cy - 0.065,

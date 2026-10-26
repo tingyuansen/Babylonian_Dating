@@ -1,37 +1,34 @@
 #!/usr/bin/env python3
-"""Download the Astronomical Diaries Digital corpus from ORACC, with provenance.
+"""Download the Astronomical Diaries Digital (ADsD) corpus from ORACC.
 
-ADsD is the digital edition of Sachs and Hunger prepared at the Austrian Academy
-of Sciences under Reinhard Pirngruber, published through ORACC and released
-under CC0. Reading it directly preserves catalogue identifiers and removes
-intermediate hand-transcription from the provenance chain.
+ADsD is the digital edition of Sachs and Hunger, prepared at the Austrian
+Academy of Sciences under Reinhard Pirngruber. ORACC publishes it under CC0
+(SI Appendix, section S1). build_corpus.py and fetch_texts.py read these files.
 
-What arrives:
+Outputs, in data/source/adsd/:
 
-    adsd.zip            catalogue for 401 diaries. Every entry carries
-                        date_bce, ancient_year, museum_no, genre, period and
-                        provenience. The text itself is proxied out to the
-                        per-volume projects.
+    adsd.zip            catalogue of 401 diaries. Each entry gives date_bce,
+                        ancient_year, museum_no, genre, period and provenience.
+                        The text is in the projects of the single volumes.
     adsd-adart1.zip     the ADART I project. Its catalogue lists all 417
-                        diaries of ADART I to III, the 16 that adsd.zip
-                        lacks included.
+                        diaries of ADART I to III, with the 16 that adsd.zip
+                        lacks.
+    manifest.json       source, licence, time of download, and the size and
+                        SHA-256 of each file
 
-The other per-volume projects repeat this catalogue (ADART II and III) or hold
-the other genres of ADART V and VI, which the paper does not use.
+The projects of ADART II and III repeat this catalogue. Those of ADART V and VI
+hold other genres, which the paper does not use.
 
-The catalogue is the important part. `date_bce` is written as `262/1`, which is
-the Babylonian year across the two Julian years it spans, which fixes the date
-field convention directly from the catalogue.
-`ancient_year` gives the era or regnal year, 345 of 401 in the Seleucid Era and
-the rest regnal.
+The field date_bce is written as `262/1`, one Babylonian year as the two
+Julian years that it spans. The field ancient_year gives the year of the
+Seleucid Era for most entries, and a regnal year for the others.
 
-TLS NOTE. Verification fails against the anaconda CA bundle on this machine,
-not because of anything wrong at ORACC. The script tries the system trust store
-first and only falls back to unverified with an explicit warning, so a silent
-downgrade cannot happen.
+For TLS, the script tries the system certificate store first, then the default
+one. If both fail, it prints a warning and downloads without verification. The
+manifest records for each file whether verification passed.
 
 Usage:
-    python3 fetch_adsd.py [--out DIR]
+    python3 scripts/source/fetch_adsd.py [--out DIR]
 """
 
 from __future__ import annotations
@@ -40,7 +37,6 @@ import argparse
 import hashlib
 import json
 import ssl
-import subprocess
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -51,7 +47,7 @@ SYSTEM_CA = "/etc/ssl/cert.pem"
 
 
 def get(url: str, dest: Path) -> tuple[int, bool]:
-    """Fetch url to dest. Returns (bytes, verified)."""
+    """Download url to dest. Return the size in bytes and whether TLS was verified."""
     for ctx, verified in ((ssl.create_default_context(cafile=SYSTEM_CA), True),
                           (ssl.create_default_context(), True)):
         try:
@@ -60,7 +56,7 @@ def get(url: str, dest: Path) -> tuple[int, bool]:
             return dest.stat().st_size, verified
         except Exception:                                   # noqa: BLE001
             continue
-    # Certificate verification is broken locally. Say so rather than hide it.
+    # Both verified attempts failed. Download without verification, and say so.
     print(f"    ! TLS verification failed for {url}, retrying unverified")
     ctx = ssl.create_default_context()
     ctx.check_hostname = False

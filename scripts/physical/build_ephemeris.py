@@ -1,40 +1,41 @@
 #!/usr/bin/env python3
-"""Generate the ephemeris grid from DE441 and validate it.
+"""Compute the daily ephemeris grid from JPL DE441 and check it.
 
-Every astronomical claim in this project rests on this table, so the script
-refuses to write one that fails its own checks.
+Writes data/physical/ephemeris.parquet, the geocentric positions of the Sun,
+the Moon and the five visible planets once a day, at integer Julian days
+(Methods, Step 2, and SI Appendix, section S4). The script needs a DE441
+kernel, which the repository does not hold. It writes the grid only if all
+four checks below pass.
 
-Two coordinate frames are written deliberately:
+The grid holds ecliptic coordinates in two frames.
 
-* ``*_lon`` / ``*_lat`` are fixed J2000 ecliptic coordinates.  These are used
-  for relative geometry against Normal Stars and for station/appulse work where
-  a fixed stellar frame is appropriate.
-* ``*_lon_date`` / ``*_lat_date`` are mean ecliptic coordinates of date.  These
-  are used directly for equinoxes and solstices and provide the tropical input
-  to the Babylonian sidereal conversion in ``tools.sky``.  They are not by
-  themselves formal Babylonian zodiacal longitudes.
+* ``*_lon`` and ``*_lat`` use the fixed J2000 ecliptic.  tools.sky uses this
+  frame for positions against Normal Stars and for stations.
+* ``*_lon_date`` and ``*_lat_date`` use the mean ecliptic and equinox of date.
+  tools.sky uses this frame for solstices and equinoxes.  It also converts
+  these longitudes to the Babylonian zodiac with the relation of Britton (2010).
 
-No zodiac zero point is fitted or stored in this grid.  The independently
-published Britton (2010) conversion is applied downstream, so this file does
-not need to be rebuilt if that documented conversion is inspected or revised.
+The grid stores no zodiac offset, so a change to the relation of Britton
+needs no new grid.
 
-The physical grid is slightly wider than the candidate calendar: 700 BCE
-through AD 76 by default.  That preserves the early validation margin and lets
-the Babylonian year beginning in AD 75 extend into the following Julian year.
+The grid runs from 700 BCE to AD 76, a little wider than the candidate years.
+The extra year at the end holds the part of the year that begins in AD 75 and
+runs into AD 76.
 
-Daily sampling is deliberate.  Cubic interpolation between daily samples was
-previously measured at 0.0012 arcminutes median error for the Moon, the fastest
-body, against tablets that record in fingers of roughly five arcminutes.
+tools.sky interpolates the daily values with cubic splines.  For the Moon,
+the fastest body, the median error of this interpolation is about 0.0012
+arcminutes.  A finger, the smallest unit on the tablets, is about five
+arcminutes.
 
-Validation, all of which must pass:
+Checks:
 
   1. At catalogued solar eclipses the Sun and Moon are in conjunction.
   2. At catalogued lunar eclipses they are in opposition.
-  3. Each body's mean motion matches its known sidereal period.
-  4. The of-date frame is not a hidden fixed-offset copy of J2000.
+  3. The mean motion of each body matches its known sidereal period.
+  4. The frame of date drifts against J2000, so it is not J2000 with a fixed offset.
 
 Usage:
-    python scripts/physical/build_ephemeris.py --kernel <path>/de441_part-1.bsp
+    python3 scripts/physical/build_ephemeris.py --kernel <path>/de441_part-1.bsp
 """
 
 from __future__ import annotations
@@ -52,7 +53,9 @@ sys.path.insert(0, str(HERE))
 from scripts.physical.eclipse_catalog import read_catalog  # noqa: E402
 from tools import years as yr  # noqa: E402
 
-# Barycentre targets, and the bodies reached through them.
+# The (center, target) segments of the kernel for each body.  The Moon is
+# reached through the Earth-Moon barycentre, and the others from the solar
+# system barycentre.
 BODIES = {
     "sun": (0, 10), "moon": (3, 301), "mercury": (0, 1), "venus": (0, 2),
     "mars": (0, 4), "jupiter": (0, 5), "saturn": (0, 6),
@@ -69,7 +72,7 @@ J2000_OBLIQUITY_RAD = np.radians(84381.406 / 3600.0)
 
 
 def ecliptic_coords_j2000(x, y, z):
-    """ICRF/J2000-equatorial rectangular vector -> J2000 ecliptic lon/lat."""
+    """Convert an equatorial ICRF vector to J2000 ecliptic longitude and latitude."""
     e = J2000_OBLIQUITY_RAD
     ye = y * np.cos(e) + z * np.sin(e)
     ze = -y * np.sin(e) + z * np.cos(e)
@@ -79,23 +82,18 @@ def ecliptic_coords_j2000(x, y, z):
 
 
 def precess_ecliptic_j2000_to_date(lon_deg, lat_deg, jd):
-    """Precess J2000 ecliptic coordinates to mean ecliptic/equinox of date.
+    """Precess J2000 ecliptic coordinates to the mean ecliptic and equinox of date.
 
-    This is the standard ecliptic-coordinate precession transformation with
-    J2000 as the starting epoch.  It keeps the planetary state vector from
-    DE441 and changes only the coordinate frame.  The result supplies tropical
-    longitudes for seasonal points and for the downstream Britton conversion.
-
-    The precession angles are the classical IAU/Lieske polynomial form used for
-    long-term mean precession.  Across the present -699..+76 astronomical-year
-    span, comparison with an independent Swiss-Ephemeris of-date transform is at
-    the few-thousandths-of-a-degree level, far below the angular scale relevant
-    to a 30-degree sign boundary.
+    The function changes only the frame of the DE441 positions.  Its result
+    gives the longitudes for solstices and equinoxes, and the input to the
+    relation of Britton.  The precession angles follow the polynomials of
+    Lieske, as given by Meeus.  From 700 BCE to AD 76 the result agrees with
+    the transform of Swiss Ephemeris to a few thousandths of a degree.
     """
     jd = np.asarray(jd, float)
     t = (jd - 2451545.0) / 36525.0
 
-    # Angles from Meeus/Lieske ecliptic precession, J2000 -> date.
+    # Angles of the ecliptic precession from J2000 to the date (Lieske, Meeus).
     eta = np.radians(
         (47.0029 * t - 0.03302 * t**2 + 0.000060 * t**3) / 3600.0
     )
@@ -121,7 +119,7 @@ def precess_ecliptic_j2000_to_date(lon_deg, lat_deg, jd):
 
 
 def positions(spk, jd):
-    """Geocentric coordinates of every supported body in both frames."""
+    """Return the geocentric coordinates of each body in both frames."""
     earth = spk[0, 3].compute(jd) + spk[3, 399].compute(jd)
     out = {}
     for name, (a, b) in BODIES.items():
@@ -142,7 +140,7 @@ def positions(spk, jd):
 
 
 def read_eclipses(path: Path, lo: int, hi: int):
-    """Compatibility view of the shared full-catalogue parser."""
+    """Return the date and time of each catalogue eclipse, for the checks below."""
     kind = "solar" if "solar" in path.name.lower() else "lunar"
     records = read_catalog(path, kind, lo, hi)
     return [(r["astro_year"], r["month"], r["day"], r["hour"],
@@ -150,7 +148,7 @@ def read_eclipses(path: Path, lo: int, hi: int):
 
 
 def to_jd(y, mo, d, hh, mm, ss):
-    """Julian day from a proleptic Julian date, astronomical year numbering."""
+    """Return the Julian day of a proleptic Julian date, with an astronomical year."""
     a = (14 - mo) // 12
     yy, mmn = y + 4800 - a, mo + 12 * a - 3
     jdn = d + (153 * mmn + 2) // 5 + 365 * yy + yy // 4 - 32083
@@ -227,8 +225,9 @@ def main() -> int:
         )
 
     print("\ncheck 3, mean motion against known sidereal periods")
-    # A sidereal period is heliocentric, so planets are checked from the Sun and
-    # only the Moon from Earth.  Use the fixed J2000 frame here deliberately.
+    # A sidereal period is heliocentric, so the planets are checked from the
+    # Sun and only the Moon from the Earth.  The check uses the fixed J2000
+    # frame, in which the stars do not move.
     for name, period in SIDEREAL.items():
         if name == "moon":
             series = pos["moon"]["lon"]
@@ -248,8 +247,8 @@ def main() -> int:
         )
 
     print("\ncheck 4, zodiac frame is genuinely of date")
-    # A fixed-offset copy of J2000 would have the same shift at both ends.  A
-    # true of-date frame must drift appreciably across this ~775-year interval.
+    # J2000 with a fixed offset would have the same shift at both ends.  The
+    # frame of date must drift by more than 5 degrees over about 775 years.
     first_shift = float(_wrapped_delta(pos["sun"]["lon_date"][0], pos["sun"]["lon"][0]))
     last_shift = float(_wrapped_delta(pos["sun"]["lon_date"][-1], pos["sun"]["lon"][-1]))
     drift = abs(float(_wrapped_delta(last_shift, first_shift)))

@@ -1,9 +1,9 @@
 file,column,type,unit,description
-source/adart_iv/ocr_corrections.csv,,CSV table,,Each line of the Mathpix reading of ADART IV that was checked against the page image and corrected. Checked by eye.
+source/adart_iv/ocr_corrections.csv,,CSV table,,Each line of the Mathpix reading of ADART IV that the printed page corrects. Each correction was checked by eye on the page image. Written by hand.
 source/adart_iv/ocr_corrections.csv,pdf_page,integer,,"Page of the ADART IV scan, counted as PDF pages."
 source/adart_iv/ocr_corrections.csv,printed_page,integer,,Printed page number of the same page.
 source/adart_iv/ocr_corrections.csv,ocr_text,string,,Text as Mathpix read it.
-source/adart_iv/ocr_corrections.csv,printed_text,string,,Text as the page prints it. The corpus builder puts it in place of ocr_text.
+source/adart_iv/ocr_corrections.csv,printed_text,string,,Text as the page prints it. The ADART IV corpus builders put it in place of ocr_text.
 source/adart_iv/ocr_corrections.csv,effect,string,,What the error of the OCR changed.
 source/adart_iv/ocr_corrections.csv,checked,string,,How and where the correction was checked by eye.
 source/parker_dubberstein/intercalary_slots.csv,,CSV table,,"For each of the 258 thirteen-month years, whether the table prints the extra month as VI2 or XII2. Made by scripts/physical/ocr_parker_dubberstein.py --slots."
@@ -13,18 +13,18 @@ source/parker_dubberstein/intercalary_slots.csv,pdf_page,integer,,Page of the Pa
 source/parker_dubberstein/intercalary_slots.csv,printed_slot,string,,"Extra month that the table prints for the year, VI2 or XII2."
 source/parker_dubberstein/intercalary_slots.csv,established,string,,"How the slot was read, from the position of the printed column, and in some years also checked by eye."
 source/adart_i/normal_stars.txt,,text,,The 32 rows of the Normal Star table of the ADART I introduction. Read once from the scan with pdftotext -layout.
-source/adart_iv/mathpix_manifest.json,,JSON,,"The Mathpix reading of the ADART IV scan: the job, the scan's SHA-256 and the hashes of the outputs. Made by scripts/source/ocr_adart_iv_mathpix.py (paid)."
+source/adart_iv/mathpix_manifest.json,,JSON,,"Record of the Mathpix reading of the ADART IV scan, with the job, the SHA-256 of the scan and the hashes of the outputs. Made by scripts/source/ocr_adart_iv_mathpix.py, which calls the paid Mathpix service."
 source/adsd/adsd-adart1.zip,,ZIP archive,,"The ADART I project of ADsD, whose catalogue lists all 417 dated diaries of ADART I to III. Made by scripts/source/fetch_adsd.py."
 source/adsd/adsd.zip,,ZIP archive,,The ORACC catalogue of Astronomical Diaries Digital (ADsD). Made by scripts/source/fetch_adsd.py.
 source/adsd/manifest.json,,JSON,,Byte counts and SHA-256 of the two archives. Made by scripts/source/fetch_adsd.py.
 source/adsd/texts.jsonl,,JSON lines,,Transliteration and translation of every ADART I to III record that has text. Made by scripts/source/fetch_texts.py.
 source/nasa_eclipses/lunar_catalog.txt,,text,,"The NASA Five Millennium Canon of lunar eclipses, -1999 to +3000, by Espenak and Meeus. NASA Goddard eclipse site."
 source/nasa_eclipses/solar_catalog.txt,,text,,"The NASA Five Millennium Canon of solar eclipses, -1999 to +3000, by Espenak and Meeus. NASA Goddard eclipse site."
-source/not_distributed.csv,,CSV table,,"The book scans and the full text read from ADART IV, which are under copyright and stay out of the repository: the path where a reader puts each file, what it is, and its SHA-256. Written by hand."
-source/osl/osl.asl,,text,,"The ORACC Sign List (OSL), CC0: each cuneiform sign with its readings and its Unicode glyph. The site in docs/ uses it. Fetched on 24 October 2026 from https://raw.githubusercontent.com/oracc/osl/master/00lib/osl.asl."
+source/not_distributed.csv,,CSV table,,"The book scans and the files that hold the text of ADART IV, which stay out of the repository because they are under copyright. Each row gives the path where a reader puts the file, what it is, and its SHA-256. Written by hand."
+source/osl/osl.asl,,text,,"The ORACC Sign List (OSL), under CC0. It gives each cuneiform sign with its readings and its Unicode glyph, and the interactive page in docs/ uses it. Fetched on 24 October 2026 from https://raw.githubusercontent.com/oracc/osl/master/00lib/osl.asl."
 source/parker_dubberstein/calendar_ocr.txt,,text,,The Tesseract reading of pages 43 to 63 of Parker and Dubberstein (1956). Made by scripts/physical/ocr_parker_dubberstein.py.
-source/photos/alexander_diary_BM45962.jpg,,JPEG image,,"The photograph of BM 45962 by Shaunnol, in the public domain. Fig. 2 shows it. Wikimedia Commons."
-corpus/tablets.parquet,,Parquet table,,"One row per record of ADART I to III: catalogue fields, published year and full text. Made by scripts/source/build_corpus.py."
+source/photos/alexander_diary_BM45962.jpg,,JPEG image,,"Photograph of BM 45962, ADART I no. -322B, by Shaunnol, from Wikimedia Commons and in the public domain. Fig. 2 shows it."
+corpus/tablets.parquet,,Parquet table,,"One row per record of ADART I to III, with its catalogue fields, published year and full text. Made by scripts/source/build_corpus.py."
 corpus/tablets.parquet,tablet,string,,"ADsD identifier of the record, such as X301492. The digit after X is the ADART volume, and the rest encodes the ADART number."
 corpus/tablets.parquet,project,string,,"ADsD project that holds the record. Values are adsd/adart1, adsd/adart2 and adsd/adart3, for ADART I, II and III."
 corpus/tablets.parquet,designation,string,,"ADART number of the record as the catalogue gives it, such as AD -261A."
@@ -42,15 +42,15 @@ corpus/tablets.parquet,provenience,string,,"Place where the tablet was found, fr
 corpus/tablets.parquet,lon,float,degrees,"East longitude of the provenience, from its Pleiades coordinate in the catalogue."
 corpus/tablets.parquet,lat,float,degrees,"North latitude of the provenience, from its Pleiades coordinate in the catalogue."
 corpus/tablets.parquet,n_lines,integer,count,Number of text lines that ADsD gives for the record. It is 0 when ADsD has no text.
-corpus/tablets.parquet,text,string,,"English translation of the record, with one tablet line on each text line. Empty when ADsD has no translation. Dating reads only this column of the corpus."
-corpus/lines.parquet,,Parquet table,,"One row per line: label, transliteration and translation. Made by scripts/source/build_corpus.py."
+corpus/tablets.parquet,text,string,,"English translation of the record, with one tablet line on each text line. Empty when ADsD has no translation. Of this file, dating reads only this column and tablet."
+corpus/lines.parquet,,Parquet table,,"One row per line of the edition, with its label, transliteration and translation. Made by scripts/source/build_corpus.py."
 corpus/lines.parquet,tablet,string,,ADsD identifier of the record that the line belongs to.
 corpus/lines.parquet,project,string,,"ADsD project of the record, adsd/adart1, adsd/adart2 or adsd/adart3."
 corpus/lines.parquet,label,string,,"Line label of the edition. o 5' is line 5' of the obverse, and r 4 is line 4 of the reverse. Other prefixes, such as b.e., name an edge."
 corpus/lines.parquet,translit,string,,"Transliteration of the line, as ADsD gives it."
 corpus/lines.parquet,translation,string,,English translation of the line. Empty when the record has no translation.
 corpus/lines.parquet,lemma,string,,"Lemmatization of the line, which glosses each word. Only records that ADsD gives as transliteration without a translation have it. Empty for all other records."
-corpus/evidence.parquet,,Parquet table,,The chronological evidence that each record preserves. Made by scripts/source/classify_evidence.py.
+corpus/evidence.parquet,,Parquet table,,"The kinds of evidence that each record of ADART I to III preserves, as fixed text patterns find them. The model columns come from an earlier pass of a language model with the prompt MODEL_PROMPT, and the script keeps them. Made by scripts/source/classify_evidence.py."
 corpus/evidence.parquet,tablet,string,,Copy of the column tablet of corpus/tablets.parquet.
 corpus/evidence.parquet,project,string,,Copy of the column project of corpus/tablets.parquet.
 corpus/evidence.parquet,designation,string,,Copy of the column designation of corpus/tablets.parquet.
@@ -79,7 +79,7 @@ corpus/evidence.parquet,era_llm,boolean,,True if a language model found a year o
 corpus/evidence.parquet,outer_llm,boolean,,"True if the language model found a position, station, retrograde motion or visibility phenomenon of Mars, Jupiter or Saturn. Empty when the model gave no usable answer. No cohort and no date uses it."
 corpus/evidence.parquet,note,string,,"Short note of the language model on the phrase that decided era_llm and outer_llm, at most 90 characters. Empty when the model gave no usable answer."
 corpus/evidence.parquet,agree,boolean,,True if the fixed patterns and the language model agree on both the stated year and the outer planets. It is False when the model gave no usable answer.
-corpus/cohorts.parquet,,Parquet table,,Coarse text-property cohorts of the records. Made by scripts/source/build_cohort.py.
+corpus/cohorts.parquet,,Parquet table,,"Each record of ADART I to III in a cohort, by the kinds of evidence that the fixed text patterns find. Made by scripts/source/build_cohort.py."
 corpus/cohorts.parquet,tablet,string,,Copy of the column tablet of corpus/evidence.parquet.
 corpus/cohorts.parquet,project,string,,Copy of the column project of corpus/evidence.parquet.
 corpus/cohorts.parquet,designation,string,,Copy of the column designation of corpus/evidence.parquet.
@@ -114,8 +114,8 @@ corpus/cohorts.parquet,astro,boolean,,True if outer_regex or eclipse_regex is Tr
 corpus/cohorts.parquet,joined,boolean,,"True if two or more fragments form the tablet, so that n_joins is more than 1."
 corpus/cohorts.parquet,cohort_source,string,,"Source of the cohort labels. It is always regex, because only the fixed patterns set the cohorts."
 corpus/cohorts.parquet,cohort,string,,"Coarse cohort of the record from the fixed patterns. testable_checked has astro and a stated year. testable has astro and no stated year. lookup_only has a stated year and no astro. weak_evidence has only Moon, Venus or Mercury evidence. no_text has none of these."
-corpus/adart_iv_addenda_summary.json,,JSON,,Counts and hashes of the addenda corpus. Made by scripts/source/build_adart_iv_addenda.py.
-corpus/adart_iv_corpus_summary.json,,JSON,,Counts and hashes of the ADART IV corpus. Made by scripts/source/build_adart_iv_corpus.py.
+corpus/adart_iv_addenda_summary.json,,JSON,,Counts and hashes of the corpus built from the dated addenda of ADART IV. Made by scripts/source/build_adart_iv_addenda.py.
+corpus/adart_iv_corpus_summary.json,,JSON,,Counts and hashes of the corpus built from the undated entries of ADART IV. Made by scripts/source/build_adart_iv_corpus.py.
 physical/calendar.parquet,,Parquet table,,Month starts for the 701 Babylonian years 626 BCE to AD 75. Made by scripts/physical/build_calendar.py.
 physical/calendar.parquet,bab_year_astro,integer,astronomical year,"Babylonian year, labeled by the Julian year in which it begins. It runs from -625, or 626 BCE, to 75, or AD 75. Each row is one month of this year."
 physical/calendar.parquet,regnal,string,,"Year label that Parker and Dubberstein print. Ac is the accession year and a number is a regnal year. Under the Seleucid Era heading, the number is the Seleucid Era year."
@@ -127,7 +127,7 @@ physical/calendar.parquet,julian_month,integer,,"Julian month, from 1 to 12, of 
 physical/calendar.parquet,julian_day,integer,,"Day of the Julian month, from 1 to 31, of the first day of the Babylonian month. It is not a Julian Day Number. The Babylonian day began at sunset, and the date is that of its daylight part."
 physical/calendar.parquet,n_months,integer,count,"Number of months in the Babylonian year, 12 or 13."
 physical/calendar.parquet,intercalary_month,string,,"Extra month of a year of 13 months, VI2 or XII2, as the printed table gives it. Empty in a year of 12 months."
-physical/ephemeris.parquet,,Parquet table,,"Daily positions of the Sun, the Moon and the planets, 700 BCE to AD 76. Made by scripts/physical/build_ephemeris.py (needs the DE441 kernel)."
+physical/ephemeris.parquet,,Parquet table,,"Daily positions of the Sun, the Moon and the planets, 700 BCE to AD 76. Made by scripts/physical/build_ephemeris.py from the JPL DE441 kernel, which is too large for the repository."
 physical/ephemeris.parquet,jd,float,Julian day,"Julian Date of the row, at noon of each day in barycentric dynamical time. The rows run from 700 BCE to AD 76."
 physical/ephemeris.parquet,sun_lon,float,degrees,"Geocentric ecliptic longitude of the Sun in the fixed J2000 ecliptic, from JPL DE441. Distances to Normal Stars and between bodies use this frame."
 physical/ephemeris.parquet,sun_lat,float,degrees,"Geocentric ecliptic latitude of the Sun in the fixed J2000 ecliptic, from JPL DE441."
@@ -207,14 +207,14 @@ physical/normal_stars.parquet,greek,string,,"Greek letter of the star, spelled o
 physical/normal_stars.parquet,constellation,string,,"Constellation of the star in the genitive, such as Piscium."
 physical/normal_stars.parquet,lon,float,degrees,"Ecliptic longitude of the star in the fixed J2000 ecliptic. It is the mean of the three epochs of the ADART I table, each reduced to J2000."
 physical/normal_stars.parquet,lat,float,degrees,"Ecliptic latitude of the star in the fixed J2000 ecliptic, the mean of the three reduced epochs."
-physical/appulse_residuals.parquet,,Parquet table,,The difference between each stated and computed distance at the published year. Made by scripts/physical/appulse_residuals.py.
+physical/appulse_residuals.parquet,,Parquet table,,"One row per clause that measures the Moon or a planet against a Normal Star on a stated day. Each row gives the difference between the stated and the computed position at the published year. The distance tolerances of the rules were chosen from these differences (SI Appendix, section S4). Made by scripts/physical/appulse_residuals.py."
 physical/appulse_residuals.parquet,tablet,string,,ADsD identifier of the record. The file holds one row per clause of a Moon or planet against a Normal Star with a month and a day.
-physical/appulse_residuals.parquet,year_astro,integer,astronomical year,"Published year of the record, at which the code measures the residual."
+physical/appulse_residuals.parquet,year_astro,integer,astronomical year,"Published year of the record, in which the difference is measured."
 physical/appulse_residuals.parquet,body,string,,"Body that the clause measures against the star. Values are moon, mercury, venus, mars, jupiter and saturn."
 physical/appulse_residuals.parquet,star,string,,Normal Star of the clause.
 physical/appulse_residuals.parquet,latitudinal,boolean,,True if the clause states above or below. The code then tests only that the body is near the star in longitude.
 physical/appulse_residuals.parquet,gap,float,degrees,"Smallest difference in J2000 longitude between the body and the place that the clause states. The code searches a window of 2.5 days around the stated day. The place is the star longitude plus the signed stated distance, at 2 degrees a cubit."
-physical/visibility_calibration.parquet,,Parquet table,,First and last appearance thresholds and their held-out check. Made by scripts/physical/calibrate_visibility.py.
+physical/visibility_calibration.parquet,,Parquet table,,"Elongation thresholds for first and last appearances of the planets, fitted on the testable_checked cohort, and their held-out check on the other cohorts. The rules do not use them. Made by scripts/physical/calibrate_visibility.py."
 physical/visibility_calibration.parquet,quantile,float,,"Quantile of the training residuals that sets the tolerance, 0.75, 0.9 or 1.0. Each appearance has one row per quantile."
 physical/visibility_calibration.parquet,body,string,,Planet of the first or last appearance.
 physical/visibility_calibration.parquet,which,string,,"Kind of appearance, first or last."
@@ -223,10 +223,10 @@ physical/visibility_calibration.parquet,threshold,float,degrees,"Median of orien
 physical/visibility_calibration.parquet,tolerance,float,degrees,"Tolerance on the elongation, the larger of 2 degrees and the quantile of the training residuals."
 physical/visibility_calibration.parquet,category_train_n,integer,count,"Number of training appearances of this body, kind and orientation."
 physical/visibility_calibration.parquet,tablet,string,,ADsD identifier of the record of the appearance.
-physical/visibility_calibration.parquet,cohort,string,,"Cohort of the record, from corpus/cohorts.parquet. The testable cohort is the held-out check."
+physical/visibility_calibration.parquet,cohort,string,,"Cohort of the record, from corpus/cohorts.parquet. The thresholds come from the testable_checked rows, and the other rows check them."
 physical/visibility_calibration.parquet,gap,float,degrees,"Smallest difference between orientation times elongation and the threshold, within 1.5 days of the stated date in the published year."
 physical/visibility_calibration.parquet,agree,boolean,,"True if gap is at most tolerance. The paper reports that this held-out check failed, so the rules do not test appearance dates."
-physical/calendar_ocr_corrections.csv,,CSV table,,Each correction that the calendar build applied to the OCR reading. Made by scripts/physical/build_calendar.py.
+physical/calendar_ocr_corrections.csv,,CSV table,,"Each correction that the calendar build applies to the OCR reading of Parker and Dubberstein, checked by eye on the scan. Made by scripts/physical/build_calendar.py."
 physical/calendar_ocr_corrections.csv,bab_year_astro,integer,astronomical year,Babylonian year of the corrected row of the Parker and Dubberstein table.
 physical/calendar_ocr_corrections.csv,year_label,string,,"The same year as a label, such as 410 BCE."
 physical/calendar_ocr_corrections.csv,pdf_page,integer,,"Page of the scan that prints the row, counted as PDF pages."
@@ -234,9 +234,9 @@ physical/calendar_ocr_corrections.csv,action,string,,"How the correction changes
 physical/calendar_ocr_corrections.csv,corrected_month,integer,,Julian month of the date that the correction puts in. Empty for append_many and replace_row. The file stores it as a float.
 physical/calendar_ocr_corrections.csv,corrected_day,integer,,Day of the Julian month of that date. Empty for append_many and replace_row. The file stores it as a float.
 physical/calendar_ocr_corrections.csv,note,string,,Short English note on the error of the OCR.
-clauses/parser_clauses.parquet,,Parquet table,,"Every parser clause: its fields, its source passage and line, and its verdict at the published year. Made by scripts/audit/build_parser_clauses.py."
+clauses/parser_clauses.parquet,,Parquet table,,"Each parser clause of ADART I to III, with its fields, its passage and line, and its verdict at the published year. Made by scripts/audit/build_parser_clauses.py."
 clauses/parser_clauses.parquet,tablet,string,,ADsD identifier of the record.
-clauses/parser_clauses.parquet,statement_index,integer,,"Position of the clause in the parser output of the record, from 0. benchmark_clause_bits.parquet and review_changes.csv use the same numbering."
+clauses/parser_clauses.parquet,statement_index,integer,,"Position of the clause in the parser output of the record, from 0. review_changes.csv uses the same numbering."
 clauses/parser_clauses.parquet,source_char_start,integer,characters,"Offset where the passage of the clause starts in the text column of corpus/tablets.parquet, from 0."
 clauses/parser_clauses.parquet,source_char_end,integer,characters,Offset where the passage of the clause ends in that text. The end is exclusive.
 clauses/parser_clauses.parquet,source_labels_json,JSON,,"Line labels of the edition that the passage touches, as a list of strings."
@@ -246,7 +246,7 @@ clauses/parser_clauses.parquet,source_line_translation,string,,Full translation 
 clauses/parser_clauses.parquet,source_line_translit,string,,Transliteration of the same lines.
 clauses/parser_clauses.parquet,tablet_text_sha256,string,SHA-256,SHA-256 of the translation of the record that the parser read.
 clauses/parser_clauses.parquet,parser_rule,string,,"Name of the parser rule that read the clause, such as measured_normal_star. The suffix _bracket means that the rule read the clause only by ignoring the brackets of the edition."
-clauses/parser_clauses.parquet,rule_origin,string,,"Origin of the parser rule, from a fixed table in the code. Examples are local_deterministic_parser, published_scheme_sachs_1952, and agent_suggested_X300963_generalized for a rule that the development agent proposed and the authors generalized."
+clauses/parser_clauses.parquet,rule_origin,string,,"Origin of the parser rule, from a table in scripts/audit/build_parser_clauses.py. Examples are local_deterministic_parser, published_scheme_sachs_1952, and agent_suggested_X300963_generalized for a rule that an agent proposed during development and the authors made general."
 clauses/parser_clauses.parquet,kind,string,,"Clause type. appulse is a Moon or planet against a Normal Star, and planet_appulse is the Moon against a planet. planet_planet_appulse is a planet against a planet, and station_appulse is a station against a Normal Star. station is a station in a sign, in_sign is a planet in a sign, and entry is a planet that reaches a sign. first_app and last_app are a first and a last appearance, and acronychal is an acronychal rising. eclipse is an eclipse, season is a solstice or equinox, and sirius is a Sirius date."
 clauses/parser_clauses.parquet,planet,string,,"Body of the clause. Values are moon, mercury, venus, mars, jupiter and saturn. sun marks a solstice or equinox, sirius a Sirius date, and lunar or solar an eclipse."
 clauses/parser_clauses.parquet,target_planet,string,,"Planet that the clause measures the body against, for planet_appulse and planet_planet_appulse. Empty otherwise."
@@ -258,7 +258,7 @@ clauses/parser_clauses.parquet,year_offset,integer,,"Number of year changes in t
 clauses/parser_clauses.parquet,amount,float,cubits,"Stated distance in cubits, at 24 fingers to the cubit, whatever the unit of the text. Empty when the clause states no distance."
 clauses/parser_clauses.parquet,unit,string,,"Unit words of the stated distance as the text writes them. Values are cubit, cubits, finger, fingers and cubit+finger. Empty when the clause states no distance."
 clauses/parser_clauses.parquet,direction,string,,"Direction of the stated distance. Values are above, below, in front of and behind. Empty when the clause states no distance."
-clauses/parser_clauses.parquet,station_phase,string,,"Side of a station against a Normal Star, east or west. The code treats east as the start of retrograde motion and west as the start of direct motion. Empty otherwise."
+clauses/parser_clauses.parquet,station_phase,string,,"Side of a station against a Normal Star, east or west. The rule treats east as the start of retrograde motion and west as the start of direct motion. Empty otherwise."
 clauses/parser_clauses.parquet,evidence_families_json,JSON,,"Evidence families of the clause, as a list of strings. The clocks are mars, jupiter, saturn, lunar_eclipse and seasonal_sirius, the solar year. moon, venus, mercury and solar are not clocks."
 clauses/parser_clauses.parquet,evidence_families_json[],string,,"One evidence family. A joint statement lists each of its planets, and a Moon to planet distance lists the planet."
 clauses/parser_clauses.parquet,joint_positions_json,JSON,,"Linked sign positions of a joint statement, as a list of planet and sign pairs. An example is Saturn and Mars were in Leo. The tools test the pairs as one claim. Empty list otherwise."
@@ -272,7 +272,7 @@ clauses/parser_clauses.parquet,offset_degrees,float,degrees,"Expected longitude 
 clauses/parser_clauses.parquet,latitudinal,boolean,,True if the direction is above or below. The rule then tests only that the body lies within the tolerance of the longitude of the reference.
 clauses/parser_clauses.parquet,restored,boolean,,"True if the clause is restored in the edition. This is so when its body, sign, star, number, unit or direction lies in brackets. It is also so when the parser read it only through brackets, or when it needs a day number or month numeral that is restored."
 clauses/parser_clauses.parquet,omitted,boolean,,"True if the scribe marks the event as unobserved, for example with I did not watch. The verdict of such a clause is untestable."
-clauses/parser_clauses.parquet,context_source,string,,"How the clause got its month. explicit_surviving_heading means a month heading, inferred_immediately_preceding_summary the summary rule, and missing_or_lost no month."
+clauses/parser_clauses.parquet,context_source,string,,"How the clause got its month. explicit_surviving_heading means a month heading, inferred_immediately_preceding_summary the summary rule of SI Appendix, section S2, and missing_or_lost no month."
 clauses/parser_clauses.parquet,semantic_tier,string,,"Tier of the clause from its type and text alone, decisive or supporting. Only decisive clauses decide which years stay in the strict set."
 clauses/parser_clauses.parquet,normalized_text,string,,Text of the clause as the parser normalizes it.
 clauses/parser_clauses.parquet,months_in_tablet_json,JSON,,"All Babylonian months that the record names, as a list of strings. The tools test a clause without a month over these months."
@@ -282,13 +282,13 @@ clauses/parser_clauses.parquet,bce_second,integer,BCE year,Copy of bce_second of
 clauses/parser_clauses.parquet,forward_verdict,string,,"Verdict of the clause at the published year. Values are agree, contradict and untestable. not_evaluated marks a record without a published year."
 clauses/parser_clauses.parquet,forward_detail,string,,Short English text from the rule that explains the verdict at the published year.
 clauses/parser_clauses.parquet,extractor_sha256,string,SHA-256,"SHA-256 of tools/statements.py, the parser and rules that produced the clauses."
-clauses/reviewed_clauses.parquet,,Parquet table,,"The clauses that the dates of ADART I to III use, one row per clause: the parser clauses as the model review leaves them, and the clauses that its search added. Each row gives the clause's fields, its origin (parser or search), its index in the parser's list and the review's action. tools/clauses.py reads it. Made by scripts/agent/rescore_model_review.py, from the caches."
-clauses/reviewed_clauses.parquet,tablet,string,,"Identifier of the record: the ADsD identifier for ADART I to III, and the entry identifier of ADART IV."
+clauses/reviewed_clauses.parquet,,Parquet table,,"The clauses that the dates of ADART I to III use, one row per clause. They are the parser clauses as the language-model review leaves them, and the clauses that its search added. Each row gives the fields of the clause, its origin, its index in the parser output and the action of the review. tools/clauses.py reads the file. Made by scripts/agent/rescore_model_review.py from the review caches."
+clauses/reviewed_clauses.parquet,tablet,string,,ADsD identifier of the record.
 clauses/reviewed_clauses.parquet,clause_index,integer,,"Position of the clause in the final clause list of the record, from 0. The dates read the clauses in this order."
 clauses/reviewed_clauses.parquet,kind,string,,"Clause type, with the values of the kind column of clauses/parser_clauses.parquet."
 clauses/reviewed_clauses.parquet,planet,string,,"Body of the clause. Values are moon, mercury, venus, mars, jupiter and saturn, sun for a solstice or equinox, sirius for a Sirius date, and lunar or solar for an eclipse."
 clauses/reviewed_clauses.parquet,sign,string,,"Zodiacal sign of the clause, such as Leo. Empty when the clause has no sign."
-clauses/reviewed_clauses.parquet,text,string,,"Words of the translation that the clause rests on. For ADART IV, the extracted statement."
+clauses/reviewed_clauses.parquet,text,string,,Words of the translation that the clause rests on.
 clauses/reviewed_clauses.parquet,month,string,,"Babylonian month that governs the clause, I to XII, VI2 or XII2. VI|VI2 means that the tools test both. Empty when the month is lost."
 clauses/reviewed_clauses.parquet,day,float,,Day of the Babylonian month from the governing day heading. Empty when no day governs the clause.
 clauses/reviewed_clauses.parquet,year_offset,integer,,Number of year changes in the text before the clause. The tools test the clause in the candidate year plus this number.
@@ -297,13 +297,13 @@ clauses/reviewed_clauses.parquet,target_planet,string,,Planet that the clause me
 clauses/reviewed_clauses.parquet,offset,float,degrees,"Expected longitude of the body minus that of the star or planet, at 2 degrees a cubit. Empty when the clause states no distance."
 clauses/reviewed_clauses.parquet,latitudinal,boolean,,True if the direction is above or below. The rule then tests only that the body lies within the tolerance of the star in longitude.
 clauses/reviewed_clauses.parquet,omitted,boolean,,True if the scribe marks the event as unobserved. The verdict of such a clause is untestable.
-clauses/reviewed_clauses.parquet,restored,boolean,,"True if the clause rests on words that the editors restored, or counts as restored by a rule of SI Appendix section S2. A restored clause can only support."
-clauses/reviewed_clauses.parquet,source_start,integer,characters,"Offset where the passage of the clause starts in the text that the dating reads: the text column of corpus/tablets.parquet, or the astronomy text of an ADART IV entry."
+clauses/reviewed_clauses.parquet,restored,boolean,,"True if the clause rests on words that the editors restored, or counts as restored by a rule of SI Appendix, section S2. A restored clause is supporting."
+clauses/reviewed_clauses.parquet,source_start,integer,characters,"Offset where the passage of the clause starts in the text column of corpus/tablets.parquet, from 0."
 clauses/reviewed_clauses.parquet,source_end,integer,characters,Offset where the passage of the clause ends in that text. The end is exclusive.
 clauses/reviewed_clauses.parquet,parser_rule,string,,"Name of the parser rule that read the clause. For a clause that the search added, the rule name of its clause type."
 clauses/reviewed_clauses.parquet,amount,float,cubits,"Stated distance in cubits, at 24 fingers to the cubit. Empty when the clause states no distance."
 clauses/reviewed_clauses.parquet,unit,string,,Unit words of the stated distance as the text writes them. Empty when the clause states no distance.
-clauses/reviewed_clauses.parquet,direction,string,,"Direction of the stated distance: above, below, in front of or behind. Empty when the clause states none."
+clauses/reviewed_clauses.parquet,direction,string,,"Direction of the stated distance, above, below, in front of or behind. Empty when the clause states none."
 clauses/reviewed_clauses.parquet,station_phase,string,,"Side of a station against a Normal Star, east or west. Empty for other clauses."
 clauses/reviewed_clauses.parquet,joint_positions,JSON,,"Linked sign positions of a joint statement, as a list of planet and sign pairs. Empty list for a single clause."
 clauses/reviewed_clauses.parquet,joint_source_start,integer,characters,Offset where the passage of the joint statement starts. It is -1 for a single clause.
@@ -313,14 +313,14 @@ clauses/reviewed_clauses.parquet,joint_restored,boolean,,True if a clause of the
 clauses/reviewed_clauses.parquet,joint_omitted,boolean,,True if a clause of the joint statement is marked unobserved.
 clauses/reviewed_clauses.parquet,origin,string,,"parser for a parser clause as the review leaves it, search for a clause that the search added."
 clauses/reviewed_clauses.parquet,parser_index,integer,,"Index of the clause in the parser output of the text, from 0. It is -1 for a clause that the search added."
-clauses/reviewed_clauses.parquet,review,string,,"What the review did with the clause: keep, modify, or add for a clause that the search added."
-clauses/adart_iv_reviewed_clauses.parquet,,Parquet table,,"The same for the undated entries of ADART IV, whose clauses keep only their extracted statement. Made by scripts/agent/rescore_model_review.py --scope adart-iv, from the local caches."
-clauses/adart_iv_reviewed_clauses.parquet,tablet,string,,"Identifier of the record: the ADsD identifier for ADART I to III, and the entry identifier of ADART IV."
+clauses/reviewed_clauses.parquet,review,string,,"What the review did with the clause, keep or modify. A clause that the search added has add."
+clauses/adart_iv_reviewed_clauses.parquet,,Parquet table,,"The clauses that the dates of the undated ADART IV entries use, with the columns of reviewed_clauses.parquet. The text column holds only the passage of each clause. Made by scripts/agent/rescore_model_review.py --scope adart-iv from the review caches, which quote the volume and stay out of the repository."
+clauses/adart_iv_reviewed_clauses.parquet,tablet,string,,"Identifier of the ADART IV entry, such as ADART_IV_D_0005_BM_31730."
 clauses/adart_iv_reviewed_clauses.parquet,clause_index,integer,,"Position of the clause in the final clause list of the record, from 0. The dates read the clauses in this order."
 clauses/adart_iv_reviewed_clauses.parquet,kind,string,,"Clause type, with the values of the kind column of clauses/parser_clauses.parquet."
 clauses/adart_iv_reviewed_clauses.parquet,planet,string,,"Body of the clause. Values are moon, mercury, venus, mars, jupiter and saturn, sun for a solstice or equinox, sirius for a Sirius date, and lunar or solar for an eclipse."
 clauses/adart_iv_reviewed_clauses.parquet,sign,string,,"Zodiacal sign of the clause, such as Leo. Empty when the clause has no sign."
-clauses/adart_iv_reviewed_clauses.parquet,text,string,,"Words of the translation that the clause rests on. For ADART IV, the extracted statement."
+clauses/adart_iv_reviewed_clauses.parquet,text,string,,Words of the ADART IV translation that the clause rests on.
 clauses/adart_iv_reviewed_clauses.parquet,month,string,,"Babylonian month that governs the clause, I to XII, VI2 or XII2. VI|VI2 means that the tools test both. Empty when the month is lost."
 clauses/adart_iv_reviewed_clauses.parquet,day,float,,Day of the Babylonian month from the governing day heading. Empty when no day governs the clause.
 clauses/adart_iv_reviewed_clauses.parquet,year_offset,integer,,Number of year changes in the text before the clause. The tools test the clause in the candidate year plus this number.
@@ -329,13 +329,13 @@ clauses/adart_iv_reviewed_clauses.parquet,target_planet,string,,Planet that the 
 clauses/adart_iv_reviewed_clauses.parquet,offset,float,degrees,"Expected longitude of the body minus that of the star or planet, at 2 degrees a cubit. Empty when the clause states no distance."
 clauses/adart_iv_reviewed_clauses.parquet,latitudinal,boolean,,True if the direction is above or below. The rule then tests only that the body lies within the tolerance of the star in longitude.
 clauses/adart_iv_reviewed_clauses.parquet,omitted,boolean,,True if the scribe marks the event as unobserved. The verdict of such a clause is untestable.
-clauses/adart_iv_reviewed_clauses.parquet,restored,boolean,,"True if the clause rests on words that the editors restored, or counts as restored by a rule of SI Appendix section S2. A restored clause can only support."
-clauses/adart_iv_reviewed_clauses.parquet,source_start,integer,characters,"Offset where the passage of the clause starts in the text that the dating reads: the text column of corpus/tablets.parquet, or the astronomy text of an ADART IV entry."
+clauses/adart_iv_reviewed_clauses.parquet,restored,boolean,,"True if the clause rests on words that the editors restored, or counts as restored by a rule of SI Appendix, section S2. A restored clause is supporting."
+clauses/adart_iv_reviewed_clauses.parquet,source_start,integer,characters,"Offset where the passage of the clause starts in the astronomy text of the entry, from 0. That text stays out of the repository."
 clauses/adart_iv_reviewed_clauses.parquet,source_end,integer,characters,Offset where the passage of the clause ends in that text. The end is exclusive.
 clauses/adart_iv_reviewed_clauses.parquet,parser_rule,string,,"Name of the parser rule that read the clause. For a clause that the search added, the rule name of its clause type."
 clauses/adart_iv_reviewed_clauses.parquet,amount,float,cubits,"Stated distance in cubits, at 24 fingers to the cubit. Empty when the clause states no distance."
 clauses/adart_iv_reviewed_clauses.parquet,unit,string,,Unit words of the stated distance as the text writes them. Empty when the clause states no distance.
-clauses/adart_iv_reviewed_clauses.parquet,direction,string,,"Direction of the stated distance: above, below, in front of or behind. Empty when the clause states none."
+clauses/adart_iv_reviewed_clauses.parquet,direction,string,,"Direction of the stated distance, above, below, in front of or behind. Empty when the clause states none."
 clauses/adart_iv_reviewed_clauses.parquet,station_phase,string,,"Side of a station against a Normal Star, east or west. Empty for other clauses."
 clauses/adart_iv_reviewed_clauses.parquet,joint_positions,JSON,,"Linked sign positions of a joint statement, as a list of planet and sign pairs. Empty list for a single clause."
 clauses/adart_iv_reviewed_clauses.parquet,joint_source_start,integer,characters,Offset where the passage of the joint statement starts. It is -1 for a single clause.
@@ -345,10 +345,10 @@ clauses/adart_iv_reviewed_clauses.parquet,joint_restored,boolean,,True if a clau
 clauses/adart_iv_reviewed_clauses.parquet,joint_omitted,boolean,,True if a clause of the joint statement is marked unobserved.
 clauses/adart_iv_reviewed_clauses.parquet,origin,string,,"parser for a parser clause as the review leaves it, search for a clause that the search added."
 clauses/adart_iv_reviewed_clauses.parquet,parser_index,integer,,"Index of the clause in the parser output of the text, from 0. It is -1 for a clause that the search added."
-clauses/adart_iv_reviewed_clauses.parquet,review,string,,"What the review did with the clause: keep, modify, or add for a clause that the search added."
-clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_bits.parquet,,Parquet table,,"The bits and the tier of each reviewed clause. Made by scripts/agent/rescore_model_review.py, from the caches."
+clauses/adart_iv_reviewed_clauses.parquet,review,string,,"What the review did with the clause, keep or modify. A clause that the search added has add."
+clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_bits.parquet,,Parquet table,,The bits and the tier of each clause of clauses/reviewed_clauses.parquet. Made by scripts/agent/rescore_model_review.py from the review caches.
 clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_bits.parquet,tablet,string,,ADsD identifier of the record.
-clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_bits.parquet,statement_index,integer,,"Position of the clause in the reviewed clause list of the record, from 0, in order of the passage. It differs from statement_index of parser_clauses.parquet, because the search inserts clauses."
+clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_bits.parquet,statement_index,integer,,"Position of the clause in the reviewed clause list of the record, from 0, in order of the passage. It equals clause_index of clauses/reviewed_clauses.parquet. It differs from statement_index of parser_clauses.parquet, because the search inserts clauses."
 clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_bits.parquet,kind,string,,"Clause type. appulse is a Moon or planet against a Normal Star, and planet_appulse is the Moon against a planet. planet_planet_appulse is a planet against a planet, and station_appulse is a station against a Normal Star. station is a station in a sign, in_sign is a planet in a sign, and entry is a planet that reaches a sign. first_app and last_app are a first and a last appearance, and acronychal is an acronychal rising. eclipse is an eclipse, season is a solstice or equinox, and sirius is a Sirius date."
 clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_bits.parquet,planet,string,,"Body of the clause. Values are moon, mercury, venus, mars, jupiter and saturn. sun marks a solstice or equinox, sirius a Sirius date, and lunar or solar an eclipse."
 clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_bits.parquet,target_planet,string,,"Planet that the clause measures the body against, for planet_appulse and planet_planet_appulse. Empty otherwise."
@@ -368,42 +368,42 @@ clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_bits.parquet,statemen
 clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_bits.parquet,scoring_unit,integer,,"Number of the source statement of the clause in its record, from 0. Linked clauses of one statement share it."
 clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_bits.parquet,joint_positions_json,JSON,,"Linked sign positions of a joint statement, as a list of planet and sign pairs. An example is Saturn and Mars were in Leo. The tools test the pairs as one claim. Empty list otherwise."
 clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_bits.parquet,joint_positions_json[],list of strings,,"One planet and sign pair of the joint statement, such as saturn and Leo."
-clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_verdicts.parquet,,Parquet table,,"The verdict of each reviewed clause at the published year. Made by scripts/agent/rescore_model_review.py, from the caches."
+clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_verdicts.parquet,,Parquet table,,The verdict of each clause of clauses/reviewed_clauses.parquet at the published year. Made by scripts/agent/rescore_model_review.py from the review caches.
 clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_verdicts.parquet,tablet,string,,ADsD identifier of the record.
 clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_verdicts.parquet,statement_index,integer,,"Position of the clause in the reviewed clause list of the record, from 0, in order of the passage. It differs from statement_index of parser_clauses.parquet, because the search inserts clauses. It matches reviewed_clause_bits.parquet."
 clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_verdicts.parquet,kind,string,,"Clause type. appulse is a Moon or planet against a Normal Star, and planet_appulse is the Moon against a planet. planet_planet_appulse is a planet against a planet, and station_appulse is a station against a Normal Star. station is a station in a sign, in_sign is a planet in a sign, and entry is a planet that reaches a sign. first_app and last_app are a first and a last appearance, and acronychal is an acronychal rising. eclipse is an eclipse, season is a solstice or equinox, and sirius is a Sirius date."
 clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_verdicts.parquet,planet,string,,"Body of the clause. Values are moon, mercury, venus, mars, jupiter and saturn. sun marks a solstice or equinox, sirius a Sirius date, and lunar or solar an eclipse."
-clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_verdicts.parquet,parser_rule,string,,"Name of the parser rule that read the clause, such as measured_normal_star. The suffix _bracket means that the rule read the clause only by ignoring the brackets of the edition. A clause that the search added carries the canonical rule of its type."
+clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_verdicts.parquet,parser_rule,string,,"Name of the parser rule that read the clause, such as measured_normal_star. The suffix _bracket means that the rule read the clause only by ignoring the brackets of the edition. A clause that the search added carries the rule name of its clause type."
 clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_verdicts.parquet,restored,boolean,,"True if the clause is restored in the edition. This is so when its body, sign, star, number, unit or direction lies in brackets. It is also so when the parser read it only through brackets, or when it needs a day number or month numeral that is restored."
 clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_verdicts.parquet,omitted,boolean,,"True if the scribe marks the event as unobserved, for example with I did not watch. The verdict of such a clause is untestable."
 clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_verdicts.parquet,semantic_tier,string,,"Tier of the clause from its type and text alone, decisive or supporting. Only decisive clauses decide which years stay in the strict set."
 clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_verdicts.parquet,forward_verdict,string,,"Verdict of the clause at the published year. Values are agree, contradict and untestable. not_evaluated marks a record without a published year."
 clauses/model_review_gpt-6-luna-2026-09-22/reviewed_clause_verdicts.parquet,forward_detail,string,,Short English text from the rule that explains the verdict at the published year.
-clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,,CSV table,,"Every change the model proposed to a parser clause, and its checks. Made by scripts/agent/model_review.py."
+clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,,CSV table,,"Each change that the language model proposed to a parser clause of ADART I to III, with the checks of the change. Made by scripts/agent/model_review.py."
 clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,tablet,string,,ADsD identifier of the record. The file holds one row per parser clause that the model proposed to change.
 clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,statement_index,integer,,"Position of the parser clause in the parser output, as in parser_clauses.parquet."
-clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,initial_action,string,,"Action that the model first proposed, KEEP, MODIFY or DROP. In this run it is always MODIFY."
+clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,initial_action,string,,"Action that the model first proposed, KEEP, MODIFY or DROP. It is MODIFY in every row."
 clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,action,string,,Action after the checks. MODIFY means that at least one field change passed. KEEP means that the clause stays as the parser read it.
-clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,drop_verification_verdict,string,,"Verdict of the second call that confirms a DROP. Empty in this run, because the model proposed no drop."
-clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,drop_verification_reason,string,,"Reason that the confirming call gives for a DROP. Empty in this run, because the model proposed no drop."
-clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,drop_contradicted_field,string,,"Field of the clause that the text contradicts, as the confirming call names it. Empty in this run, because the model proposed no drop."
-clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,drop_source_value,string,,"Value that the text gives instead, as the confirming call names it. Empty in this run, because the model proposed no drop."
-clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,drop_code_rejection,string,,"Reasons why code rejected the DROP, joined into one text. Empty in this run, because the model proposed no drop."
-clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,drop_verification_explanation,string,,"Explanation of the confirming call. Empty in this run, because the model proposed no drop."
-clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,modify_verification_json,JSON,,"Result of the second call that confirms each field change of a MODIFY, with the checks of code. Empty when no field change needed this call."
+clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,drop_verification_verdict,string,,"Verdict of the second call that confirms a DROP. Empty in every row, because the model proposed no drop."
+clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,drop_verification_reason,string,,"Reason that the confirming call gives for a DROP. Empty in every row, because the model proposed no drop."
+clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,drop_contradicted_field,string,,"Field of the clause that the text contradicts, as the confirming call names it. Empty in every row, because the model proposed no drop."
+clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,drop_source_value,string,,"Value that the text gives instead, as the confirming call names it. Empty in every row, because the model proposed no drop."
+clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,drop_code_rejection,string,,"Reasons why code rejected the DROP, joined into one text. Empty in every row, because the model proposed no drop."
+clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,drop_verification_explanation,string,,"Explanation of the confirming call. Empty in every row, because the model proposed no drop."
+clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,modify_verification_json,JSON,,"Result of the second model call that confirms each field change of a MODIFY, with the results of the fixed checks. Empty when no field change needed this call."
 clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,modify_verification_json.decisions,JSON,,"List of decisions, one for each proposed field change."
 clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,modify_verification_json.decisions[].field,string,,"Field of the proposed change, such as day, month, restored or event_subtype."
 clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,modify_verification_json.decisions[].decision,string,,"Final decision on the change, ACCEPT or REJECT."
 clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,modify_verification_json.decisions[].reason,string,,Reason code. explicit_source_support supports an accepted change. no_positive_support and inherited_context_protected reject a change.
 clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,modify_verification_json.decisions[].evidence_quote,string,,Exact passage that supports an accepted change. Empty for a rejected change.
 clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,modify_verification_json.decisions[].explanation,string,,Explanation of the decision.
-clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,modify_verification_json.decisions[].model_explanation,string,,Explanation of the model when code rejected its ACCEPT. Present only in such decisions.
-clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,modify_verification_json.decisions[].rejected_quote,string,,Passage that the model cited when code rejected its ACCEPT. Present only in such decisions.
+clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,modify_verification_json.decisions[].model_explanation,string,,Explanation of the model when a fixed check rejected its ACCEPT. Present only in such decisions.
+clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,modify_verification_json.decisions[].rejected_quote,string,,Passage that the model cited when a fixed check rejected its ACCEPT. Present only in such decisions.
 clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,modify_verification_json.overall_explanation,string,,Overall explanation of the confirming call.
-clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,code_field_overrides_json,JSON,,Field values that code set over the proposal of the model. Empty in this run.
-clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,model_output_failure,string,,Note of a malformed answer of the model. Empty in this run.
+clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,code_field_overrides_json,JSON,,Field values that the fixed checks set in place of the proposal of the model. Empty in every row.
+clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,model_output_failure,string,,Note of a malformed answer of the model. Empty in every row.
 clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,model,string,,"Language model of the review, gpt-6-luna-2026-09-22."
-clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,explanation,string,,"Explanation of the outcome. It gives the reason of the model and, where code changed the outcome, the reason of code."
+clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,explanation,string,,"Explanation of the outcome. It gives the reason of the model and, where a fixed check changed the outcome, the reason of the check."
 clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,evidence_quote,string,,Passage that the model cited for its proposal. Empty when it cited none.
 clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,parser_matched_source,string,,Passage that the parser read for the clause.
 clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,original_statement_json,JSON,,"The parser clause before the review, as an object."
@@ -444,7 +444,7 @@ clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,final_statement_js
 clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,final_statement_json.station_phase,string,,"Side of a station against a star, east or west. Empty otherwise."
 clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,final_statement_json.target_planet,string,,Planet that the body is measured against. Empty otherwise.
 clauses/model_review_gpt-6-luna-2026-09-22/review_changes.csv,final_statement_json.year_offset,integer,,Number of year changes in the tablet before the clause.
-clauses/model_review_gpt-6-luna-2026-09-22/search_proposals.csv,,CSV table,,"Every observation the search proposed, and what became of it. Made by scripts/agent/model_review.py."
+clauses/model_review_gpt-6-luna-2026-09-22/search_proposals.csv,,CSV table,,"Each observation that the search for missed clauses proposed, and what became of it. Made by scripts/agent/model_review.py."
 clauses/model_review_gpt-6-luna-2026-09-22/search_proposals.csv,tablet,string,,"ADsD identifier of the record. The file holds one row per observation that the search proposed, or one row per clause when one proposal gives several clauses."
 clauses/model_review_gpt-6-luna-2026-09-22/search_proposals.csv,source_start,integer,characters,Offset where the cited passage starts in the translation of the record. Empty when code did not find the passage. The file stores it as a float.
 clauses/model_review_gpt-6-luna-2026-09-22/search_proposals.csv,source_end,integer,characters,"Offset where the cited passage ends, exclusive. Empty when code did not find the passage. The file stores it as a float."
@@ -495,25 +495,25 @@ clauses/model_review_gpt-6-luna-2026-09-22/search_proposals.csv,antecedent_quote
 clauses/model_review_gpt-6-luna-2026-09-22/search_proposals.csv,atomic_source_start,integer,characters,Offset where atomic_evidence_quote starts in the translation. The file stores it as a float.
 clauses/model_review_gpt-6-luna-2026-09-22/search_proposals.csv,atomic_source_end,integer,characters,"Offset where atomic_evidence_quote ends, exclusive. The file stores it as a float."
 clauses/model_review_gpt-6-luna-2026-09-22/search_proposals.csv,model_omitted,boolean,,Unobserved mark that the model gave the clause. Code does not use it.
-clauses/model_review_gpt-6-luna-2026-09-22/search_proposals.csv,parser_unwatched,boolean,,Unobserved mark that the rule of the parser gives the clause. The clause uses this mark.
-clauses/model_review_gpt-6-luna-2026-09-22/fallbacks.jsonl,,JSON lines,,The requests that the model endpoint rejected. Made by scripts/agent/model_review.py.
-clauses/model_review_gpt-6-luna-2026-09-22/recall_cache.jsonl,,JSON lines,,"Every model response of the search for missed clauses, with the model, tokens and cost of each call. Made by scripts/agent/model_review.py (paid)."
-clauses/model_review_gpt-6-luna-2026-09-22/review_cache.jsonl,,JSON lines,,"Every model response of the review of the parser clauses, with the model, tokens and cost of each call. Made by scripts/agent/model_review.py (paid)."
+clauses/model_review_gpt-6-luna-2026-09-22/search_proposals.csv,parser_unwatched,boolean,,Unobserved mark that the parser rule gives the clause. The clause keeps this mark.
+clauses/model_review_gpt-6-luna-2026-09-22/fallbacks.jsonl,,JSON lines,,"The requests to the language model that its service rejected, and what the script did next. Made by scripts/agent/model_review.py."
+clauses/model_review_gpt-6-luna-2026-09-22/recall_cache.jsonl,,JSON lines,,"Each model response of the search for missed clauses, with the model, tokens and cost of the call. Made by scripts/agent/model_review.py, which calls a paid language model."
+clauses/model_review_gpt-6-luna-2026-09-22/review_cache.jsonl,,JSON lines,,"Each model response of the review of the parser clauses, with the model, tokens and cost of the call. Made by scripts/agent/model_review.py, which calls a paid language model."
 clauses/model_review_gpt-6-luna-2026-09-22/run_summary.json,,JSON,,"The calls, tokens, cost and outcomes of the review and the search. Made by scripts/agent/model_review.py."
-clauses/model_review_gpt-6-luna-2026-09-22_adart_iv/run_summary.json,,JSON,,"The calls, tokens, cost and outcomes of the review of ADART IV. The rest of this run quotes the volume and stays local. Made by scripts/agent/model_review.py --scope adart-iv (paid)."
-clauses/model_review_pilot/comparison.json,,JSON,,"The verdicts at the published year of the changes and additions of the three models compared on ten records, with their costs. Made by scripts/agent/compare_models.py."
-clauses/model_review_pilot/gpt-5.6-luna-2026-07-09_additions.csv,,CSV table,,The observations that the search of gpt-5.6-luna-2026-07-09 proposed in the comparison of three models on ten records. Made by scripts/agent/model_review.py (paid).
-clauses/model_review_pilot/gpt-5.6-luna-2026-07-09_changes.csv,,CSV table,,The changes that gpt-5.6-luna-2026-07-09 proposed to parser clauses in the comparison of three models on ten records. Made by scripts/agent/model_review.py (paid).
-clauses/model_review_pilot/gpt-5.6-luna-2026-07-09_summary.json,,JSON,,"The calls, cost and outcomes of gpt-5.6-luna-2026-07-09 in the comparison of three models on ten records. Made by scripts/agent/model_review.py (paid)."
-clauses/model_review_pilot/gpt-5.6-terra-2026-07-09_additions.csv,,CSV table,,The observations that the search of gpt-5.6-terra-2026-07-09 proposed in the comparison of three models on ten records. Made by scripts/agent/model_review.py (paid).
-clauses/model_review_pilot/gpt-5.6-terra-2026-07-09_changes.csv,,CSV table,,The changes that gpt-5.6-terra-2026-07-09 proposed to parser clauses in the comparison of three models on ten records. Made by scripts/agent/model_review.py (paid).
-clauses/model_review_pilot/gpt-5.6-terra-2026-07-09_summary.json,,JSON,,"The calls, cost and outcomes of gpt-5.6-terra-2026-07-09 in the comparison of three models on ten records. Made by scripts/agent/model_review.py (paid)."
-clauses/model_review_pilot/gpt-6-luna-2026-09-22_additions.csv,,CSV table,,The observations that the search of gpt-6-luna-2026-09-22 proposed in the comparison of three models on ten records. Made by scripts/agent/model_review.py (paid).
-clauses/model_review_pilot/gpt-6-luna-2026-09-22_changes.csv,,CSV table,,The changes that gpt-6-luna-2026-09-22 proposed to parser clauses in the comparison of three models on ten records. Made by scripts/agent/model_review.py (paid).
-clauses/model_review_pilot/gpt-6-luna-2026-09-22_summary.json,,JSON,,"The calls, cost and outcomes of gpt-6-luna-2026-09-22 in the comparison of three models on ten records. Made by scripts/agent/model_review.py (paid)."
-results/tablet_dates.parquet,,Parquet table,,"One row per ADART I to III record: its decision, strict and safety sets, groups of tied years, and the verdicts of its clauses in those years. Made by scripts/inference/date_all.py."
-results/tablet_dates.parquet,tablet,string,,Identifier of the ADsD record.
-results/tablet_dates.parquet,claim,string,,"Decision of step 3 from the astronomy alone. committed means one year, ranked means a ranked set of candidate years, and decline means no decision. The commitment rule E(y*) of the paper sets committed."
+clauses/model_review_gpt-6-luna-2026-09-22_adart_iv/run_summary.json,,JSON,,"The calls, tokens, cost and outcomes of the review and the search of ADART IV. The other files of this review quote the volume, so they stay out of the repository. Made by scripts/agent/model_review.py --scope adart-iv, which calls a paid language model."
+clauses/model_review_pilot/comparison.json,,JSON,,"A comparison of three language models as reviewers on the same ten records. For each model it gives the calls, the cost, and the verdicts at the published year of its changes and additions. Made by scripts/agent/compare_models.py."
+clauses/model_review_pilot/gpt-5.6-luna-2026-07-09_additions.csv,,CSV table,,"The observations that the search of gpt-5.6-luna-2026-07-09 proposed, in the comparison of three models on the same ten records. Made by scripts/agent/model_review.py, which calls a paid language model."
+clauses/model_review_pilot/gpt-5.6-luna-2026-07-09_changes.csv,,CSV table,,"The changes that gpt-5.6-luna-2026-07-09 proposed to parser clauses, in the comparison of three models on the same ten records. Made by scripts/agent/model_review.py, which calls a paid language model."
+clauses/model_review_pilot/gpt-5.6-luna-2026-07-09_summary.json,,JSON,,"The calls, cost and outcomes of gpt-5.6-luna-2026-07-09, in the comparison of three models on the same ten records. Made by scripts/agent/model_review.py, which calls a paid language model."
+clauses/model_review_pilot/gpt-5.6-terra-2026-07-09_additions.csv,,CSV table,,"The observations that the search of gpt-5.6-terra-2026-07-09 proposed, in the comparison of three models on the same ten records. Made by scripts/agent/model_review.py, which calls a paid language model."
+clauses/model_review_pilot/gpt-5.6-terra-2026-07-09_changes.csv,,CSV table,,"The changes that gpt-5.6-terra-2026-07-09 proposed to parser clauses, in the comparison of three models on the same ten records. Made by scripts/agent/model_review.py, which calls a paid language model."
+clauses/model_review_pilot/gpt-5.6-terra-2026-07-09_summary.json,,JSON,,"The calls, cost and outcomes of gpt-5.6-terra-2026-07-09, in the comparison of three models on the same ten records. Made by scripts/agent/model_review.py, which calls a paid language model."
+clauses/model_review_pilot/gpt-6-luna-2026-09-22_additions.csv,,CSV table,,"The observations that the search of gpt-6-luna-2026-09-22 proposed, in the comparison of three models on the same ten records. Made by scripts/agent/model_review.py, which calls a paid language model."
+clauses/model_review_pilot/gpt-6-luna-2026-09-22_changes.csv,,CSV table,,"The changes that gpt-6-luna-2026-09-22 proposed to parser clauses, in the comparison of three models on the same ten records. Made by scripts/agent/model_review.py, which calls a paid language model."
+clauses/model_review_pilot/gpt-6-luna-2026-09-22_summary.json,,JSON,,"The calls, cost and outcomes of gpt-6-luna-2026-09-22, in the comparison of three models on the same ten records. Made by scripts/agent/model_review.py, which calls a paid language model."
+results/tablet_dates.parquet,,Parquet table,,"One row per record of ADART I to III, with its decision, strict and safety sets, and groups of tied years. It also gives the verdicts of its clauses in those years. Made by scripts/inference/date_all.py from clauses/reviewed_clauses.parquet."
+results/tablet_dates.parquet,tablet,string,,ADsD identifier of the record.
+results/tablet_dates.parquet,claim,string,,"Decision of step 3 from the astronomy alone. committed means one year, ranked means a ranked set of candidate years, and decline means no decision. The commitment rule of the paper sets committed."
 results/tablet_dates.parquet,basis,string,,"Reason code of the claim. A commitment rests on secure_lunar_eclipse or independent_astronomy, and a ranking on astronomical_frontier. A decline is supporting_only, non_discriminating, no_recognized_evidence, no_text or unsupported_transliteration."
 results/tablet_dates.parquet,reason,string,,"The claim and its basis as an English sentence, with counts."
 results/tablet_dates.parquet,strict_years_astro,list of integers,astronomical year,"Strict set S, the years that no other year beats on clocks K and decisive bits I_D. It holds all 701 years when the record has no decisive clause."
@@ -539,7 +539,7 @@ results/tablet_dates.parquet,evidence_levels_json[].contradictions,integer,count
 results/tablet_dates.parquet,evidence_levels_json[].years_astro,list of integers,astronomical year,"Years of the group, in increasing order."
 results/tablet_dates.parquet,evidence_levels_json[].physical_groups_years_astro,JSON,astronomical year,"The years of the group split into lists, one for each pattern of verdicts over all clauses. Years in one list have identical verdicts."
 results/tablet_dates.parquet,evidence_levels_json[].predicate_exact,boolean,,"True if all years of the group have identical verdicts, so that physical_groups_years_astro holds one list."
-results/tablet_dates.parquet,n_statements,integer,count,Number of parser clauses of the record.
+results/tablet_dates.parquet,n_statements,integer,count,"Number of clauses that dating used for the record, from clauses/reviewed_clauses.parquet."
 results/tablet_dates.parquet,n_testable_statements,integer,count,Number of clauses that are testable in at least one candidate year.
 results/tablet_dates.parquet,n_decisive_statements,integer,count,Number of source statements with a decisive clause that carries bits. Step 3 declines a record with 0.
 results/tablet_dates.parquet,n_restored_statements,integer,count,Number of clauses that are restored in the edition.
@@ -553,7 +553,7 @@ results/tablet_dates.parquet,chronology_years_astro,list of integers,astronomica
 results/tablet_dates.parquet,chronology_relation,string,,"Relation of the stated year to the astronomy. Values are absent, confirms_astronomy, conflicts_with_astronomy, selects_strict_candidate, selects_safety_candidate, outside_astronomy, lookup_only and multiple_absolute_years."
 results/tablet_dates.parquet,chronology_evidence_json,JSON,,"Passages that state the year, as a list of strings."
 results/tablet_dates.parquet,chronology_evidence_json[],string,,"One passage that states a year, such as Year 143 , king Antiochus."
-results/tablet_dates.parquet,combined_claim,string,,"Decision after the code adds the stated year. It equals claim with two exceptions. A single stated year in the strict or safety set of a record with a decisive clause gives committed. A stated year that conflicts with a commitment gives ranked. The paper reports claim, not this column."
+results/tablet_dates.parquet,combined_claim,string,,Decision after the code adds the stated year. It equals claim with two exceptions. A single stated year in the strict or safety set of a record with a decisive clause gives committed. A stated year that conflicts with a commitment gives ranked. The paper reports claim.
 results/tablet_dates.parquet,combined_basis,string,,"Reason code of combined_claim. It adds chronology_adjudicated, chronology_conflict and chronology_only_not_astronomy to the values of basis."
 results/tablet_dates.parquet,combined_years_astro,list of integers,astronomical year,"Candidate years after the code adds the stated year. It is the strict set, the stated year alone, or both together when they conflict."
 results/tablet_dates.parquet,decisive_evidence_json,JSON,,"Texts of the decisive clauses that carry bits, as a list of strings."
@@ -561,7 +561,7 @@ results/tablet_dates.parquet,decisive_evidence_json[],string,,"Text of one decis
 results/tablet_dates.parquet,supporting_evidence_json,JSON,,"Texts of the supporting clauses that carry bits, as a list of strings."
 results/tablet_dates.parquet,supporting_evidence_json[],string,,Text of one supporting clause.
 results/tablet_dates.parquet,statement_verdicts_json,JSON,,"Every clause with its fields, bits and verdicts in the strict and safety sets, as a list of objects."
-results/tablet_dates.parquet,statement_verdicts_json[].index,integer,,"Position of the clause in the parser output of the record, from 0."
+results/tablet_dates.parquet,statement_verdicts_json[].index,integer,,"Position of the clause in the clause list of the record, from 0, as clause_index of clauses/reviewed_clauses.parquet."
 results/tablet_dates.parquet,statement_verdicts_json[].kind,string,,"Clause type, as in the column kind of clauses/parser_clauses.parquet."
 results/tablet_dates.parquet,statement_verdicts_json[].planet,string,,Body of the clause.
 results/tablet_dates.parquet,statement_verdicts_json[].target_planet,string,,Planet that the body is measured against. Empty otherwise.
@@ -583,7 +583,7 @@ results/tablet_dates.parquet,statement_verdicts_json[].evidence_families,list of
 results/tablet_dates.parquet,statement_verdicts_json[].joint_positions,JSON,,Planet and sign pairs of a joint statement. Empty list otherwise.
 results/tablet_dates.parquet,statement_verdicts_json[].joint_source_start,integer,characters,"Offset where the joint statement starts, or -1."
 results/tablet_dates.parquet,statement_verdicts_json[].joint_source_end,integer,characters,"Offset where the joint statement ends, or -1."
-results/tablet_dates.parquet,statement_verdicts_json[].joint_day,integer,,Day that governs the joint statement. Empty in this release.
+results/tablet_dates.parquet,statement_verdicts_json[].joint_day,integer,,Day that governs the joint statement. Empty in every row.
 results/tablet_dates.parquet,statement_verdicts_json[].joint_restored,boolean,,True if any part of the joint statement is restored.
 results/tablet_dates.parquet,statement_verdicts_json[].joint_omitted,boolean,,True if any part of the joint statement is marked as unobserved.
 results/tablet_dates.parquet,statement_verdicts_json[].scoring_unit,integer,,Number of the source statement of the clause in the record. Linked clauses share it.
@@ -614,10 +614,10 @@ results/tablet_dates.parquet,calendar_sha256,string,SHA-256,"SHA-256 of physical
 results/tablet_dates.parquet,ephemeris_sha256,string,SHA-256,"SHA-256 of physical/ephemeris.parquet, at the time of the run."
 results/tablet_dates.parquet,eclipse_data_sha256,string,SHA-256,"SHA-256 of physical/eclipses.parquet, at the time of the run."
 results/tablet_dates.parquet,normal_stars_sha256,string,SHA-256,"SHA-256 of physical/normal_stars.parquet, at the time of the run."
-results/adart_iv_dates.parquet,,Parquet table,,The same for the 867 ADART IV entries. Each clause keeps its extracted statement. Made by scripts/inference/date_adart_iv.py.
+results/adart_iv_dates.parquet,,Parquet table,,"One row per undated entry of ADART IV, 867 in all, with the columns of tablet_dates.parquet and the pages of the entry. The dates use clauses/adart_iv_reviewed_clauses.parquet. Made by scripts/inference/date_adart_iv.py."
 results/adart_iv_dates.parquet,tablet,string,,Identifier of the ADART IV entry.
-results/adart_iv_dates.parquet,claim,string,,"Decision of step 3 from the astronomy alone. committed means one year, ranked means a ranked set of candidate years, and decline means no decision. The commitment rule E(y*) of the paper sets committed."
-results/adart_iv_dates.parquet,basis,string,,"Reason code of the claim. A commitment rests on secure_lunar_eclipse or independent_astronomy, and a ranking on astronomical_frontier. A decline is supporting_only, non_discriminating, no_recognized_evidence, no_text or unsupported_transliteration. For ADART IV, unsupported_transliteration marks the 7 entries without a translation."
+results/adart_iv_dates.parquet,claim,string,,"Decision of step 3 from the astronomy alone. committed means one year, ranked means a ranked set of candidate years, and decline means no decision. The commitment rule of the paper sets committed."
+results/adart_iv_dates.parquet,basis,string,,"Reason code of the claim. A commitment rests on secure_lunar_eclipse or independent_astronomy, and a ranking on astronomical_frontier. A decline is supporting_only, non_discriminating, no_recognized_evidence, no_text or unsupported_transliteration. For ADART IV, unsupported_transliteration marks the 8 entries without translated astronomy text. 7 of them have no translation."
 results/adart_iv_dates.parquet,reason,string,,"The claim and its basis as an English sentence, with counts."
 results/adart_iv_dates.parquet,strict_years_astro,list of integers,astronomical year,"Strict set S, the years that no other year beats on clocks K and decisive bits I_D. It holds all 701 years when the record has no decisive clause."
 results/adart_iv_dates.parquet,safety_years_astro,list of integers,astronomical year,"Safety set, the strict set joined with the strict sets recomputed without each decisive source statement in turn."
@@ -642,7 +642,7 @@ results/adart_iv_dates.parquet,evidence_levels_json[].contradictions,integer,cou
 results/adart_iv_dates.parquet,evidence_levels_json[].years_astro,list of integers,astronomical year,"Years of the group, in increasing order."
 results/adart_iv_dates.parquet,evidence_levels_json[].physical_groups_years_astro,JSON,astronomical year,"The years of the group split into lists, one for each pattern of verdicts over all clauses. Years in one list have identical verdicts."
 results/adart_iv_dates.parquet,evidence_levels_json[].predicate_exact,boolean,,"True if all years of the group have identical verdicts, so that physical_groups_years_astro holds one list."
-results/adart_iv_dates.parquet,n_statements,integer,count,Number of parser clauses of the record.
+results/adart_iv_dates.parquet,n_statements,integer,count,"Number of clauses that dating used for the entry, from clauses/adart_iv_reviewed_clauses.parquet."
 results/adart_iv_dates.parquet,n_testable_statements,integer,count,Number of clauses that are testable in at least one candidate year.
 results/adart_iv_dates.parquet,n_decisive_statements,integer,count,Number of source statements with a decisive clause that carries bits. Step 3 declines a record with 0.
 results/adart_iv_dates.parquet,n_restored_statements,integer,count,Number of clauses that are restored in the edition.
@@ -655,7 +655,7 @@ results/adart_iv_dates.parquet,chronology_status,string,,"Whether the text state
 results/adart_iv_dates.parquet,chronology_years_astro,list of integers,astronomical year,Stated years that the code read after dating. Always an empty list for ADART IV.
 results/adart_iv_dates.parquet,chronology_relation,string,,Relation of the stated year to the astronomy. Always absent for ADART IV.
 results/adart_iv_dates.parquet,chronology_evidence_json,JSON,,"Passages that state the year, as a list of strings. Always an empty list for ADART IV."
-results/adart_iv_dates.parquet,combined_claim,string,,"Decision after the code adds the stated year. It equals claim with two exceptions. A single stated year in the strict or safety set of a record with a decisive clause gives committed. A stated year that conflicts with a commitment gives ranked. The paper reports claim, not this column."
+results/adart_iv_dates.parquet,combined_claim,string,,Decision after the code adds the stated year. It equals claim with two exceptions. A single stated year in the strict or safety set of a record with a decisive clause gives committed. A stated year that conflicts with a commitment gives ranked. The paper reports claim.
 results/adart_iv_dates.parquet,combined_basis,string,,"Reason code of combined_claim. It adds chronology_adjudicated, chronology_conflict and chronology_only_not_astronomy to the values of basis."
 results/adart_iv_dates.parquet,combined_years_astro,list of integers,astronomical year,"Candidate years after the code adds the stated year. It is the strict set, the stated year alone, or both together when they conflict."
 results/adart_iv_dates.parquet,decisive_evidence_json,JSON,,"Texts of the decisive clauses that carry bits, as a list of strings."
@@ -663,7 +663,7 @@ results/adart_iv_dates.parquet,decisive_evidence_json[],string,,"Text of one dec
 results/adart_iv_dates.parquet,supporting_evidence_json,JSON,,"Texts of the supporting clauses that carry bits, as a list of strings."
 results/adart_iv_dates.parquet,supporting_evidence_json[],string,,Text of one supporting clause.
 results/adart_iv_dates.parquet,statement_verdicts_json,JSON,,"Every clause with its fields, bits and verdicts in the strict and safety sets, as a list of objects."
-results/adart_iv_dates.parquet,statement_verdicts_json[].index,integer,,"Position of the clause in the parser output of the record, from 0."
+results/adart_iv_dates.parquet,statement_verdicts_json[].index,integer,,"Position of the clause in the clause list of the entry, from 0, as clause_index of clauses/adart_iv_reviewed_clauses.parquet."
 results/adart_iv_dates.parquet,statement_verdicts_json[].kind,string,,"Clause type, as in the column kind of clauses/parser_clauses.parquet."
 results/adart_iv_dates.parquet,statement_verdicts_json[].planet,string,,Body of the clause.
 results/adart_iv_dates.parquet,statement_verdicts_json[].target_planet,string,,Planet that the body is measured against. Empty otherwise.
@@ -685,7 +685,7 @@ results/adart_iv_dates.parquet,statement_verdicts_json[].evidence_families,list 
 results/adart_iv_dates.parquet,statement_verdicts_json[].joint_positions,JSON,,Planet and sign pairs of a joint statement. Empty list otherwise.
 results/adart_iv_dates.parquet,statement_verdicts_json[].joint_source_start,integer,characters,"Offset where the joint statement starts, or -1."
 results/adart_iv_dates.parquet,statement_verdicts_json[].joint_source_end,integer,characters,"Offset where the joint statement ends, or -1."
-results/adart_iv_dates.parquet,statement_verdicts_json[].joint_day,integer,,Day that governs the joint statement. Empty in this release.
+results/adart_iv_dates.parquet,statement_verdicts_json[].joint_day,integer,,Day that governs the joint statement. Empty in every row.
 results/adart_iv_dates.parquet,statement_verdicts_json[].joint_restored,boolean,,True if any part of the joint statement is restored.
 results/adart_iv_dates.parquet,statement_verdicts_json[].joint_omitted,boolean,,True if any part of the joint statement is marked as unobserved.
 results/adart_iv_dates.parquet,statement_verdicts_json[].scoring_unit,integer,,Number of the source statement of the clause in the record. Linked clauses share it.
@@ -724,9 +724,9 @@ results/adart_iv_dates.parquet,calendar_sha256,string,SHA-256,"SHA-256 of physic
 results/adart_iv_dates.parquet,ephemeris_sha256,string,SHA-256,"SHA-256 of physical/ephemeris.parquet, at the time of the run."
 results/adart_iv_dates.parquet,eclipse_data_sha256,string,SHA-256,"SHA-256 of physical/eclipses.parquet, at the time of the run."
 results/adart_iv_dates.parquet,normal_stars_sha256,string,SHA-256,"SHA-256 of physical/normal_stars.parquet, at the time of the run."
-results/adart_iv_addenda_dates.parquet,,Parquet table,,"The same for the 52 texts of the dated addenda of ADART IV, dated with the parser clauses, as the test registered. Made by scripts/inference/date_adart_iv_addenda.py."
+results/adart_iv_addenda_dates.parquet,,Parquet table,,"One row per text of the dated addenda of ADART IV, 52 in all, with the columns of tablet_dates.parquet. The dates use the parser clauses, as benchmark/addenda_registration.json registers. Made by scripts/inference/date_adart_iv_addenda.py."
 results/adart_iv_addenda_dates.parquet,tablet,string,,Identifier of the text of the dated addenda of ADART IV.
-results/adart_iv_addenda_dates.parquet,claim,string,,"Decision of step 3 from the astronomy alone. committed means one year, ranked means a ranked set of candidate years, and decline means no decision. The commitment rule E(y*) of the paper sets committed."
+results/adart_iv_addenda_dates.parquet,claim,string,,"Decision of step 3 from the astronomy alone. committed means one year, ranked means a ranked set of candidate years, and decline means no decision. The commitment rule of the paper sets committed."
 results/adart_iv_addenda_dates.parquet,basis,string,,"Reason code of the claim. A commitment rests on secure_lunar_eclipse or independent_astronomy, and a ranking on astronomical_frontier. A decline is supporting_only, non_discriminating, no_recognized_evidence, no_text or unsupported_transliteration."
 results/adart_iv_addenda_dates.parquet,reason,string,,"The claim and its basis as an English sentence, with counts."
 results/adart_iv_addenda_dates.parquet,strict_years_astro,list of integers,astronomical year,"Strict set S, the years that no other year beats on clocks K and decisive bits I_D. It holds all 701 years when the record has no decisive clause."
@@ -752,7 +752,7 @@ results/adart_iv_addenda_dates.parquet,evidence_levels_json[].contradictions,int
 results/adart_iv_addenda_dates.parquet,evidence_levels_json[].years_astro,list of integers,astronomical year,"Years of the group, in increasing order."
 results/adart_iv_addenda_dates.parquet,evidence_levels_json[].physical_groups_years_astro,JSON,astronomical year,"The years of the group split into lists, one for each pattern of verdicts over all clauses. Years in one list have identical verdicts."
 results/adart_iv_addenda_dates.parquet,evidence_levels_json[].predicate_exact,boolean,,"True if all years of the group have identical verdicts, so that physical_groups_years_astro holds one list."
-results/adart_iv_addenda_dates.parquet,n_statements,integer,count,Number of parser clauses of the record.
+results/adart_iv_addenda_dates.parquet,n_statements,integer,count,Number of parser clauses of the text.
 results/adart_iv_addenda_dates.parquet,n_testable_statements,integer,count,Number of clauses that are testable in at least one candidate year.
 results/adart_iv_addenda_dates.parquet,n_decisive_statements,integer,count,Number of source statements with a decisive clause that carries bits. Step 3 declines a record with 0.
 results/adart_iv_addenda_dates.parquet,n_restored_statements,integer,count,Number of clauses that are restored in the edition.
@@ -765,7 +765,7 @@ results/adart_iv_addenda_dates.parquet,chronology_status,string,,"Whether the tr
 results/adart_iv_addenda_dates.parquet,chronology_years_astro,list of integers,astronomical year,Stated years that the code read after dating. Empty list when the translation states none.
 results/adart_iv_addenda_dates.parquet,chronology_relation,string,,"Relation of the stated year to the astronomy. Values are absent, confirms_astronomy, conflicts_with_astronomy, selects_strict_candidate, selects_safety_candidate, outside_astronomy, lookup_only and multiple_absolute_years."
 results/adart_iv_addenda_dates.parquet,chronology_evidence_json,JSON,,"Passages that state the year, as a list of strings."
-results/adart_iv_addenda_dates.parquet,combined_claim,string,,"Decision after the code adds the stated year. It equals claim with two exceptions. A single stated year in the strict or safety set of a record with a decisive clause gives committed. A stated year that conflicts with a commitment gives ranked. The paper reports claim, not this column."
+results/adart_iv_addenda_dates.parquet,combined_claim,string,,Decision after the code adds the stated year. It equals claim with two exceptions. A single stated year in the strict or safety set of a record with a decisive clause gives committed. A stated year that conflicts with a commitment gives ranked. The paper reports claim.
 results/adart_iv_addenda_dates.parquet,combined_basis,string,,"Reason code of combined_claim. It adds chronology_adjudicated, chronology_conflict and chronology_only_not_astronomy to the values of basis."
 results/adart_iv_addenda_dates.parquet,combined_years_astro,list of integers,astronomical year,"Candidate years after the code adds the stated year. It is the strict set, the stated year alone, or both together when they conflict."
 results/adart_iv_addenda_dates.parquet,decisive_evidence_json,JSON,,"Texts of the decisive clauses that carry bits, as a list of strings."
@@ -795,7 +795,7 @@ results/adart_iv_addenda_dates.parquet,statement_verdicts_json[].evidence_famili
 results/adart_iv_addenda_dates.parquet,statement_verdicts_json[].joint_positions,JSON,,Planet and sign pairs of a joint statement. Empty list otherwise.
 results/adart_iv_addenda_dates.parquet,statement_verdicts_json[].joint_source_start,integer,characters,"Offset where the joint statement starts, or -1."
 results/adart_iv_addenda_dates.parquet,statement_verdicts_json[].joint_source_end,integer,characters,"Offset where the joint statement ends, or -1."
-results/adart_iv_addenda_dates.parquet,statement_verdicts_json[].joint_day,integer,,Day that governs the joint statement. Empty in this release.
+results/adart_iv_addenda_dates.parquet,statement_verdicts_json[].joint_day,integer,,Day that governs the joint statement. Empty in every row.
 results/adart_iv_addenda_dates.parquet,statement_verdicts_json[].joint_restored,boolean,,True if any part of the joint statement is restored.
 results/adart_iv_addenda_dates.parquet,statement_verdicts_json[].joint_omitted,boolean,,True if any part of the joint statement is marked as unobserved.
 results/adart_iv_addenda_dates.parquet,statement_verdicts_json[].scoring_unit,integer,,Number of the source statement of the clause in the record. Linked clauses share it.
@@ -822,7 +822,7 @@ results/adart_iv_addenda_dates.parquet,n_translation_lines,integer,count,"Copy o
 results/adart_iv_addenda_dates.parquet,n_physical_fragments,integer,count,"Number of fragments that form the tablet, counted from the plus signs in museum_no. The code joins it after dating."
 results/adart_iv_addenda_dates.parquet,method_version,string,,Version label of the dating method.
 results/adart_iv_addenda_dates.parquet,corpus_sha256,string,SHA-256,SHA-256 of corpus/adart_iv_addenda_tablets.parquet.
-results/adart_iv_addenda_dates.parquet,date_adart_iv_sha256,string,SHA-256,"SHA-256 of scripts/inference/date_adart_iv.py, whose main() inference/date_adart_iv_addenda.py runs."
+results/adart_iv_addenda_dates.parquet,date_adart_iv_sha256,string,SHA-256,"SHA-256 of scripts/inference/date_adart_iv.py, which scripts/inference/date_adart_iv_addenda.py runs."
 results/adart_iv_addenda_dates.parquet,date_all_sha256,string,SHA-256,"SHA-256 of scripts/inference/date_all.py, which runs steps 2 and 3, at the time of the run."
 results/adart_iv_addenda_dates.parquet,statements_sha256,string,SHA-256,"SHA-256 of tools/statements.py, the parser and the rules, at the time of the run."
 results/adart_iv_addenda_dates.parquet,skill_sha256,string,SHA-256,"SHA-256 of skills/dating_protocol.md, the written protocol, at the time of the run."
@@ -834,10 +834,10 @@ results/adart_iv_addenda_dates.parquet,calendar_sha256,string,SHA-256,"SHA-256 o
 results/adart_iv_addenda_dates.parquet,ephemeris_sha256,string,SHA-256,"SHA-256 of physical/ephemeris.parquet, at the time of the run."
 results/adart_iv_addenda_dates.parquet,eclipse_data_sha256,string,SHA-256,"SHA-256 of physical/eclipses.parquet, at the time of the run."
 results/adart_iv_addenda_dates.parquet,normal_stars_sha256,string,SHA-256,"SHA-256 of physical/normal_stars.parquet, at the time of the run."
-results/adart_iv_addenda_summary.json,,JSON,,Counts and hashes of the addenda run. Made by scripts/inference/date_adart_iv_addenda.py.
-results/adart_iv_summary.json,,JSON,,Counts and hashes of the ADART IV run. Made by scripts/inference/date_adart_iv.py.
-benchmark/benchmark_records.parquet,,Parquet table,,"The benchmark list, fixed before any candidate set met a published date: the 417 records, of which 179 are in the benchmark. Made by scripts/audit/build_benchmark.py --rebuild-population only."
-benchmark/benchmark_records.parquet,tablet,string,,ADsD identifier of the record. The file holds all 417 dated records and is not rebuilt.
+results/adart_iv_addenda_summary.json,,JSON,,Counts and hashes of the dating of the dated addenda of ADART IV. Made by scripts/inference/date_adart_iv_addenda.py.
+results/adart_iv_summary.json,,JSON,,Counts and hashes of the dating of the undated ADART IV entries. Made by scripts/inference/date_adart_iv.py.
+benchmark/benchmark_records.parquet,,Parquet table,,"All 417 dated records of ADART I to III, with the 179 benchmark records marked. The list was fixed before any candidate set was compared with a published date. Made by scripts/audit/build_benchmark.py --rebuild-population. make rebuild leaves it as it is."
+benchmark/benchmark_records.parquet,tablet,string,,ADsD identifier of the record. The file has one row per record.
 benchmark/benchmark_records.parquet,project,string,,Copy of the column project of corpus/evidence.parquet.
 benchmark/benchmark_records.parquet,lang,string,,Copy of the column lang of corpus/evidence.parquet.
 benchmark/benchmark_records.parquet,n_lines,integer,count,Copy of the column n_lines of corpus/evidence.parquet.
@@ -852,11 +852,11 @@ benchmark/benchmark_records.parquet,outer_llm,boolean,,Copy of the column outer_
 benchmark/benchmark_records.parquet,coarse_cohort,string,,Copy of the column cohort of corpus/cohorts.parquet.
 benchmark/benchmark_records.parquet,cohort_source,string,,"Copy of the column cohort_source of corpus/cohorts.parquet, always regex."
 benchmark/benchmark_records.parquet,joined,boolean,,Copy of the column joined of corpus/cohorts.parquet.
-benchmark/benchmark_records.parquet,n_extracted_facts,integer,count,"Number of parser clauses of the record. The value comes from the parser of selection_version, when the authors fixed the benchmark."
-benchmark/benchmark_records.parquet,n_extractable_facts,integer,count,"Number of parser clauses without eclipses that the scribe marks as unobserved. The value comes from the parser of selection_version, when the authors fixed the benchmark."
+benchmark/benchmark_records.parquet,n_extracted_facts,integer,count,"Number of parser clauses of the record, counted with the parser of selection_version when the benchmark was fixed."
+benchmark/benchmark_records.parquet,n_extractable_facts,integer,count,"Number of parser clauses without the eclipses that the scribe marks as unobserved, counted with the parser of selection_version."
 benchmark/benchmark_records.parquet,n_frozen_extractable_facts,integer,count,n_extractable_facts without the clauses of four rules that entered the code after the benchmark was fixed. A record with 3 or more is in the benchmark.
-benchmark/benchmark_records.parquet,n_semantic_decisive,integer,count,"Number of parser clauses in the decisive tier. The value comes from the parser of selection_version, when the authors fixed the benchmark."
-benchmark/benchmark_records.parquet,n_active_decisive,integer,count,"Number of source statements with a decisive clause that carries bits. The value comes from the parser of selection_version, when the authors fixed the benchmark."
+benchmark/benchmark_records.parquet,n_semantic_decisive,integer,count,"Number of parser clauses in the decisive tier, counted with the parser of selection_version."
+benchmark/benchmark_records.parquet,n_active_decisive,integer,count,"Number of source statements with a decisive clause that carries bits, counted with the parser of selection_version."
 benchmark/benchmark_records.parquet,regex_cohort,string,,Cohort computed again from the regex columns by the rule of corpus/cohorts.parquet. It equals coarse_cohort.
 benchmark/benchmark_records.parquet,tool_benchmark_eligible,boolean,,True if the record is one of the 179 benchmark records.
 benchmark/benchmark_records.parquet,tool_year_bearing,boolean,,"True if the record had a decisive clause when the benchmark was fixed, 112 records. The benchmark rates use the decisive column of benchmark_results.parquet."
@@ -865,19 +865,19 @@ benchmark/benchmark_records.parquet,human_comparison_label,string,,Always not_in
 benchmark/benchmark_records.parquet,selection_uses_backward_success,boolean,,Always False. The selection did not use any result of dating.
 benchmark/benchmark_records.parquet,selection_version,string,,"Version label of the selection, pre_station_extension_2026-08-14."
 benchmark/benchmark_records.parquet,generator_sha256,string,SHA-256,SHA-256 of scripts/audit/build_benchmark.py when it wrote the file.
-benchmark/benchmark_results.parquet,,Parquet table,,"The 179 benchmark records, scored against the published year. Made by scripts/audit/score_benchmark.py."
+benchmark/benchmark_results.parquet,,Parquet table,,"The 179 benchmark records, dated with clauses/reviewed_clauses.parquet and scored against the published year. Made by scripts/audit/score_benchmark.py."
 benchmark/benchmark_results.parquet,tablet,string,,ADsD identifier of one of the 179 benchmark records.
-benchmark/benchmark_results.parquet,n,integer,count,"Number of parser clauses of the record, without eclipses that the scribe marks as unobserved."
+benchmark/benchmark_results.parquet,n,integer,count,"Number of clauses of the record in clauses/reviewed_clauses.parquet, without the eclipses that the scribe marks as unobserved."
 benchmark/benchmark_results.parquet,omitted_eclipses,integer,count,Number of eclipse clauses that the scribe marks as unobserved.
 benchmark/benchmark_results.parquet,semantic_decisive,integer,count,Number of clauses in the decisive tier.
 benchmark/benchmark_results.parquet,active_decisive,integer,count,Number of decisive clauses that carry bits.
-benchmark/benchmark_results.parquet,decisive,boolean,,"True if the record has decisive clauses: its result in results/tablet_dates.parquet keeps at least one. 120 of the 179 benchmark records do, and the benchmark reports its rates for them."
+benchmark/benchmark_results.parquet,decisive,boolean,,"True if the record has decisive clauses, so that its result in results/tablet_dates.parquet keeps at least one. 120 of the 179 benchmark records do, and the benchmark reports its rates for them."
 benchmark/benchmark_results.parquet,weighting,string,,"Scoring mode of the run. Always skill, the method of the paper."
 benchmark/benchmark_results.parquet,best,float,bits,Highest decisive bits I_D over all candidate years.
 benchmark/benchmark_results.parquet,best_bodies,integer,count,Highest number of clocks K over all candidate years.
 benchmark/benchmark_results.parquet,strict_years_astro,list of integers,astronomical year,Strict set S of the record.
 benchmark/benchmark_results.parquet,safety_years_astro,list of integers,astronomical year,Safety set of the record.
-benchmark/benchmark_results.parquet,display_top10_years_astro,list of integers,astronomical year,"First ten years of the ranking. The display order is the ranking with tied years in calendar order, earliest first, so this order is partly arbitrary."
+benchmark/benchmark_results.parquet,display_top10_years_astro,list of integers,astronomical year,"First ten years of the display order, which is the ranking with tied years in calendar order, earliest first."
 benchmark/benchmark_results.parquet,top_evidence_group_years_astro,list of integers,astronomical year,"First group L1, the years tied at the top of the ranking."
 benchmark/benchmark_results.parquet,top_evidence_group_size,integer,count,Number of years in the first group.
 benchmark/benchmark_results.parquet,top_evidence_group_predicate_exact,boolean,,True if all years of the first group have identical verdicts for every clause.
@@ -893,20 +893,20 @@ benchmark/benchmark_results.parquet,bce_second,integer,BCE year,Copy of bce_seco
 benchmark/benchmark_results.parquet,cohort,string,,Copy of the column cohort of corpus/cohorts.parquet.
 benchmark/benchmark_results.parquet,joined,boolean,,Copy of the column joined of corpus/cohorts.parquet.
 benchmark/benchmark_results.parquet,truth_astro,integer,astronomical year,"Published year of the record, 1 minus bce_first."
-benchmark/benchmark_results.parquet,rank,integer,,"1 plus the number of years with more clocks than the published year, or as many clocks and more decisive bits. It is 1 for every record in this release."
+benchmark/benchmark_results.parquet,rank,integer,,"1 plus the number of years with more clocks than the published year, or as many clocks and more decisive bits."
 benchmark/benchmark_results.parquet,unique,boolean,,True if the strict set holds the published year alone.
-benchmark/benchmark_results.parquet,truth_in_strict,boolean,,True if the strict set holds the published year. It is True for every record in this release.
-benchmark/benchmark_results.parquet,truth_in_safety,boolean,,True if the safety set holds the published year. It is True for every record in this release.
+benchmark/benchmark_results.parquet,truth_in_strict,boolean,,True if the strict set holds the published year.
+benchmark/benchmark_results.parquet,truth_in_safety,boolean,,True if the safety set holds the published year. It is True for all 179 records.
 benchmark/benchmark_results.parquet,truth_evidence_group_rank,integer,,"Rank of the group of tied years that holds the published year, from 1 for L1."
 benchmark/benchmark_results.parquet,truth_in_top_evidence_group,boolean,,True if the first group L1 holds the published year.
 benchmark/benchmark_results.parquet,truth_predicate_equivalent_years,integer,count,"Number of candidate years with the same verdicts as the published year for every clause, the published year included."
-benchmark/benchmark_results.parquet,display_top1_correct,boolean,,"True if the first year of the display order is the published year. The display order is the ranking with tied years in calendar order, earliest first, so this order is partly arbitrary."
+benchmark/benchmark_results.parquet,display_top1_correct,boolean,,"True if the first year of the display order is the published year. The display order is the ranking with tied years in calendar order, earliest first."
 benchmark/benchmark_results.parquet,display_top3_correct,boolean,,True if the first three years of the display order hold the published year.
 benchmark/benchmark_results.parquet,display_top1_abs_error,integer,years,Distance between the first year of the display order and the published year.
 benchmark/benchmark_results.parquet,display_top3_min_abs_error,integer,years,Smallest distance between the first three years of the display order and the published year.
 benchmark/benchmark_clause_bits.parquet,,Parquet table,,Bits and tier of each clause of the 179 benchmark records. Made by scripts/audit/score_benchmark.py.
 benchmark/benchmark_clause_bits.parquet,tablet,string,,ADsD identifier of the record.
-benchmark/benchmark_clause_bits.parquet,statement_index,integer,,"Position of the clause in the parser output of the record, as in parser_clauses.parquet. The file holds the clauses of the 179 benchmark records."
+benchmark/benchmark_clause_bits.parquet,statement_index,integer,,"Position of the clause in the clause list of the record, from 0, as clause_index of clauses/reviewed_clauses.parquet. The file holds the clauses of the 179 benchmark records."
 benchmark/benchmark_clause_bits.parquet,kind,string,,"Clause type. appulse is a Moon or planet against a Normal Star, and planet_appulse is the Moon against a planet. planet_planet_appulse is a planet against a planet, and station_appulse is a station against a Normal Star. station is a station in a sign, in_sign is a planet in a sign, and entry is a planet that reaches a sign. first_app and last_app are a first and a last appearance, and acronychal is an acronychal rising. eclipse is an eclipse, season is a solstice or equinox, and sirius is a Sirius date."
 benchmark/benchmark_clause_bits.parquet,planet,string,,"Body of the clause. Values are moon, mercury, venus, mars, jupiter and saturn. sun marks a solstice or equinox, sirius a Sirius date, and lunar or solar an eclipse."
 benchmark/benchmark_clause_bits.parquet,target_planet,string,,"Planet that the clause measures the body against, for planet_appulse and planet_planet_appulse. Empty otherwise."
@@ -921,15 +921,15 @@ benchmark/benchmark_clause_bits.parquet,equivalent_predicates,integer,count,"Num
 benchmark/ranking_candidates.parquet,,Parquet table,,"Every candidate year of every benchmark record, with its scores and rank. Made by scripts/audit/rank_candidates.py."
 benchmark/ranking_candidates.parquet,tablet,string,,ADsD identifier of one of the 179 benchmark records. Each record has one row for each of the 701 candidate years.
 benchmark/ranking_candidates.parquet,candidate_year_astro,integer,astronomical year,Candidate year of the row.
-benchmark/ranking_candidates.parquet,baseline_rank,integer,,"Position of the year in the display order, from 1 to 701. The display order is the ranking with tied years in calendar order, earliest first, so this order is partly arbitrary."
+benchmark/ranking_candidates.parquet,baseline_rank,integer,,"Position of the year in the display order, from 1 to 701. The display order is the ranking with tied years in calendar order, earliest first."
 benchmark/ranking_candidates.parquet,tier,integer,,"Set of the year. 0 is the strict set, 1 the rest of the safety set and 2 the other years. The paper codes t(y) the other way, as 2, 1 and 0."
 benchmark/ranking_candidates.parquet,strict,boolean,,True if the year is in the strict set.
 benchmark/ranking_candidates.parquet,safety,boolean,,True if the year is in the safety set.
 benchmark/ranking_candidates.parquet,strict_count,integer,count,Number of years in the strict set of the record.
 benchmark/ranking_candidates.parquet,safety_count,integer,count,Number of years in the safety set of the record.
-benchmark/ranking_candidates.parquet,n_statements,integer,count,Number of parser clauses of the record.
+benchmark/ranking_candidates.parquet,n_statements,integer,count,Number of clauses of the record in clauses/reviewed_clauses.parquet.
 benchmark/ranking_candidates.parquet,active_decisive,integer,count,Number of decisive clauses of the record that carry bits.
-benchmark/ranking_candidates.parquet,decisive,boolean,,"True if the record has decisive clauses: its result in results/tablet_dates.parquet keeps at least one. 120 of the 179 benchmark records do, and the benchmark reports its rates for them."
+benchmark/ranking_candidates.parquet,decisive,boolean,,"True if the record has decisive clauses, so that its result in results/tablet_dates.parquet keeps at least one. 120 of the 179 benchmark records do, and the benchmark reports its rates for them."
 benchmark/ranking_candidates.parquet,decisive_families,integer,count,"Clocks K of the year, the number of clocks whose decisive clauses agree with it."
 benchmark/ranking_candidates.parquet,primary_bits,float,bits,Decisive bits I_D of the year.
 benchmark/ranking_candidates.parquet,support_bits,float,bits,Supporting bits I_S of the year.
@@ -949,10 +949,10 @@ benchmark/sensitivity_runs.parquet,tablet,string,,ADsD identifier of the benchma
 benchmark/sensitivity_runs.parquet,leading_group_size,integer,count,Number of years in the first group L1.
 benchmark/sensitivity_runs.parquet,n_statements,integer,count,Number of clauses that the configuration keeps.
 benchmark/sensitivity_runs.parquet,active_decisive,integer,count,Number of decisive clauses that carry bits in this configuration.
-benchmark/sensitivity_runs.parquet,decisive,boolean,,"True if the record has decisive clauses: its result in results/tablet_dates.parquet keeps at least one. 120 of the 179 benchmark records do, and the benchmark reports its rates for them."
+benchmark/sensitivity_runs.parquet,decisive,boolean,,"True if the record has decisive clauses, so that its result in results/tablet_dates.parquet keeps at least one. 120 of the 179 benchmark records do, and the benchmark reports its rates for them."
 benchmark/sensitivity_runs.parquet,strict_years_astro,list of integers,astronomical year,Strict set in this configuration.
 benchmark/sensitivity_runs.parquet,safety_years_astro,list of integers,astronomical year,Safety set in this configuration.
-benchmark/sensitivity_runs.parquet,display_top10_years_astro,list of integers,astronomical year,"First ten years of the display order in this configuration. The display order is the ranking with tied years in calendar order, earliest first, so this order is partly arbitrary."
+benchmark/sensitivity_runs.parquet,display_top10_years_astro,list of integers,astronomical year,"First ten years of the display order in this configuration. The display order is the ranking with tied years in calendar order, earliest first."
 benchmark/sensitivity_runs.parquet,strict_count,integer,count,Number of years in the strict set.
 benchmark/sensitivity_runs.parquet,safety_count,integer,count,Number of years in the safety set.
 benchmark/sensitivity_runs.parquet,project,string,,ADsD project of the record.
@@ -975,21 +975,21 @@ benchmark/sensitivity_summary.parquet,config,string,,"Name of the configuration 
 benchmark/sensitivity_summary.parquet,dated_tablets,integer,count,"Number of benchmark records scored, 179."
 benchmark/sensitivity_summary.parquet,decisive_records,integer,count,"Number of records with decisive clauses in the results, 120. The rates of every row use the same records."
 benchmark/sensitivity_summary.parquet,decisive_records_in_config,integer,count,Number of those 120 records that keep a decisive clause with bits in this configuration.
-benchmark/sensitivity_summary.parquet,truth_strict,integer,count,Number of records whose strict set holds the published year. It counts only the 112 records with decisive clauses.
-benchmark/sensitivity_summary.parquet,strict_recall,float,fraction,"truth_strict divided by 112, the inclusion rate of the strict set."
-benchmark/sensitivity_summary.parquet,median_strict_count,float,count,Median number of years in the strict set. It counts only the 112 records with decisive clauses.
-benchmark/sensitivity_summary.parquet,median_leading_group,float,count,Median number of years in the first group L1. It counts only the 112 records with decisive clauses.
-benchmark/sensitivity_summary.parquet,truth_in_leading_group,integer,count,Number of records whose first group holds the published year. It counts only the 112 records with decisive clauses.
-benchmark/sensitivity_summary.parquet,leading_group_rate,float,fraction,"truth_in_leading_group divided by 112, the inclusion rate of the first group."
-benchmark/sensitivity_summary.parquet,truth_safety,integer,count,Number of records whose safety set holds the published year. It counts only the 112 records with decisive clauses.
-benchmark/sensitivity_summary.parquet,safety_recall,float,fraction,"truth_safety divided by 112, the inclusion rate of the safety set."
-benchmark/sensitivity_summary.parquet,median_safety_count,float,count,Median number of years in the safety set. It counts only the 112 records with decisive clauses.
-benchmark/sensitivity_summary.parquet,unique_correct,integer,count,Number of records whose strict set holds the published year alone. It counts only the 112 records with decisive clauses.
-benchmark/sensitivity_summary.parquet,display_top1_correct,integer,count,Number of records whose first year of the display order is the published year. It counts only the 112 records with decisive clauses.
-benchmark/sensitivity_summary.parquet,display_top1_rate,float,fraction,display_top1_correct divided by 112.
-benchmark/sensitivity_summary.parquet,display_top3_correct,integer,count,Number of records whose first three years of the display order hold the published year. It counts only the 112 records with decisive clauses.
-benchmark/sensitivity_summary.parquet,display_top3_rate,float,fraction,display_top3_correct divided by 112.
-benchmark/held_out_runs.parquet,,Parquet table,,Every benchmark record in each held-out round. Made by scripts/audit/audit_held_out.py.
+benchmark/sensitivity_summary.parquet,truth_strict,integer,count,Number of the 120 records with decisive clauses whose strict set holds the published year.
+benchmark/sensitivity_summary.parquet,strict_recall,float,fraction,"truth_strict divided by 120, the inclusion rate of the strict set."
+benchmark/sensitivity_summary.parquet,median_strict_count,float,count,"Median number of years in the strict set, over the 120 records with decisive clauses."
+benchmark/sensitivity_summary.parquet,median_leading_group,float,count,"Median number of years in the first group L1, over the 120 records with decisive clauses."
+benchmark/sensitivity_summary.parquet,truth_in_leading_group,integer,count,Number of the 120 records with decisive clauses whose first group holds the published year.
+benchmark/sensitivity_summary.parquet,leading_group_rate,float,fraction,"truth_in_leading_group divided by 120, the inclusion rate of the first group."
+benchmark/sensitivity_summary.parquet,truth_safety,integer,count,Number of the 120 records with decisive clauses whose safety set holds the published year.
+benchmark/sensitivity_summary.parquet,safety_recall,float,fraction,"truth_safety divided by 120, the inclusion rate of the safety set."
+benchmark/sensitivity_summary.parquet,median_safety_count,float,count,"Median number of years in the safety set, over the 120 records with decisive clauses."
+benchmark/sensitivity_summary.parquet,unique_correct,integer,count,Number of the 120 records with decisive clauses whose strict set holds the published year alone.
+benchmark/sensitivity_summary.parquet,display_top1_correct,integer,count,Number of the 120 records with decisive clauses whose first year in the display order is the published year.
+benchmark/sensitivity_summary.parquet,display_top1_rate,float,fraction,display_top1_correct divided by 120.
+benchmark/sensitivity_summary.parquet,display_top3_correct,integer,count,Number of the 120 records with decisive clauses whose first three years in the display order hold the published year.
+benchmark/sensitivity_summary.parquet,display_top3_rate,float,fraction,display_top3_correct divided by 120.
+benchmark/held_out_runs.parquet,,Parquet table,,"Each benchmark record in each round of the held-out test (SI Appendix, section S8). Made by scripts/audit/audit_held_out.py."
 benchmark/held_out_runs.parquet,round,string,,"Round of the held-out test. ADART I, ADART II and ADART III name the test volume, whose rules come from the other two volumes. all volumes uses rules from all three, as in the main text."
 benchmark/held_out_runs.parquet,tablet,string,,ADsD identifier of a benchmark record of the test volume.
 benchmark/held_out_runs.parquet,n_statements,integer,count,Number of clauses that the round keeps after it drops the rejected parser rules.
@@ -1003,12 +1003,12 @@ benchmark/held_out_runs.parquet,evidence_group_count,integer,count,Number of gro
 benchmark/held_out_runs.parquet,level_years_json,JSON,,"Years of every group, as a list of lists in rank order."
 benchmark/held_out_runs.parquet,level_years_json[],list of integers,astronomical year,Years of one group.
 benchmark/held_out_runs.parquet,volume,string,,"ADART volume of the record, ADART I, ADART II or ADART III."
-benchmark/held_out_runs.parquet,decisive,boolean,,"True if the record has decisive clauses: its result in results/tablet_dates.parquet keeps at least one. 120 of the 179 benchmark records do, and the benchmark reports its rates for them."
+benchmark/held_out_runs.parquet,decisive,boolean,,"True if the record has decisive clauses, so that its result in results/tablet_dates.parquet keeps at least one. 120 of the 179 benchmark records do, and the benchmark reports its rates for them."
 benchmark/held_out_runs.parquet,truth_astro,integer,astronomical year,"Published year of the record, joined after scoring."
 benchmark/held_out_runs.parquet,truth_in_strict,boolean,,True if the strict set holds the published year.
 benchmark/held_out_runs.parquet,truth_in_safety,boolean,,True if the safety set holds the published year.
 benchmark/held_out_runs.parquet,truth_group_rank,integer,,"Rank of the group that holds the published year, from 1 for L1."
-benchmark/era_readings.parquet,,Parquet table,,"The era and regnal years stated in the texts, checked at the published years. Made by scripts/audit/audit_era_readings.py."
+benchmark/era_readings.parquet,,Parquet table,,"The Seleucid and Arsacid Era years that the texts state, read after dating and compared with the published years. Made by scripts/audit/audit_era_readings.py."
 benchmark/era_readings.parquet,tablet,string,,ADsD identifier of the record. The file holds one row per year statement that the code reads.
 benchmark/era_readings.parquet,ae_year,integer,,"Arsacid Era year of a dual statement such as Year 115, which is year 179. Empty for a Seleucid statement."
 benchmark/era_readings.parquet,se_year,integer,,Seleucid Era year of the statement.
@@ -1019,44 +1019,44 @@ benchmark/era_readings.parquet,source_start,integer,characters,Offset where the 
 benchmark/era_readings.parquet,published_bce,integer,BCE year,"Published year as a BCE year, from bce_first."
 benchmark/era_readings.parquet,published_astro,integer,astronomical year,Published year in astronomical numbering.
 benchmark/era_readings.parquet,forward_agree,boolean,,True if the stated year lies in the span of the published date.
-benchmark/adart_iv_corrigenda.parquet,,Parquet table,,"The corrections that ADART IV prints to Volumes I to III, traced into the digital edition. Made by scripts/audit/audit_adart_iv_corrigenda.py."
+benchmark/adart_iv_corrigenda.parquet,,Parquet table,,"The 27 corrections that ADART IV prints to ADART I to III, each traced into ADsD. Made by scripts/audit/audit_adart_iv_corrigenda.py."
 benchmark/adart_iv_corrigenda.parquet,source_pdf_page,integer,,"Page of the ADART IV scan that prints the correction, counted as PDF pages from 83 to 86."
 benchmark/adart_iv_corrigenda.parquet,source_printed_page,string,,"Printed page of the correction, in Roman numerals from LVIII to LXI."
 benchmark/adart_iv_corrigenda.parquet,locus,string,,"Place in ADART I to III that the correction refers to, as ADART IV prints it, such as -567 obv. 18."
 benchmark/adart_iv_corrigenda.parquet,tablet,string,,ADsD identifier of the corrected record.
-benchmark/adart_iv_corrigenda.parquet,current_designation,string,,ADART number of that record in ADsD now.
+benchmark/adart_iv_corrigenda.parquet,current_designation,string,,ADART number of that record in the version of ADsD that the repository uses.
 benchmark/adart_iv_corrigenda.parquet,correction_kind,string,,"Kind of correction, such as body, day, month_context, eclipse_timing or reference_date."
 benchmark/adart_iv_corrigenda.parquet,correction,string,,Short English summary of the correction.
 benchmark/adart_iv_corrigenda.parquet,digital_status,string,,Whether ADsD has the correction. incorporated_in_adsd and incorporated_reference_label mean yes. stale_or_ambiguous_adsd means that ADsD has the old wording. corrected_clause_absent_or_too_broken_in_adsd means that the code finds neither wording.
 benchmark/adart_iv_corrigenda.parquet,current_metric_effect,boolean,,"True if the correction changes the published date and ADsD already has the new date, so that the benchmark uses it."
 benchmark/adart_iv_corrigenda.parquet,metric_note,string,,Short English note on the effect of the correction on the scores.
 benchmark/adart_iv_corrigenda.parquet,source_pdf_sha256,string,SHA-256,SHA-256 of the ADART IV scan.
-benchmark/addenda_published_years.parquet,,Parquet table,,"The published year of each text of the addenda, from its diary number, and whether ADART IV links the text to a text of ADART I to III. The public copy leaves out the quoted notes of the volume. Only the scorer reads it. Made by scripts/source/build_adart_iv_addenda.py."
+benchmark/addenda_published_years.parquet,,Parquet table,,"The published year of each text of the dated addenda of ADART IV, from its diary number. It also shows whether ADART IV links the text to a record of ADART I to III. The notes that quote the volume stay out of this file. Only scripts/audit/score_adart_iv_addenda.py reads it, after dating. Made by scripts/source/build_adart_iv_addenda.py."
 benchmark/addenda_published_years.parquet,tablet,string,,"Identifier of the text, as in corpus/adart_iv_addenda_tablets.parquet."
 benchmark/addenda_published_years.parquet,entry_no,string,,"Diary number of the heading above the text, such as -477. The heading No. -212/1 gives -212/1."
 benchmark/addenda_published_years.parquet,letter,string,,"Letter of the text under its diary number, such as B. Empty when the heading gives no letter."
 benchmark/addenda_published_years.parquet,museum_no,string,,Museum number from the heading of the text on the right page.
 benchmark/addenda_published_years.parquet,starts_new_number,boolean,,True if a diary number stands above the text. False for a text with a letter that follows another text of the same number.
-benchmark/addenda_published_years.parquet,published_years_astro,list of integers,astronomical year,The published year: the diary number as an astronomical year. The heading No. -212/1 gives the two years -212 and -211.
+benchmark/addenda_published_years.parquet,published_years_astro,list of integers,astronomical year,"The published year, which is the diary number as an astronomical year. The heading No. -212/1 gives the two years -212 and -211."
 benchmark/addenda_published_years.parquet,museum_numbers,list of strings,,"Each museum number of the text, from its headings on the right and on the left page, with the pieces of a join apart."
 benchmark/addenda_published_years.parquet,adsd_museum_matches,list of strings,,"Each museum number of the text that corpus/tablets.parquet also holds, with the ADART number of that record, such as Rm 710 = -88A."
-benchmark/addenda_published_years.parquet,overlaps_adart_i_iii,boolean,,"True if ADART IV links the text to a record of ADART I to III, by its museum number, its corrigenda or a note. The scorer reports these texts in a separate row."
+benchmark/addenda_published_years.parquet,overlaps_adart_i_iii,boolean,,"True if ADART IV links the text to a record of ADART I to III, by its museum number, its corrigenda or a note. The scores report these texts in a separate row."
 benchmark/addenda_published_years.parquet,year_number_in_input,list of integers,astronomical year,"Published years whose number, as an astronomical or a BCE year, occurs in the astronomy_text of the text. Empty for every text."
 benchmark/adart_iv_corrigenda_summary.json,,JSON,,"Counts of the ADART IV corrections to Volumes I to III, by how each enters the digital edition. Made by scripts/audit/audit_adart_iv_corrigenda.py."
-benchmark/addenda_registration.json,,JSON,,"The registration of the test on the dated addenda of ADART IV: the frozen commit, the input, the blinding and the scores, fixed before any addendum was read. Written by hand before the test."
-benchmark/addenda_results.json,,JSON,,"The scores of the addenda test as registered, for the texts not linked to ADART I to III and, in a separate row, for the linked texts, with the benchmark rates at registration beside them, every text with a decisive clause, and the hashes of the inputs and the code. The public copy leaves out the quoted notes of the volume. Made by scripts/audit/score_adart_iv_addenda.py."
-benchmark/held_out_summary.json,,JSON,,"The choices, the pass condition and the rates of each held-out round. Made by scripts/audit/audit_held_out.py."
-paper_counts/table_s3.csv,,CSV table,,SI Table S3. Made by scripts/audit/build_paper_counts.py.
+benchmark/addenda_registration.json,,JSON,,"The registration of the test on the dated addenda of ADART IV, written by hand before any addendum was read. It fixes the commit of the code, the input, the blinding and the scores of the test."
+benchmark/addenda_results.json,,JSON,,"The scores of the test on the dated addenda of ADART IV, as registered. They come in one group for the texts that ADART IV does not link to ADART I to III, and one for the linked texts. The file also gives the benchmark rates at registration, each text with a decisive clause, and the hashes of the inputs and the code. The notes that quote the volume stay out of this file. Made by scripts/audit/score_adart_iv_addenda.py."
+benchmark/held_out_summary.json,,JSON,,"The choices made from the training volumes, the condition for close rates, and the rates of each round of the held-out test. Made by scripts/audit/audit_held_out.py."
+paper_counts/table_s3.csv,,CSV table,,"The numbers of SI Appendix, Table S3, which gives the information and the decisive share of each clause type. Made by scripts/audit/build_paper_counts.py."
 paper_counts/table_s3.csv,Observation type,string,,Name of the clause type. SI Table S3 prints the same names without the word measured. The file holds one row per type.
 paper_counts/table_s3.csv,Clauses,integer,count,"Number of the 4,010 reviewed clauses of this type."
-paper_counts/table_s3.csv,Median years allowed,integer,count,"Median number of years that a clause agrees with, over the clauses testable in at least one year, rounded. Years in Table S3. Empty for a type with fewer than five such clauses."
+paper_counts/table_s3.csv,Median years allowed,integer,count,"Median number of years that a clause agrees with, over the clauses testable in at least one year, rounded. It is the column Years of Table S3. Empty for a type with fewer than five such clauses."
 paper_counts/table_s3.csv,Bits,float,bits,"log2 of 701 over the median, rounded to 0.1 bit."
 paper_counts/table_s3.csv,Decisive %,integer,percent,"Share of the testable clauses that are in the decisive tier, rounded."
 paper_counts/table_s3.csv,Testable across candidate years,integer,count,Number of clauses that are testable in at least one of the 701 years. Testable in Table S3.
 paper_counts/table_s3.csv,Median years allowed unrounded,float,count,Median years allowed without rounding.
 paper_counts/table_s3.csv,Decisive % unrounded,float,percent,Decisive % without rounding.
 paper_counts/table_s3.csv,kind,string,,"Code name of the clause type, as in the column kind of the clause tables."
-paper_counts/table_s4.csv,,CSV table,,SI Table S4. Made by scripts/audit/build_paper_counts.py.
+paper_counts/table_s4.csv,,CSV table,,"The numbers of SI Appendix, Table S4, which gives the agreement of the reviewed clauses at the published year by clause type. Made by scripts/audit/build_paper_counts.py."
 paper_counts/table_s4.csv,Observation type,string,,Short name of the clause type. The wording differs from SI Table S4 and from table_s3.csv. Use kind to join the tables.
 paper_counts/table_s4.csv,Clauses,integer,count,"Number of the 4,010 reviewed clauses of this type."
 paper_counts/table_s4.csv,Testable,integer,count,Number of clauses whose verdict at the published year is agree or contradict.
@@ -1066,6 +1066,6 @@ paper_counts/table_s4.csv,Untestable,integer,count,Number of clauses that are un
 paper_counts/table_s4.csv,Not evaluated,integer,count,Number of clauses of records without a published year. It is 0 for every type.
 paper_counts/table_s4.csv,Agreement %,float,percent,"100 times Agree divided by Testable, rounded to 0.1."
 paper_counts/table_s4.csv,kind,string,,"Code name of the clause type, as in the column kind of the clause tables."
-paper_counts/counts.json,,JSON,,The counts the paper quotes. Made by scripts/audit/build_paper_counts.py.
+paper_counts/counts.json,,JSON,,"The counts that the paper quotes, from the committed results. Made by scripts/audit/build_paper_counts.py."
 paper_counts/source_manifest.json,,JSON,,SHA-256 and size of every input of the counts. Made by scripts/audit/build_paper_counts.py.
-columns.csv,,CSV table,,"This data dictionary: each data file in a row with no column, and each column of each table in a row of its own. Written by hand from the scripts."
+columns.csv,,CSV table,,"This data dictionary. Each data file has a row with an empty column field, and each column of a table has a row of its own. Written by hand from the scripts."

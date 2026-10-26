@@ -1,23 +1,31 @@
 #!/usr/bin/env python3
-"""OCR the calendar tables in Parker & Dubberstein (1956).
+"""Read the calendar tables of Parker and Dubberstein (1956) from the scan with Tesseract.
 
-The 1956 Brown University Press scan is image-only.  The Babylonian-to-Julian
-conversion tables occupy PDF pages 43--63 inclusive.  Dense table pages are
-best handled here with Tesseract page-segmentation mode 6, which preserves each
-printed row as one logical OCR line much more reliably than mode 4.
+The scan holds images only. The tables that convert Babylonian dates to Julian
+dates are on PDF pages 43 to 63. The script uses Tesseract page segmentation
+mode 6, which keeps each printed row on one OCR line more often than mode 4.
+build_calendar.py builds the calendar of step 2 from the output (SI Appendix,
+section S3).
 
 Output:
     data/source/parker_dubberstein/calendar_ocr.txt
 
-With ``--slots`` the script instead reads which month each thirteen-month year
-doubled.  The tables print a second Ululu (U II) and a second Addaru (A II) in
-separate columns, so the doubled month is a matter of where the row's seventh
-and thirteenth month starts sit on the page, and the plain OCR text loses that.
-The month starts themselves come from build_calendar.py's parse of the text
-above; Tesseract's word boxes only say which column each one is printed in.
+With ``--slots``, the script reads instead which month each thirteen-month
+year doubled. The tables print a second Ululu (U II) and a second Addaru
+(A II) in separate columns. So the column of the seventh and the thirteenth
+month starts of a row gives the doubled month. The plain OCR text does not
+keep this column. The month starts come from the parse of the OCR text in
+build_calendar.py, and the Tesseract word boxes give the column of each.
 
 Output with ``--slots``:
     data/source/parker_dubberstein/intercalary_slots.csv
+
+The script needs pdftoppm, tesseract and the scan at
+data/source/parker_dubberstein/scan.pdf. The ``--slots`` run also needs the
+OCR text.
+
+Usage:
+    python3 scripts/physical/ocr_parker_dubberstein.py [--slots]
 """
 
 from __future__ import annotations
@@ -48,11 +56,11 @@ DEFAULT_SLOTS = ROOT / "data" / "source" / "parker_dubberstein" / "intercalary_s
 
 DATE_TOKEN = re.compile(r"^\D*(\d{1,2})/(\d{1,2})\D*$")
 
-# Thirteen-month rows whose printed column was looked at on a crop of the
-# scan.  They are every row where the printed column disagrees with the
-# nineteen-year-cycle rule build_calendar.py once used (second Ululu only when
-# the BCE year is 9 mod 19), plus a spread of agreeing rows across the pages.
-# The reading from word positions must agree with each one.
+# Thirteen-month rows whose printed column was read by eye on a crop of the
+# scan.  The cycle rule for the doubled month gives a second Ululu only when
+# the BCE year is 9 mod 19.  The list holds each row where the print
+# disagrees with this rule, and some agreeing rows from all parts of the
+# table.  The reading from word positions must agree with each of them.
 CHECKED_BY_EYE = {
     # printed under U II where the cycle rule put a second Addaru
     "621 BCE": "VI2", "616 BCE": "VI2", "611 BCE": "VI2", "607 BCE": "VI2",
@@ -62,7 +70,7 @@ CHECKED_BY_EYE = {
     # printed under A II where the cycle rule put a second Ululu
     "579 BCE": "XII2", "560 BCE": "XII2", "541 BCE": "XII2",
     "522 BCE": "XII2", "446 BCE": "XII2", "427 BCE": "XII2",
-    # agreeing rows
+    # rows where the print and the cycle rule agree
     "598 BCE": "VI2", "550 BCE": "XII2", "465 BCE": "VI2", "414 BCE": "XII2",
     "351 BCE": "VI2", "292 BCE": "XII2", "218 BCE": "VI2", "153 BCE": "XII2",
     "85 BCE": "VI2", "15 BCE": "XII2", "AD 68": "VI2",
@@ -97,7 +105,7 @@ def render_page(pdf: Path, page: int, dpi: int, base: Path) -> Path:
 
 def page_words(pdf: Path, page: int, dpi: int, psm: int,
                tmp: Path) -> pd.DataFrame:
-    """Tesseract word boxes for one page."""
+    """Return the Tesseract word boxes of one page."""
     image = render_page(pdf, page, dpi, tmp / f"page_{page:03d}")
     base = tmp / f"page_{page:03d}_words"
     ocr = subprocess.run(
@@ -114,10 +122,11 @@ def page_words(pdf: Path, page: int, dpi: int, psm: int,
 
 
 def date_lines(words: pd.DataFrame) -> list[dict]:
-    """Month/day cells of each OCR line, with each cell's left edge.
+    """Return the Julian month and day cells of each OCR line, with the left edge of each cell.
 
-    The printed columns are left-aligned, so a cell's left edge says which
-    column it is in.
+    The function keeps the lines with eight or more dates.  The printed
+    columns are aligned on the left, so the left edge of a cell gives its
+    column.
     """
     lines = []
     for _, line in words.groupby(["block_num", "par_num", "line_num"]):
@@ -132,7 +141,11 @@ def date_lines(words: pd.DataFrame) -> list[dict]:
 
 
 def read_slots(pdf: Path, dpi: int, psm: int) -> pd.DataFrame:
-    """Printed column of the doubled month in every thirteen-month year."""
+    """Return the printed column of the doubled month of each thirteen-month year.
+
+    The word positions give the column.  CHECKED_BY_EYE gives it where they
+    cannot, and the function stops if the two disagree.
+    """
     sys.path.insert(0, str(ROOT))
     from scripts.physical.build_calendar import DEFAULT_OCR, parse_rows
     from tools import years as yr
@@ -146,8 +159,9 @@ def read_slots(pdf: Path, dpi: int, psm: int) -> pd.DataFrame:
             on_page = {int(r["bab_year_astro"]): [tuple(d) for d in r["dates"]]
                        for r in rows if r["source_page"] == page}
 
-            # Rows nineteen years apart share most of their dates, so a line
-            # is assigned only to the row it reproduces strictly best.
+            # Rows nineteen years apart share most of their dates.  A line goes
+            # to the row with which it shares the most dates, if it shares 10
+            # or more and no other row ties.
             matched: dict[int, dict] = {}
             for cells in date_lines(page_words(pdf, page, dpi, psm,
                                                Path(tmp_name))):
@@ -159,7 +173,8 @@ def read_slots(pdf: Path, dpi: int, psm: int) -> pd.DataFrame:
                 if score[0][0] >= 10 and score[0][0] > score[1][0]:
                     matched.setdefault(score[0][1], cells)
 
-            # Column positions from twelve-month rows read completely.
+            # The columns of Ululu, Tashritu and Addaru, as medians over the
+            # twelve-month rows that the OCR read in full.
             full = [
                 [matched[y][d] for d in dates]
                 for y, dates in on_page.items()
@@ -175,8 +190,9 @@ def read_slots(pdf: Path, dpi: int, psm: int) -> pd.DataFrame:
                 if len(dates) != 13:
                     continue
                 cells = matched.get(year, {})
-                # Seventh start: under U II (VI2) or under Tashritu (XII2).
-                # Thirteenth start: under Addaru (VI2) or under A II (XII2).
+                # A seventh start under U II means VI2, and one under Tashritu
+                # means XII2.  A thirteenth start under Addaru means VI2, and
+                # one under A II means XII2.
                 x7, x13 = cells.get(dates[6]), cells.get(dates[12])
                 votes = []
                 if x7 is not None:
@@ -197,7 +213,8 @@ def read_slots(pdf: Path, dpi: int, psm: int) -> pd.DataFrame:
                         f"{label}: word positions say {slot}, "
                         f"the scan was read by eye as {eye}"
                     )
-                # Positions as fractions of the Ululu-to-Tashritu spacing.
+                # Positions as fractions of the spacing from Ululu to
+                # Tashritu, for the printout.
                 f7 = (x7 - ululu) / step if x7 is not None else np.nan
                 f13 = (x13 - addaru) / step if x13 is not None else np.nan
                 print(f"  {label:>8}  {slot or eye:<4}  seventh at {f7:5.2f}"

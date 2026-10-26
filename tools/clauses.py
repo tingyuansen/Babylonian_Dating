@@ -1,11 +1,14 @@
-"""The clauses that the dates use, read from the committed clause tables.
+"""Read the reviewed clauses, which the dates use, from the committed clause tables.
 
 The parser reads each translation into clauses. The language model then reviews
 each parser clause and adds the observations that the parser missed
-(scripts/agent/model_review.py). scripts/agent/rescore_model_review.py rebuilds
-these final clauses from the review caches and writes them into one table per
-corpus, one row per clause. This module turns the rows back into Statements in
-the order of the table. The tables hold no published date.
+(scripts/agent/model_review.py, SI Appendix section S2).
+scripts/agent/rescore_model_review.py rebuilds these final clauses from the
+review caches and writes them into one table per corpus, one row per clause.
+This module turns the rows back into Statements in the order of the table. The
+tables hold no published date.
+
+Three columns record where each clause comes from:
 
     origin         "parser" for a reviewed parser clause, "search" for an
                    observation that the search added
@@ -25,11 +28,10 @@ from tools import statements as S
 
 HERE = Path(__file__).resolve().parents[1]
 CLAUSES = HERE / "data" / "clauses"
-# ADART I to III, and the undated entries of ADART IV.
+# The reviewed clauses of ADART I to III, and those of the undated ADART IV entries.
 REVIEWED = CLAUSES / "reviewed_clauses.parquet"
 ADART_IV_REVIEWED = CLAUSES / "adart_iv_reviewed_clauses.parquet"
 
-PROVENANCE = ("origin", "parser_index", "review")
 _FIELDS = [field.name for field in fields(S.Statement)]
 
 
@@ -56,6 +58,7 @@ def _value(value):
 
 
 def from_row(row: dict) -> S.Statement:
+    """The Statement of one table row, with the field types that the parser gives."""
     values = {name: _value(row[name]) for name in _FIELDS}
     values["joint_positions"] = tuple(
         tuple(pair) for pair in json.loads(row["joint_positions"]))

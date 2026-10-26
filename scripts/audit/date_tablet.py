@@ -1,28 +1,24 @@
 #!/usr/bin/env python3
-"""Infer astronomy-only candidates, or check text against a supplied year.
+"""Date one record from its text, or check its clauses in one given year.
 
-    --year N     forward. Given a historical year (BCE by default), does every statement hold?
-    (default)    backward. Given no year, which years hold?
+    (default)    score all 701 candidate years, 626 BCE to AD 75, as steps 2 and 3 do
+    --year N     give the verdict of each clause in year N (BCE by default)
 
-Both modes use the record's reviewed clauses, the clauses that the dates use,
-or with --parser the parser's clauses alone.
+By default the script prints each clause with its tier and bits. It then
+prints the strict set, the safety set, the first three groups and the top of
+the ranking. Both modes use the reviewed clauses of the record, as the results
+do. With --parser, they use the parser clauses alone. With --show-chronology,
+the script also prints the era and regnal years that the text states.
 
-Backward scores every Babylonian year the calendar covers, weighting each
-agreement by how few candidate years agree with that statement. It never reads
-the published date, and it takes month headings from the tablet's own text
-rather than from the catalogue, because the catalogue's reading of which months
-survive is part of what an editor supplied.
-
-Reported alongside the result are a strict Pareto set and a safety set. The
-strict set contains years not dominated on independent decisive bodies and
-discrimination-weighted information. The safety set also retains years
-that lead after any one decisive extraction is removed. Their sizes are part of
-the result; neither may be hidden behind recall alone.
+The script takes the month headings from the text itself. It reads the
+published year only with --show-reference, to mark that year in the output,
+and the year changes no score. Record X301492 is the example of Fig. 3.
 
 Usage:
-    python3 date_tablet.py X301492
-    python3 date_tablet.py X301492 --year 150
-    python3 date_tablet.py X301492 --parser
+    python3 scripts/audit/date_tablet.py X301492
+    python3 scripts/audit/date_tablet.py X301492 --year 150
+    python3 scripts/audit/date_tablet.py X301492 --parser
+    python3 scripts/audit/date_tablet.py X301492 --show-reference
 """
 
 from __future__ import annotations
@@ -42,6 +38,7 @@ from tools import years as yr  # noqa: E402
 
 
 def forward(text: str, sts: list[S.Statement], year_astro: int) -> int:
+    """Print the verdict of each clause in one year, and return 1 if any contradicts it."""
     months = S.months_in(text)
     verdicts = [S.check(st, year_astro, months) for st in sts]
     res = {result: sum(v.result == result for v in verdicts)
@@ -59,6 +56,7 @@ def forward(text: str, sts: list[S.Statement], year_astro: int) -> int:
 
 def backward(text: str, sts: list[S.Statement], truth: int | None, top: int,
              weighting: str) -> int:
+    """Score all candidate years, and print the clauses, sets, groups and ranking."""
     months = S.months_in(text)
     if not sts:
         print("no testable statement on this tablet, declining to guess")
@@ -157,8 +155,8 @@ def main() -> int:
                     help="use the parser's clauses alone, without the model review")
     args = ap.parse_args()
 
-    # The default inference path loads only identifier and surviving text. A
-    # catalogue reference is an explicit post-inference diagnostic option.
+    # Dating reads only the identifier and the text. The published year enters
+    # only with --show-reference.
     tb = pd.read_parquet(
         HERE / "data" / "corpus" / "tablets.parquet", columns=["tablet", "text"])
     r = tb[tb.tablet == args.tablet]
