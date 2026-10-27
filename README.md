@@ -72,7 +72,7 @@ The book scans and the full text read from ADART IV are under copyright, so they
 
 ## How to cite
 
-L. Carrit Delgado Pinheiro, Y.-S. Ting, J. Clindaniel, L. Li, Y. Liang and N. Shroff, Automated, auditable dating of the Babylonian Astronomical Diaries with language models and astronomical tools, arXiv:xxxx.xxxxx (2026).
+L. Carrit Delgado Pinheiro, Y.-S. Ting, J. Clindaniel, L. Li, Y. Liang and N. Shroff, Automated, auditable dating of the Babylonian Astronomical Diaries with language models and astronomical tools, [arXiv:2610.34297](https://arxiv.org/abs/2610.34297) (2026).
 
 ```bibtex
 @article{CarritDelgadoPinheiro2026,
@@ -80,9 +80,9 @@ L. Carrit Delgado Pinheiro, Y.-S. Ting, J. Clindaniel, L. Li, Y. Liang and N. Sh
   title         = {Automated, auditable dating of the {Babylonian Astronomical Diaries} with language models and astronomical tools},
   journal       = {arXiv e-prints},
   year          = {2026},
-  eprint        = {xxxx.xxxxx},
+  eprint        = {2610.34297},
   archivePrefix = {arXiv},
-  doi           = {10.48550/arXiv.xxxx.xxxxx},
-  url           = {https://arxiv.org/abs/xxxx.xxxxx}
+  doi           = {10.48550/arXiv.2610.34297},
+  url           = {https://arxiv.org/abs/2610.34297}
 }
 ```
