@@ -1585,8 +1585,12 @@
     if (gameVeil) gameVeil.hidden = dated;
     if (gameFrame && dated) gameFrame.contentWindow.postMessage({ type: 'babylon-tablet', id }, gameOrigin);
   }
+  // A phone opens the game on a page of its own: a game in the page would take the finger that scrolls the page.
+  const phone = matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 820;
+  if (phone) document.querySelector('.game-start small').textContent = 'The game opens full screen. Drag to look, and hold the circle to walk.';
   document.querySelector('.game-start').addEventListener('click', () => {
     const dated = REC && gameDated(REC.id);
+    if (phone) { window.open(`${GAME}?tablet=${dated ? REC.id : 'X301492'}`, '_blank', 'noopener'); return; }
     gameFrame = document.createElement('iframe');
     gameFrame.src = `${GAME}?tablet=${dated ? REC.id : 'X301492'}`;
     gameFrame.title = 'A Little Babylon: the tablet in the sky over Babylon';
