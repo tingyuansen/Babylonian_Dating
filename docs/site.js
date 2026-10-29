@@ -252,9 +252,15 @@
   }
   let showChoice = () => {};
 
+  // Each record is downloaded once; a failed download is tried again the next time.
+  const RECORDS = new Map();
+  function record(id) {
+    if (!RECORDS.has(id)) RECORDS.set(id, d3.json(`data/records/${id}.json`).catch((err) => { RECORDS.delete(id); throw err; }));
+    return RECORDS.get(id);
+  }
   function choose(id, stay) {
     if (REC && REC.id === id) return;
-    d3.json(`data/records/${id}.json`).then((rec) => {
+    record(id).then((rec) => {
       const switching = !!REC;
       const sky = document.getElementById('ch-sky');
       const skyTop = sky.getBoundingClientRect().top;
@@ -1530,7 +1536,13 @@
     p.textContent = 'Loading the data…';
     f.append(p);
   });
-  Promise.all([d3.json('data/meta.json'), d3.json('data/sky.json')]).then(([meta, sky]) => {
+  const metaLoad = d3.json('data/meta.json');
+  // The first record downloads while the star list still loads.
+  metaLoad.then((meta) => {
+    const wanted = (location.hash || '').slice(1);
+    record(meta.records.some((r) => r.id === wanted) ? wanted : meta.featured[0]).catch(() => {});
+  }, () => {});
+  Promise.all([metaLoad, d3.json('data/sky.json')]).then(([meta, sky]) => {
     META = meta;
     SKY = sky;
     setupRing();
@@ -1561,6 +1573,8 @@
   const gameOrigin = new URL(GAME).origin;
   let gameFrame = null;
   let gameVeil = null;
+  let gameVisible = true;
+  const tellGameVisible = () => gameFrame.contentWindow.postMessage({ type: 'babylon-visible', visible: gameVisible }, gameOrigin);
   // The game shows the tablets that the research dates: those whose first group of years is not all of them.
   const gameDated = (id) => { const r = META && META.records.find((x) => x.id === id); return !!r && r.first < META.years[1] - META.years[0] + 1; };
   function gameSync(id) {
@@ -1583,13 +1597,19 @@
     gameVeil.textContent = 'The research gives no year for this tablet, so the game shows another tablet.';
     gameVeil.hidden = !!dated;
     document.querySelector('.game-frame').replaceChildren(gameFrame, gameVeil);
+    // The game shares the page's thread, so it sleeps, music and all, while chapter IV is out of sight.
+    new IntersectionObserver((entries) => {
+      gameVisible = entries[entries.length - 1].isIntersecting;
+      tellGameVisible();
+    }).observe(document.querySelector('.game-frame'));
   });
   addEventListener('message', (e) => {
-    if (e.origin !== gameOrigin || !e.data || !META) return;
+    if (e.origin !== gameOrigin || !gameFrame || e.source !== gameFrame.contentWindow || !e.data || !META) return;
     // The game is ready to listen: send the tablet again, in case the game missed it while it loaded.
     // Then the game takes the keys, so W A S D walk at once, unless the reader is typing elsewhere on the page.
     if (e.data.type === 'babylon-ready') {
       if (REC) gameSync(REC.id);
+      tellGameVisible();
       if (document.activeElement === document.body) gameFrame.focus({ preventScroll: true });
       return;
     }
