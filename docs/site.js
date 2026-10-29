@@ -252,7 +252,7 @@
   }
   let showChoice = () => {};
 
-  function choose(id) {
+  function choose(id, stay) {
     if (REC && REC.id === id) return;
     d3.json(`data/records/${id}.json`).then((rec) => {
       const switching = !!REC;
@@ -269,7 +269,8 @@
       sections.forEach((s) => { if (s.impl.stop) s.impl.stop(); s.current = -1; s.rendered = false; s.waiting = false; });
       // A new tablet starts its story at the beginning, so its year does not show at once.
       const start = document.getElementById('ch-text');
-      if (switching && start.getBoundingClientRect().top < 0) start.scrollIntoView();
+      if (switching && !stay && start.getBoundingClientRect().top < 0) start.scrollIntoView();
+      gameSync(id);
       onScroll();
     });
   }
@@ -1548,6 +1549,33 @@
     ev.preventDefault();
     target.scrollIntoView({ behavior: still() ? 'auto' : 'smooth' });
   }));
+  // Chapter IV holds the game A Little Babylon. It loads only when the reader asks, it follows the tablet chosen
+  // here, and a tablet chosen in the game is chosen here too, without moving the page.
+  const GAME = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? 'http://localhost:5187/'
+    : 'https://tingyuansen.github.io/Babylonian_Observatory/';
+  const gameOrigin = new URL(GAME).origin;
+  let gameFrame = null;
+  // The game shows the tablets that the research dates: those whose first group of years is not all of them.
+  const gameDated = (id) => { const r = META && META.records.find((x) => x.id === id); return !!r && r.first < META.years[1] - META.years[0] + 1; };
+  function gameSync(id) {
+    const dated = gameDated(id);
+    document.querySelector('.game-full').href = dated ? `${GAME}?tablet=${id}` : GAME;
+    document.querySelector('.game-note').textContent = dated ? ''
+      : 'The research gives no year for this tablet, so the game cannot show it.';
+    if (gameFrame && dated) gameFrame.contentWindow.postMessage({ type: 'babylon-tablet', id }, gameOrigin);
+  }
+  document.querySelector('.game-start').addEventListener('click', () => {
+    gameFrame = document.createElement('iframe');
+    gameFrame.src = `${GAME}?tablet=${REC && gameDated(REC.id) ? REC.id : 'X301492'}`;
+    gameFrame.title = 'A Little Babylon: the tablet in the sky over Babylon';
+    gameFrame.allow = 'fullscreen; autoplay';
+    document.querySelector('.game-frame').replaceChildren(gameFrame);
+  });
+  addEventListener('message', (e) => {
+    if (e.origin !== gameOrigin || !e.data || e.data.type !== 'babylon-tablet-changed' || !META) return;
+    const id = String(e.data.id);
+    if (META.records.some((r) => r.id === id) && (!REC || REC.id !== id)) choose(id, true);
+  });
   addEventListener('hashchange', () => {
     const id = location.hash.slice(1);
     if (META && META.records.some((r) => r.id === id)) choose(id);
