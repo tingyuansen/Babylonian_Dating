@@ -380,6 +380,8 @@ body.revealed .chron .restored { color: var(--seal); }
   text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6); transition: background 0.2s; }
 .game-start:hover, .game-start:focus-visible { background: rgba(8, 14, 26, 0.18); }
 .game-start small { font: 15px var(--ui); letter-spacing: 0.02em; color: rgba(246, 238, 221, 0.86); }
+.game-veil { position: absolute; inset: 0 0 auto; margin: 0; padding: 12px 18px; background: rgba(8, 14, 26, 0.9);
+  color: rgba(246, 238, 221, 0.94); font: 15px var(--ui); text-align: center; pointer-events: none; }
 .game-links { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 12px 0 0; font: 15px var(--ui); color: var(--muted); }
 .game-links a { color: var(--gold-ink); }
 @media (max-width: 720px) { .game { padding: 4vh 16px 0; } .game-frame { aspect-ratio: 4 / 5; } }
