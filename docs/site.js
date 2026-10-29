@@ -256,6 +256,8 @@
     if (REC && REC.id === id) return;
     d3.json(`data/records/${id}.json`).then((rec) => {
       const switching = !!REC;
+      const sky = document.getElementById('ch-sky');
+      const skyTop = sky.getBoundingClientRect().top;
       REC = rec;
       CLOCKS = findClocks(rec);
       history.replaceState(null, '', `#${id}`);
@@ -267,9 +269,12 @@
       writeText();
       writeClockSteps();
       sections.forEach((s) => { if (s.impl.stop) s.impl.stop(); s.current = -1; s.rendered = false; s.waiting = false; });
-      // A new tablet starts its story at the beginning, so its year does not show at once.
+      // A reader at chapter IV stays there, and the game follows the new tablet; chapter IV keeps its place on the
+      // screen when the text above it changes length. Elsewhere, a new tablet starts its story at the beginning, so
+      // its year does not show at once.
       const start = document.getElementById('ch-text');
-      if (switching && !stay && start.getBoundingClientRect().top < 0) start.scrollIntoView();
+      if (switching && skyTop < innerHeight * 0.5) scrollBy(0, sky.getBoundingClientRect().top - skyTop);
+      else if (switching && !stay && start.getBoundingClientRect().top < 0) start.scrollIntoView();
       gameSync(id);
       onScroll();
     });
