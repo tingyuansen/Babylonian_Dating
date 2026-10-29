@@ -1555,6 +1555,7 @@
     : 'https://tingyuansen.github.io/Babylonian_Observatory/';
   const gameOrigin = new URL(GAME).origin;
   let gameFrame = null;
+  let gameVeil = null;
   // The game shows the tablets that the research dates: those whose first group of years is not all of them.
   const gameDated = (id) => { const r = META && META.records.find((x) => x.id === id); return !!r && r.first < META.years[1] - META.years[0] + 1; };
   function gameSync(id) {
@@ -1562,17 +1563,27 @@
     document.querySelector('.game-full').href = dated ? `${GAME}?tablet=${id}` : GAME;
     document.querySelector('.game-note').textContent = dated ? ''
       : 'The research gives no year for this tablet, so the game cannot show it.';
+    if (gameVeil) gameVeil.hidden = dated;
     if (gameFrame && dated) gameFrame.contentWindow.postMessage({ type: 'babylon-tablet', id }, gameOrigin);
   }
   document.querySelector('.game-start').addEventListener('click', () => {
+    const dated = REC && gameDated(REC.id);
     gameFrame = document.createElement('iframe');
-    gameFrame.src = `${GAME}?tablet=${REC && gameDated(REC.id) ? REC.id : 'X301492'}`;
+    gameFrame.src = `${GAME}?tablet=${dated ? REC.id : 'X301492'}`;
     gameFrame.title = 'A Little Babylon: the tablet in the sky over Babylon';
     gameFrame.allow = 'fullscreen; autoplay';
-    document.querySelector('.game-frame').replaceChildren(gameFrame);
+    // Over the game, a line tells the reader when the game cannot show the tablet chosen here.
+    gameVeil = document.createElement('p');
+    gameVeil.className = 'game-veil';
+    gameVeil.textContent = 'The research gives no year for this tablet, so the game shows another tablet.';
+    gameVeil.hidden = !!dated;
+    document.querySelector('.game-frame').replaceChildren(gameFrame, gameVeil);
   });
   addEventListener('message', (e) => {
-    if (e.origin !== gameOrigin || !e.data || e.data.type !== 'babylon-tablet-changed' || !META) return;
+    if (e.origin !== gameOrigin || !e.data || !META) return;
+    // The game is ready to listen: send the tablet again, in case the game missed it while it loaded.
+    if (e.data.type === 'babylon-ready') { if (REC) gameSync(REC.id); return; }
+    if (e.data.type !== 'babylon-tablet-changed') return;
     const id = String(e.data.id);
     if (META.records.some((r) => r.id === id) && (!REC || REC.id !== id)) choose(id, true);
   });
