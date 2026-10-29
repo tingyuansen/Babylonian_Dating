@@ -372,7 +372,7 @@ body.revealed .chron .restored { color: var(--seal); }
 
 /* Chapter IV: the game, loaded on request in a frame. */
 .game { max-width: 1240px; margin: 0 auto; padding: 6vh 32px 0; }
-.game-frame { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 6px;
+.game-frame { position: relative; width: 100%; aspect-ratio: 16 / 9; min-height: min(560px, 82vh); overflow: hidden; border-radius: 6px;
   background: #0b1424 url(img/scenes/ch4.webp) 40% 88% / 150% no-repeat; box-shadow: 0 14px 40px rgba(28, 20, 12, 0.32); }
 .game-frame iframe { display: block; width: 100%; height: 100%; border: 0; }
 .game-start { position: absolute; inset: 0; display: grid; place-content: center; gap: 10px; padding: 24px; border: 0;
