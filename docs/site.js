@@ -1587,7 +1587,12 @@
   addEventListener('message', (e) => {
     if (e.origin !== gameOrigin || !e.data || !META) return;
     // The game is ready to listen: send the tablet again, in case the game missed it while it loaded.
-    if (e.data.type === 'babylon-ready') { if (REC) gameSync(REC.id); return; }
+    // Then the game takes the keys, so W A S D walk at once, unless the reader is typing elsewhere on the page.
+    if (e.data.type === 'babylon-ready') {
+      if (REC) gameSync(REC.id);
+      if (document.activeElement === document.body) gameFrame.focus({ preventScroll: true });
+      return;
+    }
     if (e.data.type !== 'babylon-tablet-changed') return;
     const id = String(e.data.id);
     if (META.records.some((r) => r.id === id) && (!REC || REC.id !== id)) choose(id, true);
