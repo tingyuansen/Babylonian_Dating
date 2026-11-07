@@ -871,7 +871,7 @@ benchmark/benchmark_results.parquet,n,integer,count,"Number of clauses of the re
 benchmark/benchmark_results.parquet,omitted_eclipses,integer,count,Number of eclipse clauses that the scribe marks as unobserved.
 benchmark/benchmark_results.parquet,semantic_decisive,integer,count,Number of clauses in the decisive tier.
 benchmark/benchmark_results.parquet,active_decisive,integer,count,Number of decisive clauses that carry bits.
-benchmark/benchmark_results.parquet,decisive,boolean,,"True if the record has decisive clauses, so that its result in results/tablet_dates.parquet keeps at least one. 120 of the 179 benchmark records do, and the benchmark reports its rates for them."
+benchmark/benchmark_results.parquet,decisive,boolean,,"True if the record has decisive clauses, so that its result in results/tablet_dates.parquet keeps at least one. 126 of the 179 benchmark records do, and the benchmark reports its rates for them."
 benchmark/benchmark_results.parquet,weighting,string,,"Scoring mode of the run. Always skill, the method of the paper."
 benchmark/benchmark_results.parquet,best,float,bits,Highest decisive bits I_D over all candidate years.
 benchmark/benchmark_results.parquet,best_bodies,integer,count,Highest number of clocks K over all candidate years.
@@ -929,7 +929,7 @@ benchmark/ranking_candidates.parquet,strict_count,integer,count,Number of years 
 benchmark/ranking_candidates.parquet,safety_count,integer,count,Number of years in the safety set of the record.
 benchmark/ranking_candidates.parquet,n_statements,integer,count,Number of clauses of the record in clauses/reviewed_clauses.parquet.
 benchmark/ranking_candidates.parquet,active_decisive,integer,count,Number of decisive clauses of the record that carry bits.
-benchmark/ranking_candidates.parquet,decisive,boolean,,"True if the record has decisive clauses, so that its result in results/tablet_dates.parquet keeps at least one. 120 of the 179 benchmark records do, and the benchmark reports its rates for them."
+benchmark/ranking_candidates.parquet,decisive,boolean,,"True if the record has decisive clauses, so that its result in results/tablet_dates.parquet keeps at least one. 126 of the 179 benchmark records do, and the benchmark reports its rates for them."
 benchmark/ranking_candidates.parquet,decisive_families,integer,count,"Clocks K of the year, the number of clocks whose decisive clauses agree with it."
 benchmark/ranking_candidates.parquet,primary_bits,float,bits,Decisive bits I_D of the year.
 benchmark/ranking_candidates.parquet,support_bits,float,bits,Supporting bits I_S of the year.
@@ -949,7 +949,7 @@ benchmark/sensitivity_runs.parquet,tablet,string,,ADsD identifier of the benchma
 benchmark/sensitivity_runs.parquet,leading_group_size,integer,count,Number of years in the first group L1.
 benchmark/sensitivity_runs.parquet,n_statements,integer,count,Number of clauses that the configuration keeps.
 benchmark/sensitivity_runs.parquet,active_decisive,integer,count,Number of decisive clauses that carry bits in this configuration.
-benchmark/sensitivity_runs.parquet,decisive,boolean,,"True if the record has decisive clauses, so that its result in results/tablet_dates.parquet keeps at least one. 120 of the 179 benchmark records do, and the benchmark reports its rates for them."
+benchmark/sensitivity_runs.parquet,decisive,boolean,,"True if the record has decisive clauses, so that its result in results/tablet_dates.parquet keeps at least one. 126 of the 179 benchmark records do, and the benchmark reports its rates for them."
 benchmark/sensitivity_runs.parquet,strict_years_astro,list of integers,astronomical year,Strict set in this configuration.
 benchmark/sensitivity_runs.parquet,safety_years_astro,list of integers,astronomical year,Safety set in this configuration.
 benchmark/sensitivity_runs.parquet,display_top10_years_astro,list of integers,astronomical year,"First ten years of the display order in this configuration. The display order is the ranking with tied years in calendar order, earliest first."
@@ -973,22 +973,22 @@ benchmark/sensitivity_runs.parquet,chronology_band,string,,"Century band of the 
 benchmark/sensitivity_summary.parquet,,Parquet table,,The rates and set sizes of each configuration of the sensitivity audit. Made by scripts/audit/audit_sensitivity.py.
 benchmark/sensitivity_summary.parquet,config,string,,"Name of the configuration of the sensitivity audit, one of 32, such as baseline, tolerance_narrow or no_mars_family. Each configuration has one row."
 benchmark/sensitivity_summary.parquet,dated_tablets,integer,count,"Number of benchmark records scored, 179."
-benchmark/sensitivity_summary.parquet,decisive_records,integer,count,"Number of records with decisive clauses in the results, 120. The rates of every row use the same records."
-benchmark/sensitivity_summary.parquet,decisive_records_in_config,integer,count,Number of those 120 records that keep a decisive clause with bits in this configuration.
-benchmark/sensitivity_summary.parquet,truth_strict,integer,count,Number of the 120 records with decisive clauses whose strict set holds the published year.
-benchmark/sensitivity_summary.parquet,strict_recall,float,fraction,"truth_strict divided by 120, the inclusion rate of the strict set."
-benchmark/sensitivity_summary.parquet,median_strict_count,float,count,"Median number of years in the strict set, over the 120 records with decisive clauses."
-benchmark/sensitivity_summary.parquet,median_leading_group,float,count,"Median number of years in the first group L1, over the 120 records with decisive clauses."
-benchmark/sensitivity_summary.parquet,truth_in_leading_group,integer,count,Number of the 120 records with decisive clauses whose first group holds the published year.
-benchmark/sensitivity_summary.parquet,leading_group_rate,float,fraction,"truth_in_leading_group divided by 120, the inclusion rate of the first group."
-benchmark/sensitivity_summary.parquet,truth_safety,integer,count,Number of the 120 records with decisive clauses whose safety set holds the published year.
-benchmark/sensitivity_summary.parquet,safety_recall,float,fraction,"truth_safety divided by 120, the inclusion rate of the safety set."
-benchmark/sensitivity_summary.parquet,median_safety_count,float,count,"Median number of years in the safety set, over the 120 records with decisive clauses."
-benchmark/sensitivity_summary.parquet,unique_correct,integer,count,Number of the 120 records with decisive clauses whose strict set holds the published year alone.
-benchmark/sensitivity_summary.parquet,display_top1_correct,integer,count,Number of the 120 records with decisive clauses whose first year in the display order is the published year.
-benchmark/sensitivity_summary.parquet,display_top1_rate,float,fraction,display_top1_correct divided by 120.
-benchmark/sensitivity_summary.parquet,display_top3_correct,integer,count,Number of the 120 records with decisive clauses whose first three years in the display order hold the published year.
-benchmark/sensitivity_summary.parquet,display_top3_rate,float,fraction,display_top3_correct divided by 120.
+benchmark/sensitivity_summary.parquet,decisive_records,integer,count,"Number of records with decisive clauses in the results, 126. The rates of every row use the same records."
+benchmark/sensitivity_summary.parquet,decisive_records_in_config,integer,count,Number of those 126 records that keep a decisive clause with bits in this configuration.
+benchmark/sensitivity_summary.parquet,truth_strict,integer,count,Number of the 126 records with decisive clauses whose strict set holds the published year.
+benchmark/sensitivity_summary.parquet,strict_recall,float,fraction,"truth_strict divided by 126, the inclusion rate of the strict set."
+benchmark/sensitivity_summary.parquet,median_strict_count,float,count,"Median number of years in the strict set, over the 126 records with decisive clauses."
+benchmark/sensitivity_summary.parquet,median_leading_group,float,count,"Median number of years in the first group L1, over the 126 records with decisive clauses."
+benchmark/sensitivity_summary.parquet,truth_in_leading_group,integer,count,Number of the 126 records with decisive clauses whose first group holds the published year.
+benchmark/sensitivity_summary.parquet,leading_group_rate,float,fraction,"truth_in_leading_group divided by 126, the inclusion rate of the first group."
+benchmark/sensitivity_summary.parquet,truth_safety,integer,count,Number of the 126 records with decisive clauses whose safety set holds the published year.
+benchmark/sensitivity_summary.parquet,safety_recall,float,fraction,"truth_safety divided by 126, the inclusion rate of the safety set."
+benchmark/sensitivity_summary.parquet,median_safety_count,float,count,"Median number of years in the safety set, over the 126 records with decisive clauses."
+benchmark/sensitivity_summary.parquet,unique_correct,integer,count,Number of the 126 records with decisive clauses whose strict set holds the published year alone.
+benchmark/sensitivity_summary.parquet,display_top1_correct,integer,count,Number of the 126 records with decisive clauses whose first year in the display order is the published year.
+benchmark/sensitivity_summary.parquet,display_top1_rate,float,fraction,display_top1_correct divided by 126.
+benchmark/sensitivity_summary.parquet,display_top3_correct,integer,count,Number of the 126 records with decisive clauses whose first three years in the display order hold the published year.
+benchmark/sensitivity_summary.parquet,display_top3_rate,float,fraction,display_top3_correct divided by 126.
 benchmark/held_out_runs.parquet,,Parquet table,,"Each benchmark record in each round of the held-out test (SI Appendix, section S8). Made by scripts/audit/audit_held_out.py."
 benchmark/held_out_runs.parquet,round,string,,"Round of the held-out test. ADART I, ADART II and ADART III name the test volume, whose rules come from the other two volumes. all volumes uses rules from all three, as in the main text."
 benchmark/held_out_runs.parquet,tablet,string,,ADsD identifier of a benchmark record of the test volume.
@@ -1003,7 +1003,7 @@ benchmark/held_out_runs.parquet,evidence_group_count,integer,count,Number of gro
 benchmark/held_out_runs.parquet,level_years_json,JSON,,"Years of every group, as a list of lists in rank order."
 benchmark/held_out_runs.parquet,level_years_json[],list of integers,astronomical year,Years of one group.
 benchmark/held_out_runs.parquet,volume,string,,"ADART volume of the record, ADART I, ADART II or ADART III."
-benchmark/held_out_runs.parquet,decisive,boolean,,"True if the record has decisive clauses, so that its result in results/tablet_dates.parquet keeps at least one. 120 of the 179 benchmark records do, and the benchmark reports its rates for them."
+benchmark/held_out_runs.parquet,decisive,boolean,,"True if the record has decisive clauses, so that its result in results/tablet_dates.parquet keeps at least one. 126 of the 179 benchmark records do, and the benchmark reports its rates for them."
 benchmark/held_out_runs.parquet,truth_astro,integer,astronomical year,"Published year of the record, joined after scoring."
 benchmark/held_out_runs.parquet,truth_in_strict,boolean,,True if the strict set holds the published year.
 benchmark/held_out_runs.parquet,truth_in_safety,boolean,,True if the safety set holds the published year.
@@ -1049,7 +1049,7 @@ benchmark/addenda_results_first_run.json,,JSON,,"The scores of the first run of 
 benchmark/held_out_summary.json,,JSON,,"The choices made from the training volumes, the condition for close rates, and the rates of each round of the held-out test. Made by scripts/audit/audit_held_out.py."
 paper_counts/table_s3.csv,,CSV table,,"The numbers of SI Appendix, Table S3, which gives the information and the decisive share of each clause type. Made by scripts/audit/build_paper_counts.py."
 paper_counts/table_s3.csv,Observation type,string,,Name of the clause type. SI Table S3 prints the same names without the word measured. The file holds one row per type.
-paper_counts/table_s3.csv,Clauses,integer,count,"Number of the 4,010 reviewed clauses of this type."
+paper_counts/table_s3.csv,Clauses,integer,count,"Number of the 4,033 reviewed clauses of this type."
 paper_counts/table_s3.csv,Median years allowed,integer,count,"Median number of years that a clause agrees with, over the clauses testable in at least one year, rounded. It is the column Years of Table S3. Empty for a type with fewer than five such clauses."
 paper_counts/table_s3.csv,Bits,float,bits,"log2 of 701 over the median, rounded to 0.1 bit."
 paper_counts/table_s3.csv,Decisive %,integer,percent,"Share of the testable clauses that are in the decisive tier, rounded."
@@ -1059,7 +1059,7 @@ paper_counts/table_s3.csv,Decisive % unrounded,float,percent,Decisive % without 
 paper_counts/table_s3.csv,kind,string,,"Code name of the clause type, as in the column kind of the clause tables."
 paper_counts/table_s4.csv,,CSV table,,"The numbers of SI Appendix, Table S4, which gives the agreement of the reviewed clauses at the published year by clause type. Made by scripts/audit/build_paper_counts.py."
 paper_counts/table_s4.csv,Observation type,string,,Short name of the clause type. The wording differs from SI Table S4 and from table_s3.csv. Use kind to join the tables.
-paper_counts/table_s4.csv,Clauses,integer,count,"Number of the 4,010 reviewed clauses of this type."
+paper_counts/table_s4.csv,Clauses,integer,count,"Number of the 4,033 reviewed clauses of this type."
 paper_counts/table_s4.csv,Testable,integer,count,Number of clauses whose verdict at the published year is agree or contradict.
 paper_counts/table_s4.csv,Agree,integer,count,Number of clauses that agree at the published year.
 paper_counts/table_s4.csv,Contradict,integer,count,Number of clauses that contradict the published year.
