@@ -1,6 +1,6 @@
 {
   "schema": "adart-i-iii-manuscript-scope-v1",
-  "generated_utc": "2026-10-26T05:43:17.408294+00:00",
+  "generated_utc": "2026-11-07T08:15:05.378743+00:00",
   "mode": "filter_and_aggregate_current_saved_outputs",
   "included_projects": [
     "adsd/adart1",
@@ -17,47 +17,47 @@
   },
   "original_inventory": {
     "catalogue_records": 417,
-    "reviewed_clauses": 4010,
+    "reviewed_clauses": 4033,
     "reviewed_records": 321,
-    "deterministic_facts": 3193,
+    "deterministic_facts": 3191,
     "deterministic_records": 316
   },
   "adart_i_iii": {
     "catalogue_records": 417,
     "records_with_edition_text": 393,
     "edition_lines": 11356,
-    "reviewed_clauses": 4010,
+    "reviewed_clauses": 4033,
     "reviewed_records": 321,
-    "deterministic_facts": 3193,
+    "deterministic_facts": 3191,
     "deterministic_records": 316,
-    "net_clause_inventory_increase": 817,
+    "net_clause_inventory_increase": 842,
     "net_record_coverage_increase": 5
   },
   "reviewed_forward": {
-    "agree": 2732,
-    "contradict": 188,
+    "agree": 2746,
+    "contradict": 149,
     "not_evaluated": 0,
-    "untestable": 1090,
-    "clauses": 4010,
+    "untestable": 1138,
+    "clauses": 4033,
     "records": 321,
-    "testable": 2920,
-    "agreement_percent": 93.56164383561644
+    "testable": 2895,
+    "agreement_percent": 94.853195164076
   },
   "deterministic_forward": {
-    "agree": 2169,
-    "contradict": 144,
+    "agree": 2176,
+    "contradict": 105,
     "not_evaluated": 0,
-    "untestable": 880,
-    "clauses": 3193,
+    "untestable": 910,
+    "clauses": 3191,
     "records": 316,
-    "testable": 2313,
-    "agreement_percent": 93.77431906614785
+    "testable": 2281,
+    "agreement_percent": 95.39675580885576
   },
   "production": {
     "records": 417,
     "astronomy_claims": {
-      "decline": 268,
-      "ranked": 139,
+      "decline": 261,
+      "ranked": 146,
       "committed": 10
     },
     "astronomy_committed_bases": {
@@ -65,15 +65,15 @@
       "secure_lunar_eclipse": 1
     },
     "astronomy_decline_bases": {
-      "supporting_only": 172,
+      "supporting_only": 165,
       "unsupported_transliteration": 61,
       "no_text": 24,
       "no_recognized_evidence": 11
     },
     "chronology_relations": {
       "absent": 394,
-      "selects_strict_candidate": 12,
-      "lookup_only": 9,
+      "selects_strict_candidate": 13,
+      "lookup_only": 8,
       "confirms_astronomy": 2
     },
     "reference_checked_commitments": 10,
@@ -82,19 +82,19 @@
       "date-all-v7-reviewed-clauses"
     ],
     "combined_claims": {
-      "decline": 268,
-      "ranked": 127,
-      "committed": 22
+      "decline": 261,
+      "ranked": 133,
+      "committed": 23
     },
     "combined_bases": {
-      "supporting_only": 165,
-      "astronomical_frontier": 127,
+      "supporting_only": 159,
+      "astronomical_frontier": 133,
       "unsupported_transliteration": 61,
       "no_text": 24,
-      "chronology_adjudicated": 12,
+      "chronology_adjudicated": 13,
       "independent_astronomy": 9,
-      "chronology_only_not_astronomy": 9,
       "no_recognized_evidence": 9,
+      "chronology_only_not_astronomy": 8,
       "secure_lunar_eclipse": 1
     }
   },
@@ -102,67 +102,67 @@
     "all_eligible": {
       "records": 179,
       "truth_in_strict": {
-        "count": 178,
-        "percent": 99.44134078212291
+        "count": 179,
+        "percent": 100.0
       },
       "truth_in_safety": {
         "count": 179,
         "percent": 100.0
       },
       "unique": {
-        "count": 26,
-        "percent": 14.525139664804469
+        "count": 28,
+        "percent": 15.64245810055866
       },
       "truth_in_top_evidence_group": {
-        "count": 166,
-        "percent": 92.73743016759776
+        "count": 170,
+        "percent": 94.97206703910615
       },
       "display_top1_correct": {
-        "count": 102,
-        "percent": 56.98324022346369
+        "count": 104,
+        "percent": 58.100558659217874
       },
       "display_top3_correct": {
-        "count": 116,
-        "percent": 64.80446927374301
+        "count": 118,
+        "percent": 65.92178770949721
       },
       "truth_in_first_three_evidence_levels": {
-        "count": 171,
-        "percent": 95.53072625698324
+        "count": 175,
+        "percent": 97.76536312849161
       },
-      "median_strict_count": 64.0,
+      "median_strict_count": 57.0,
       "median_safety_count": 701.0,
       "median_top_evidence_group_size": 1.0,
       "median_top_three_evidence_groups_size": 5.0
     },
     "decisive": {
-      "records": 120,
+      "records": 126,
       "truth_in_strict": {
-        "count": 119,
-        "percent": 99.16666666666667
+        "count": 126,
+        "percent": 100.0
       },
       "truth_in_safety": {
-        "count": 120,
+        "count": 126,
         "percent": 100.0
       },
       "unique": {
-        "count": 26,
-        "percent": 21.666666666666668
+        "count": 28,
+        "percent": 22.22222222222222
       },
       "truth_in_top_evidence_group": {
-        "count": 115,
-        "percent": 95.83333333333333
+        "count": 122,
+        "percent": 96.82539682539682
       },
       "display_top1_correct": {
-        "count": 88,
-        "percent": 73.33333333333333
+        "count": 94,
+        "percent": 74.60317460317461
       },
       "display_top3_correct": {
-        "count": 99,
-        "percent": 82.5
+        "count": 104,
+        "percent": 82.53968253968254
       },
       "truth_in_first_three_evidence_levels": {
-        "count": 119,
-        "percent": 99.16666666666667
+        "count": 126,
+        "percent": 100.0
       },
       "median_strict_count": 15.0,
       "median_safety_count": 174.0,
@@ -170,13 +170,13 @@
       "median_top_three_evidence_groups_size": 3.0
     },
     "supporting_only": {
-      "records": 59,
+      "records": 53,
       "truth_in_strict": {
-        "count": 59,
+        "count": 53,
         "percent": 100.0
       },
       "truth_in_safety": {
-        "count": 59,
+        "count": 53,
         "percent": 100.0
       },
       "unique": {
@@ -184,25 +184,25 @@
         "percent": 0.0
       },
       "truth_in_top_evidence_group": {
-        "count": 51,
-        "percent": 86.44067796610169
+        "count": 48,
+        "percent": 90.56603773584905
       },
       "display_top1_correct": {
-        "count": 14,
-        "percent": 23.728813559322035
+        "count": 10,
+        "percent": 18.867924528301888
       },
       "display_top3_correct": {
-        "count": 17,
-        "percent": 28.8135593220339
+        "count": 14,
+        "percent": 26.41509433962264
       },
       "truth_in_first_three_evidence_levels": {
-        "count": 52,
-        "percent": 88.13559322033899
+        "count": 49,
+        "percent": 92.45283018867924
       },
       "median_strict_count": 701.0,
       "median_safety_count": 701.0,
       "median_top_evidence_group_size": 47.0,
-      "median_top_three_evidence_groups_size": 64.0
+      "median_top_three_evidence_groups_size": 94.0
     }
   },
   "scope_checks": {
@@ -213,5 +213,5 @@
     "candidate_scores_match_current_tools_and_calendar": true,
     "production_and_deterministic_provenance_match_current_tools": true
   },
-  "table1_scoring_fingerprint": "a269c427dbbfb6eebac543c9a3cd2abe2f49132850e3d3f1262c1a46d47b0ee9"
+  "table1_scoring_fingerprint": "96d08643713c0034c8b0373693cd8aa04b26177bacfb9e0cd2baf1d0f1206f69"
 }

@@ -50,7 +50,7 @@ site:
 NEEDS_SOURCE := scripts/source/fetch_adsd.py scripts/source/fetch_texts.py \
 	scripts/source/ocr_adart_iv_mathpix.py scripts/physical/ocr_parker_dubberstein.py \
 	scripts/physical/build_ephemeris.py scripts/agent/model_review.py
-# These ran once, for the test on the dated addenda of ADART IV that
+# These ran for the test on the dated addenda of ADART IV that
 # data/benchmark/addenda_registration.json registers. They read the ADART IV text.
 REGISTERED_TEST := scripts/source/build_adart_iv_addenda.py \
 	scripts/inference/date_adart_iv_addenda.py scripts/audit/score_adart_iv_addenda.py

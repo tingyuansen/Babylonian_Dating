@@ -54,102 +54,102 @@ AGENT_RULES = {
 
 CONFIGS = [
     {"config": "baseline", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "skill", "ablation": "none"},
-    {"config": "tolerance_narrow", "moon_tol": 2.0,
      "planet_tol": 1.5, "weighting": "skill", "ablation": "none"},
+    {"config": "tolerance_narrow", "moon_tol": 2.0,
+     "planet_tol": 1.0, "weighting": "skill", "ablation": "none"},
     {"config": "tolerance_wide", "moon_tol": 4.0,
-     "planet_tol": 3.0, "weighting": "skill", "ablation": "none"},
+     "planet_tol": 2.5, "weighting": "skill", "ablation": "none"},
     {"config": "no_agent_suggested_rules", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "skill", "ablation": "agent_rules"},
-    {"config": "no_station_relative_to_star", "moon_tol": 3.0, "planet_tol": 2.0, "weighting": "skill",
+     "planet_tol": 1.5, "weighting": "skill", "ablation": "agent_rules"},
+    {"config": "no_station_relative_to_star", "moon_tol": 3.0, "planet_tol": 1.5, "weighting": "skill",
      "ablation": "station_relation"},
-    {"config": "no_planet_to_planet_distance", "moon_tol": 3.0, "planet_tol": 2.0, "weighting": "skill",
+    {"config": "no_planet_to_planet_distance", "moon_tol": 3.0, "planet_tol": 1.5, "weighting": "skill",
      "ablation": "planet_pair"},
-    {"config": "no_restored_month_context", "moon_tol": 3.0, "planet_tol": 2.0, "weighting": "skill",
+    {"config": "no_restored_month_context", "moon_tol": 3.0, "planet_tol": 1.5, "weighting": "skill",
      "ablation": "restored_month_context"},
-    {"config": "no_extended_month_heading", "moon_tol": 3.0, "planet_tol": 2.0, "weighting": "skill",
+    {"config": "no_extended_month_heading", "moon_tol": 3.0, "planet_tol": 1.5, "weighting": "skill",
      "ablation": "extended_month_heading"},
     {"config": "no_first_appearance", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "skill", "ablation": "first_appearance"},
+     "planet_tol": 1.5, "weighting": "skill", "ablation": "first_appearance"},
     {"config": "no_acronychal_rising", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "skill", "ablation": "acronychal"},
+     "planet_tol": 1.5, "weighting": "skill", "ablation": "acronychal"},
     # The parser reads no clause across the brackets that mark the editors'
     # restorations.
     {"config": "no_restoration_reading", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "skill", "ablation": "restoration_reading"},
-    {"config": "no_scorpius_alias", "moon_tol": 3.0, "planet_tol": 2.0, "weighting": "skill",
+     "planet_tol": 1.5, "weighting": "skill", "ablation": "restoration_reading"},
+    {"config": "no_scorpius_alias", "moon_tol": 3.0, "planet_tol": 1.5, "weighting": "skill",
      "ablation": "scorpius_alias"},
     {"config": "no_inferred_summary_month", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "skill", "ablation": "summary_month"},
+     "planet_tol": 1.5, "weighting": "skill", "ablation": "summary_month"},
     # The baseline looks up the ephemeris at civil Julian days, and the
     # ephemeris runs on dynamical time. This run shifts all times by one fixed
     # value of Delta T, about four hours.
     {"config": "delta_t_applied", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "skill", "ablation": "delta_t"},
+     "planet_tol": 1.5, "weighting": "skill", "ablation": "delta_t"},
     # The baseline takes one cubit as 2 degrees. Measured close approaches of
     # observed bodies give a value nearer 2.2 degrees. This run scales each
     # stated distance by 2.2/2.
     {"config": "cubit_at_2_2_degrees", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "skill", "ablation": "cubit_scale"},
+     "planet_tol": 1.5, "weighting": "skill", "ablation": "cubit_scale"},
     # Britton gives the constant term of the zodiac relation (Eq. 7 of the main
     # text) to about 0.1 degree. These two runs move it by half a degree either
     # way, to find results that rest on a planet near a sign boundary.
     {"config": "britton_offset_minus_half", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "skill", "ablation": "zodiac_minus"},
+     "planet_tol": 1.5, "weighting": "skill", "ablation": "zodiac_minus"},
     {"config": "britton_offset_plus_half", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "skill", "ablation": "zodiac_plus"},
+     "planet_tol": 1.5, "weighting": "skill", "ablation": "zodiac_plus"},
     {"config": "no_mars_family", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "skill", "ablation": "mars"},
+     "planet_tol": 1.5, "weighting": "skill", "ablation": "mars"},
     {"config": "no_jupiter_family", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "skill", "ablation": "jupiter"},
+     "planet_tol": 1.5, "weighting": "skill", "ablation": "jupiter"},
     {"config": "no_saturn_family", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "skill", "ablation": "saturn"},
+     "planet_tol": 1.5, "weighting": "skill", "ablation": "saturn"},
     {"config": "no_sirius_scheme", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "skill", "ablation": "sirius"},
+     "planet_tol": 1.5, "weighting": "skill", "ablation": "sirius"},
     {"config": "no_sun_family", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "skill", "ablation": "sun"},
+     "planet_tol": 1.5, "weighting": "skill", "ablation": "sun"},
     {"config": "no_lunar_eclipse_family", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "skill", "ablation": "lunar_eclipse"},
+     "planet_tol": 1.5, "weighting": "skill", "ablation": "lunar_eclipse"},
     # Few ADART IV entries keep a month heading, unlike most benchmark records
     # with decisive clauses. This run removes the month and day of each clause,
     # so that the benchmark records resemble those entries.
     {"config": "no_month_context", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "skill", "ablation": "month_context"},
+     "planet_tol": 1.5, "weighting": "skill", "ablation": "month_context"},
     # This run ranks the number of contradicting statements before the bits,
     # in third place in the ranking of Eq. 5 of the main text.
-    {"config": "contradictions_before_information", "moon_tol": 3.0, "planet_tol": 2.0, "weighting": "skill",
+    {"config": "contradictions_before_information", "moon_tol": 3.0, "planet_tol": 1.5, "weighting": "skill",
      "ablation": "order_contradictions_first"},
     # The strict set keeps only its years with the fewest contradicting
     # statements.
-    {"config": "contradictions_bound_the_leading_set", "moon_tol": 3.0, "planet_tol": 2.0, "weighting": "skill",
+    {"config": "contradictions_bound_the_leading_set", "moon_tol": 3.0, "planet_tol": 1.5, "weighting": "skill",
      "ablation": "frontier_penalises_contradictions"},
     # One unit for each testable source statement, shared among its clauses,
     # with no tiers and no clocks.
     {"config": "count_weighting", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "count", "ablation": "none"},
+     "planet_tol": 1.5, "weighting": "count", "ablation": "none"},
     # The bits of all clauses in one sum, with no tiers and no clocks.
     {"config": "information_weighting", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "information", "ablation": "none"},
+     "planet_tol": 1.5, "weighting": "information", "ablation": "none"},
     # The clauses of a joint position, such as "Saturn and Mars were in Leo",
     # are tested apart.
     {"config": "independent_joint_atoms", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "skill", "ablation": "independent_joint_atoms"},
+     "planet_tol": 1.5, "weighting": "skill", "ablation": "independent_joint_atoms"},
     # "Above" and "below" state a latitude, which no rule tests. In the
     # baseline, such a distance of Mars, Jupiter or Saturn to a star, or of the
     # Moon to one of them, can be decisive. This run keeps each such distance
     # supporting.
     {"config": "longitude_only_distances_supporting", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "skill", "ablation": "latitudinal_supporting"},
+     "planet_tol": 1.5, "weighting": "skill", "ablation": "latitudinal_supporting"},
     # The tiers, clocks, strict and safety sets and ranking of the baseline,
     # with one unit per agreeing clause in place of its bits. It changes the
     # bits alone, while count_weighting also removes the tiers.
     {"config": "equal_weighting_with_tiers", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "equal", "ablation": "none"},
+     "planet_tol": 1.5, "weighting": "equal", "ablation": "none"},
     # A measured relation of the Moon is tested only over the night that opens
     # its Babylonian day, or the night after. The baseline tests it over two
     # and a half days.
     {"config": "moon_night_window", "moon_tol": 3.0,
-     "planet_tol": 2.0, "weighting": "skill", "ablation": "moon_night"},
+     "planet_tol": 1.5, "weighting": "skill", "ablation": "moon_night"},
 ]
 
 
@@ -168,6 +168,37 @@ def context_restored(text: str, st: S.Statement) -> bool:
     return S.positional_context(text, st.source_start)[2]
 
 
+def matched_parser_index(st: S.Statement, old_index: int,
+                         current: list[S.Statement]) -> int:
+    """Resolve a saved parser-origin clause against the current extraction.
+
+    ``parser_index`` belongs to the extraction made before LLM review. It is
+    *not* a stable index after an extraction-rule change. Match the citation
+    span and parser rule, distinguishing coordinated planets by their body.
+    Refuse to guess if a formerly recognized clause is no longer recognized.
+    """
+    matches = [i for i, base in enumerate(current)
+               if (base.source_start, base.source_end, base.parser_rule)
+               == (st.source_start, st.source_end, st.parser_rule)]
+    same_body = [i for i in matches if current[i].planet == st.planet]
+    if len(same_body) == 1:
+        return same_body[0]
+    if len(matches) == 1:
+        return matches[0]
+    if old_index in same_body and len(same_body) > 1:
+        # A previously recorded parser index is safe only after the source
+        # span, rule and body have already been verified at that index.
+        return old_index
+    raise ValueError(
+        "Cannot align reviewed parser clause to current extraction "
+        f"(old parser_index={old_index}, "
+        f"span={st.source_start}:{st.source_end}, "
+        f"rule={st.parser_rule!r}, body={st.planet!r}; "
+        f"candidate indices={matches}). Inspect the source/provenance; "
+        "do not rely on the old positional index."
+    )
+
+
 def without_restored_month_context(text: str, items: list[tuple]) -> list[S.Statement]:
     """Return the reviewed clauses without the restored month context.
 
@@ -183,10 +214,44 @@ def without_restored_month_context(text: str, items: list[tuple]) -> list[S.Stat
     try:
         S.PROPAGATE_RESTORED_MONTH_CONTEXT = False
         legacy = S.extract(text)
+        if len(parsed) != len(legacy) or any(
+            (a.source_start, a.source_end, a.parser_rule, a.planet)
+            != (b.source_start, b.source_end, b.parser_rule, b.planet)
+            for a, b in zip(parsed, legacy)
+        ):
+            raise ValueError(
+                "Turning off restored-month propagation changed parser clause "
+                "identity. Cannot compute a reliable sensitivity comparison."
+            )
         for st, origin, index, _review in items:
             if origin == "parser":
-                restored = (legacy[index].restored
-                            or (st.restored and not parsed[index].restored))
+                try:
+                    current_index = matched_parser_index(st, index, parsed)
+                except ValueError:
+                    # An old bracket-tolerant parser clause can disappear from
+                    # a later extraction after parser rules change. If the
+                    # saved clause is already restored AND the cited source
+                    # span contains an editorial bracket, that restoration is
+                    # intrinsic to its text. Disabling restored *month-heading*
+                    # propagation cannot make this clause unrestored.
+                    # Otherwise fail closed; never guess a parser index.
+                    passage = text[st.source_start:st.source_end]
+                    has_current_source_match = any(
+                        (base.source_start, base.source_end, base.parser_rule)
+                        == (st.source_start, st.source_end, st.parser_rule)
+                        for base in parsed
+                    )
+                    if not (not has_current_source_match
+                            and 0 <= st.source_start < st.source_end <= len(text)
+                            and st.parser_rule.endswith("_bracket")
+                            and st.restored
+                            and ("[" in passage or "]" in passage)):
+                        raise
+                    restored = True
+                else:
+                    restored = (legacy[current_index].restored
+                                or (st.restored
+                                    and not parsed[current_index].restored))
             else:
                 S.PROPAGATE_RESTORED_MONTH_CONTEXT = True
                 now = context_restored(text, st)
@@ -286,7 +351,9 @@ def infer(config: dict, population: list[tuple]) -> list[dict]:
     The configuration sets module values of tools/statements.py and
     tools/sky.py, and the function restores them at the end.
     """
-    old_moon, old_planet = S.TOL_MOON, S.TOL_PLANET
+    old_moon, old_planet, old_planet_pair = (
+        S.TOL_MOON, S.TOL_PLANET, S.TOL_PLANET_PAIR
+    )
     old_offset = sky.TIME_OFFSET_DAYS
     old_zodiac = sky.BABYLONIAN_OFFSET_YEAR0_DEG
     sky.BABYLONIAN_OFFSET_YEAR0_DEG = old_zodiac + {
@@ -296,6 +363,7 @@ def infer(config: dict, population: list[tuple]) -> list[dict]:
     old_order = S.ORDER_CONTRADICTIONS_FIRST
     S.TOL_MOON = config["moon_tol"]
     S.TOL_PLANET = config["planet_tol"]
+    S.TOL_PLANET_PAIR = config["planet_tol"]
     old_frontier = S.FRONTIER_PENALISES_CONTRADICTIONS
     old_latitudinal = S.LATITUDINAL_DISTANCES_DECISIVE
     old_night = S.MOON_NIGHT_WINDOWS
@@ -345,7 +413,9 @@ def infer(config: dict, population: list[tuple]) -> list[dict]:
                 "safety_count": len(safety),
             })
     finally:
-        S.TOL_MOON, S.TOL_PLANET = old_moon, old_planet
+        S.TOL_MOON, S.TOL_PLANET, S.TOL_PLANET_PAIR = (
+            old_moon, old_planet, old_planet_pair
+        )
         sky.TIME_OFFSET_DAYS = old_offset
         sky.BABYLONIAN_OFFSET_YEAR0_DEG = old_zodiac
         S.ORDER_CONTRADICTIONS_FIRST = old_order

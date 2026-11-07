@@ -30,9 +30,10 @@ Do not move a sign, star, amount, direction, day, or visibility condition across
 - Recombine split Roman month numerals such as `Month V [ II ]` to VII and `Month I [ II ]` to III.
 - A day does not govern a measured relation or eclipse across a lacuna or completed sentence. If local context is absent, retain the fact as unchecked.
 - A summary directly before the next surviving month may inherit only an unambiguous immediately preceding month. Never interpolate two or more lost month headings from a favored year.
-- Before Month VII, retain VI and VI₂ as an explicit union unless intercalation survives. A large day-number reset without a month heading marks lost context rather than reusing a stale month.
+- Before Month VII, retain VI and VI₂ as an explicit union unless intercalation survives. A large day-number reset without a month heading marks lost context rather than reusing a stale month. Only successive day entries count for this reset: a day inside a sentence (“on the 29th”, “from the 24th … to the 3rd”), a day of another month, or a day in the end-of-month summary does not.
+- A year formula whose word “Year” is damaged, such as `[ Y ] ear 56, month V`, is still a heading; the month that follows it is not restored.
 - Coordinated summaries apply the stated sign to every named planet, including three-body lists and beginning-to-end monthly paths.
-- An explicitly coordinated two- or three-planet sign clause retains its atomic source records but is tested as one simultaneous configuration. There must be a nonzero interval in the governing month or secure day when all named planets occupy the stated sign. Separate clauses are not paired merely because they are nearby. Missing month context leaves the joint configuration unchecked.
+- An explicitly coordinated two- or three-planet sign clause retains its atomic source records but is tested as one simultaneous configuration. There must be a nonzero interval in the governing month or secure day when all named planets occupy the stated sign. Separate clauses are not paired merely because they are nearby. Without a month, the configuration is tested over the whole candidate year, or on its secure day in each month of that year, and it stays supporting.
 - Bracketed, restored, or explicitly uncertain evidence may support a ranking but may not carry decisive weight on its own.
 
 ## 4. Evidence and scoring

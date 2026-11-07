@@ -2,7 +2,7 @@
   "schema": "adart-iv-addenda-frozen-test-results-v1",
   "registration": "data/benchmark/addenda_registration.json",
   "frozen_commit": "ac02e3bf5121b02e2d08729f5a9568b0e2f8d640",
-  "frozen_files_match_commit": true,
+  "frozen_files_match_commit": false,
   "segmentation": {
     "pdf_pages": [
       88,
@@ -69,26 +69,26 @@
       "texts": 39,
       "diary_numbers": 35,
       "texts_with_translation": 39,
-      "texts_with_a_decisive_clause": 12,
+      "texts_with_a_decisive_clause": 13,
       "published_year_in_first_group": {
-        "count": 11,
-        "of": 12,
-        "percent": 91.7
+        "count": 12,
+        "of": 13,
+        "percent": 92.3
       },
       "published_year_in_strict_set": {
-        "count": 11,
-        "of": 12,
-        "percent": 91.7
+        "count": 12,
+        "of": 13,
+        "percent": 92.3
       },
-      "median_first_group_size": 45.5,
-      "median_strict_set_size": 64.5,
+      "median_first_group_size": 51.0,
+      "median_strict_set_size": 70.0,
       "commitments": 0,
       "commitments_matching_the_published_year": 0,
-      "ranked": 12,
-      "declined": 27,
+      "ranked": 13,
+      "declined": 26,
       "declined_by_basis": {
         "no_recognized_evidence": 6,
-        "supporting_only": 21
+        "supporting_only": 20
       }
     },
     "linked_to_adart_i_iii": {
@@ -121,43 +121,43 @@
       "texts": 52,
       "diary_numbers": 47,
       "texts_with_translation": 52,
-      "texts_with_a_decisive_clause": 14,
+      "texts_with_a_decisive_clause": 15,
       "published_year_in_first_group": {
-        "count": 13,
-        "of": 14,
-        "percent": 92.9
+        "count": 14,
+        "of": 15,
+        "percent": 93.3
       },
       "published_year_in_strict_set": {
-        "count": 13,
-        "of": 14,
-        "percent": 92.9
+        "count": 14,
+        "of": 15,
+        "percent": 93.3
       },
-      "median_first_group_size": 45.5,
-      "median_strict_set_size": 64.5,
+      "median_first_group_size": 51.0,
+      "median_strict_set_size": 70.0,
       "commitments": 0,
       "commitments_matching_the_published_year": 0,
-      "ranked": 14,
-      "declined": 38,
+      "ranked": 15,
+      "declined": 37,
       "declined_by_basis": {
         "no_recognized_evidence": 10,
-        "supporting_only": 28
+        "supporting_only": 27
       }
     }
   },
   "benchmark_for_comparison": {
-    "records": 112,
+    "records": 126,
     "published_year_in_first_group": {
-      "count": 104,
-      "of": 112,
-      "percent": 92.9
+      "count": 122,
+      "of": 126,
+      "percent": 96.8
     },
     "published_year_in_strict_set": {
-      "count": 112,
-      "of": 112,
+      "count": 126,
+      "of": 126,
       "percent": 100.0
     },
     "median_first_group_size": 1.0,
-    "median_strict_set_size": 17.5
+    "median_strict_set_size": 15.0
   },
   "texts_with_a_decisive_clause": [
     {
@@ -320,6 +320,25 @@
       "claim": "ranked"
     },
     {
+      "tablet": "ADART_IV_ADD_24_BM_41142",
+      "diary_number": "-212/1",
+      "letter": "",
+      "museum_no": "BM 41142",
+      "published_years_astro": [
+        -212,
+        -211
+      ],
+      "linked_to_adart_i_iii": false,
+      "decisive_clocks": 1,
+      "decisive_statements": 1,
+      "strict_set_size": 431,
+      "first_group_size": 236,
+      "first_group_years_astro": null,
+      "published_year_in_first_group": true,
+      "published_year_in_strict_set": true,
+      "claim": "ranked"
+    },
+    {
       "tablet": "ADART_IV_ADD_30_BM_32506_32521_32695",
       "diary_number": "-183",
       "letter": "E",
@@ -438,77 +457,140 @@
       "diary_number": "-284",
       "letter": "",
       "museum_no": "BM 46260",
-      "adsd_museum_matches": []
+      "adsd_museum_matches": [],
+      "corrigenda_evidence": [
+        "No. -284: For the joined fragment BM 46260, see the Addenda section in this volume."
+      ],
+      "note_evidence": [
+        "Join to BM 45927 =No.-284;obv.1'of BM 46260 has the beginnings of obv.16'ff.of BM 45927.So far,nothing was preserved"
+      ]
     },
     {
       "tablet": "ADART_IV_ADD_12_BM_34887",
       "diary_number": "-278",
       "letter": "B",
       "museum_no": "BM 34887",
-      "adsd_museum_matches": []
+      "adsd_museum_matches": [],
+      "corrigenda_evidence": [
+        "No. -278B: For the joined fragment BM 34887, see the Addenda section in this volume."
+      ],
+      "note_evidence": [
+        "Joined to BM 35400+45866,edited in vol.I as No.-278B"
+      ]
     },
     {
       "tablet": "ADART_IV_ADD_15_BM_32352",
       "diary_number": "-261",
       "letter": "",
       "museum_no": "BM 32352",
-      "adsd_museum_matches": []
+      "adsd_museum_matches": [],
+      "corrigenda_evidence": [
+        "No. -261C: For the joined fragment BM 32352, see the Addenda section in this volume."
+      ],
+      "note_evidence": [
+        "Join to No. -261C rev. (BM 41615+), verified by Jeanette Fincke 18th Sept 2014.",
+        "Line 3' of BM 32352 continues line 1' of BM 41615 rev. In the transliteration, a few signs from BM 41615 are supplied in the"
+      ]
     },
     {
       "tablet": "ADART_IV_ADD_25_BM_36141",
       "diary_number": "-195",
       "letter": "C",
       "museum_no": "BM 36141",
-      "adsd_museum_matches": []
+      "adsd_museum_matches": [],
+      "corrigenda_evidence": [],
+      "note_evidence": [
+        "This fragment was joined to BM 31804 (= No. -195C) by E. Jiménez. It restores lines 7-11 and rev. 1."
+      ]
     },
     {
       "tablet": "ADART_IV_ADD_27_BM_35406",
       "diary_number": "-193",
       "letter": "E",
       "museum_no": "BM 35406",
-      "adsd_museum_matches": []
+      "adsd_museum_matches": [],
+      "corrigenda_evidence": [],
+      "note_evidence": [
+        "of Diary No.-193D for this month duplicate BM 35406,especially the Lunar Six data."
+      ]
     },
     {
       "tablet": "ADART_IV_ADD_28_BM_41530",
       "diary_number": "-189",
       "letter": "D",
       "museum_no": "BM 41530",
-      "adsd_museum_matches": []
+      "adsd_museum_matches": [],
+      "corrigenda_evidence": [
+        "to the ea]st\", as can be seen from the duplicate BM 41530, in the Addenda section of this volume under"
+      ],
+      "note_evidence": [
+        "13' are parallel to No. -189A obv. 4'and 8' (otherwise, the two tablets do not overlap)."
+      ]
     },
     {
       "tablet": "ADART_IV_ADD_39_BM_34410",
       "diary_number": "-140",
       "letter": "C",
       "museum_no": "BM 34410",
-      "adsd_museum_matches": []
+      "adsd_museum_matches": [],
+      "corrigenda_evidence": [
+        "No. -140C: The fragment BM 34410 can be joined to this tablet, see the Addenda section in this volume."
+      ],
+      "note_evidence": [
+        "This fragment was joined to BM 34050 (No.-140C lines 37ff.)by R.van der Spek,who will edit the complete text in a"
+      ]
     },
     {
       "tablet": "ADART_IV_ADD_40_BM_35170",
       "diary_number": "-134",
       "letter": "B",
       "museum_no": "BM 35170",
-      "adsd_museum_matches": []
+      "adsd_museum_matches": [],
+      "corrigenda_evidence": [
+        "No. -134B: The fragment BM 35170 can be joined to this tablet, see the Addenda section in this volume."
+      ],
+      "note_evidence": [
+        "This fragment was joined to BM 34918 (No.-134B)by J.Fincke.It provides the beginnings of obv.7-10 and the left part of rev."
+      ]
     },
     {
       "tablet": "ADART_IV_ADD_44_BM_45778",
       "diary_number": "-107",
       "letter": "D",
       "museum_no": "BM 45778",
-      "adsd_museum_matches": []
+      "adsd_museum_matches": [],
+      "corrigenda_evidence": [
+        "No. -107D: This is probably continued by BM 45778, see the Addenda section in this volume."
+      ],
+      "note_evidence": [
+        "This tablet probably continues Diary No.-107 D 29ff.;the line distribution of both tablets matches,but no join"
+      ]
     },
     {
       "tablet": "ADART_IV_ADD_45_BM_34926",
       "diary_number": "-105",
       "letter": "",
       "museum_no": "BM 34926",
-      "adsd_museum_matches": []
+      "adsd_museum_matches": [],
+      "corrigenda_evidence": [
+        "No. -105A: BM 34926 is a small joining fragment (found by F. Assar), see the Addenda section in this volume."
+      ],
+      "note_evidence": [
+        "This fragment joins No. -105 A (volume III) at the left edge. The join was found by G. R. F. Assar. Line 1' of BM 34926 is"
+      ]
     },
     {
       "tablet": "ADART_IV_ADD_47_BM_34736",
       "diary_number": "-93",
       "letter": "C",
       "museum_no": "BM 34736",
-      "adsd_museum_matches": []
+      "adsd_museum_matches": [],
+      "corrigenda_evidence": [
+        "No. -93A rev. 13: Read dul-lu ana muh-hi GIN-ak, and see BM 34736 in the Addenda section in this volume."
+      ],
+      "note_evidence": [
+        "This fragment refers to the same month (SE 218 IV) as BM 32884 (No. -93A rev. 1-13); last appearances of Mars"
+      ]
     },
     {
       "tablet": "ADART_IV_ADD_48_BM_41479_Rm_710",
@@ -517,6 +599,12 @@
       "museum_no": "BM 41479 + Rm 710",
       "adsd_museum_matches": [
         "Rm 710 = -88A"
+      ],
+      "corrigenda_evidence": [
+        "No. -88A: Joined to BM 41479 by F. Assar, see the Addenda section in this volume."
+      ],
+      "note_evidence": [
+        "[t]|l|l| BM 41479 (= 81-6-25, 91) + Rm 710 + Rm unnumbered & SE 223 Copy: LBAT 869 (41479), ZA 6 (1891) 235 & I [ Photo: YM & Bibliography: ADT vol. III No. -88 A (Rm 710) and Pl. 277 & The join of the two pieces was brought to my attention by G. R. F. Assar. &"
       ]
     },
     {
@@ -524,28 +612,32 @@
       "diary_number": "-85",
       "letter": "D",
       "museum_no": "BM 35065",
-      "adsd_museum_matches": []
+      "adsd_museum_matches": [],
+      "corrigenda_evidence": [],
+      "note_evidence": [
+        "BM 40860 = No. -85A concerns SE 226 II but has different details which fit into the lacunae of BM 35065."
+      ]
     }
   ],
   "inputs": {
     "data/benchmark/addenda_registration.json": "063348e68387b688c14659a9075c2343b488bdcd6c35c1e0ccf2fee07976bbef",
-    "data/benchmark/addenda_published_years.parquet": "64dbf8566763e3496b4388d1ce29debd689ab04622d25edc7f021a8cac34fec9",
-    "data/results/adart_iv_addenda_dates.parquet": "3f4c06495427cc6eafb936499687c22f4cb26ac94a5d43f3ef47af1839258f8b",
-    "data/results/adart_iv_addenda_summary.json": "27f0a4552990b01d93c666e5564bfe73bd5dde1b57f04bdb31dde2f9a32b523f",
-    "data/corpus/adart_iv_addenda_tablets.parquet": "aa183f991a2c2b59a8f73c4fd3ea7880383bf59fe9c6865765a34c3c42dd556d",
-    "data/corpus/adart_iv_addenda_summary.json": "30971e1d302077aa8cf4ff13e42b05cbfd0d143efe013271982c644324efdcdd",
-    "data/paper_counts/counts.json": "70fca873e67073ca5e793bacde62d8f1072b7be7f8b7520610c244134ed9dfa9"
+    "data/benchmark/addenda_published_years.parquet": "83c18e55db5ee2aa83104f751b8f74b2136d6bd29a77d859d4921029f9600361",
+    "data/results/adart_iv_addenda_dates.parquet": "30e3f5baaa620b9b959a638957265c50062e592a1e00ceee77a5a067b7175415",
+    "data/results/adart_iv_addenda_summary.json": "e44a1592e1dcb85ce6421cd53820c96c2194f61f44626c7028620dee47088217",
+    "data/corpus/adart_iv_addenda_tablets.parquet": "47749a49216661f3d8d6f9ea548399138e9b1159a748be4fc013351f4ce874e7",
+    "data/corpus/adart_iv_addenda_summary.json": "775a2801427d3ab0e2ed52747c0fbad32d6689b422866ec3e2306ef97900ac02",
+    "data/paper_counts/counts.json": "92b80f82d37896dee8a090e403a66f0084796921dd943958eb04a4809bc3ac9e"
   },
   "code": {
     "scripts/source/build_adart_iv_addenda.py": "fd5231ddd610478446fef0999d615a22e12f273c436ecd5cca91f91f7333fb14",
-    "scripts/inference/date_adart_iv_addenda.py": "785c3086d78eeceb6b7de55c06816a9174801c2460614ec55cabdf46db3d5e4e",
-    "scripts/audit/score_adart_iv_addenda.py": "faf204e0e516d2e61ff6dd10559e001ca1c519d4d648bcf81f7e675ceef9fc2b",
+    "scripts/inference/date_adart_iv_addenda.py": "327fb4dff91ab44fa51712b3bb6040088b7841c628db0c0c180e24abf9e051ef",
+    "scripts/audit/score_adart_iv_addenda.py": "9d664156ce13bfe1ed65d30fc3df65d4004bd0e1a6cc260547301076ae6d35b3",
     "scripts/source/build_adart_iv_corpus.py": "881822b1b7f1dfd48699738dd7c85b9ae44b4812a150e51de89bb2446bac9d77",
-    "scripts/inference/date_adart_iv.py": "4f09095781374610a83273abb628dc1fcf6427716583c7c65dd4bbea272773d2",
-    "scripts/inference/date_all.py": "2c05af63dd7fb568e98c8950f60a5a43799a1d27d68e0edcfd74774027753a47",
-    "tools/statements.py": "771a3ac7750a2b9691f6ca92ee1bd83d61e17fca485854371cccf9c1fe14b4ab",
+    "scripts/inference/date_adart_iv.py": "a2fe8480ee11b3ca992a554dc08514588640b95888d878e2bedb2df089211d41",
+    "scripts/inference/date_all.py": "842282d660ecd368d6d6af89c4e5817e95e078e2515ffb36844feeb1a098a06b",
+    "tools/statements.py": "d50214fab4fa39a7262d71d9cb1bda000b7b9b80e564f2cc0352ab6f158bb5e9",
     "tools/cal.py": "370231c111606692b34da9473c1acb42b81d41abfef422dbd6a5da3543f37d66",
-    "tools/sky.py": "f64cf1c928e1a4c7e8cf2ec86097e0839969c27759f1f035f16f913c325bca49",
+    "tools/sky.py": "6578ceb3126ac83d13cbb3cc4ffcddbc2bd12bf8a7ebbe8aa84ab6c2ada98b65",
     "tools/eclipses.py": "c88938b300ee6067a0a8263796281242c043b78ccb9f59f0188feb1a59c96bb0",
     "tools/eras.py": "9d2c14a200fa5d08044004f984be2931e18230e8eb3d956a3df2b51db3277c12",
     "tools/years.py": "66d594d88deca728dc4d46bbcb7cc17c7429281c20b0489c510226def57261bb",
