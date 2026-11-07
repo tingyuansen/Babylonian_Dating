@@ -83,9 +83,13 @@ CHUNK_RECORDS = 6
 # The main-text values for the committed code. They move when tools/ changes,
 # so the criterion for the all-volume round is the unmodified pipeline rerun on
 # the same code, not these numbers; they are reported for orientation only.
-MAIN_TEXT = {"records": 120, "first_group": 115, "first_three_groups": 119,
-             "strict_set": 119, "median_strict_set": 15.0}
-
+MAIN_TEXT = {
+    "records": 126,
+    "first_group": 122,
+    "first_three_groups": 126,
+    "strict_set": 126,
+    "median_strict_set": 15.0,
+}
 # --- The reading of the test, fixed before any held-out round was scored. ---
 # The pooled row of the three held-out rounds is close to the all-volume round
 # if its inclusion rate drops by at most this many percentage points, for the
@@ -261,11 +265,13 @@ def clause_is_secure(st: S.Statement) -> bool:
     """Clause conditions for a type the repository never makes decisive.
 
     Only reached if a round promotes such a type. It mirrors the clause
-    conditions of the repository's tier rule: unrestored text and an observed
-    event. The rule does not require a month, so neither does this.
+    conditions of the repository's tier rule: unrestored, observed evidence.
+    A coordinated planetary position without a secure month is supporting
+    even when the recalibration promotes its observation type.
     """
     return (not st.restored and not st.omitted and not st.joint_restored
-            and not st.joint_omitted)
+            and not st.joint_omitted
+            and (not st.joint_positions or st.month is not None))
 
 
 # ------------------------------------------------------------- parser units

@@ -3,8 +3,10 @@
 The Sirius scheme must give each phase a date in each candidate year, except the
 last appearance in the first year. A time offset must reach the cached solstice
 and Sirius dates. A month window holds the night that opens the month, and a
-clause without a month heading is tested over its whole year. The ADART IV input
-loses its year numbers and rulers and keeps the other text exactly.
+clause without a month heading is tested over its whole year. A lost month
+heading is read only from successive day entries, and a damaged word "Year" still
+heads a month. The ADART IV input loses its year numbers and rulers and keeps the
+other text exactly.
 
     python3 tests/test_rules.py
 """
@@ -84,6 +86,28 @@ class MonthWindowTest(unittest.TestCase):
         year = S.window(-300, [])
         self.assertEqual(year[0], cal.month_start_jd(-300, 1) - 1.0)
         self.assertEqual(year[-1], cal.month_start_jd(-299, 1))
+
+
+class MonthContextTest(unittest.TestCase):
+    """A lost month heading is read only from successive day entries."""
+
+    def month_of_mars(self, text):
+        return next(st for st in S.extract(text) if st.planet == "mars").month
+
+    def test_damaged_year_word_still_heads_the_month(self):
+        st = S.extract("[ Y ] ear 56 , month V , the 1st, Jupiter was in Leo.")[0]
+        self.assertEqual((st.month, st.restored), ("V", False))
+
+    def test_day_reset_between_entries_loses_the_month(self):
+        text = "Month V. Night of the 29th, Jupiter was in Leo. Night of the 5th, Mars was in Leo."
+        self.assertIsNone(self.month_of_mars(text))
+
+    def test_days_inside_a_sentence_keep_the_month(self):
+        head = "Month V. Night of the 29th, Jupiter was in Leo. "
+        for tail in ("Night of the 30th, Venus’ first appearance on the 5th of month VI. Mars was in Leo.",
+                     "That month, the 5th, Mars was in Leo.",
+                     "From the 24th to the 3rd, Mars was in Leo."):
+            self.assertEqual(self.month_of_mars(head + tail), "V", tail)
 
 
 class AdartIvChronologyTest(unittest.TestCase):

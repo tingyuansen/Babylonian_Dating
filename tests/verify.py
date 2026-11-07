@@ -861,7 +861,7 @@ def audit(t0: float, scratch: Path) -> int:
     backward = pd.read_parquet(HERE / "data" / "benchmark" / "benchmark_results.parquet")
     active_backward = backward[backward.decisive]
     ok("the benchmark's records with decisive clauses are those of the results",
-       set(active_backward.tablet) == active_ids and len(active_ids) == 120)
+       set(active_backward.tablet) == active_ids and len(active_ids) == 126)
     ok("sensitivity baseline matches the current backward run",
        int(sensitivity.loc["baseline", "decisive_records"]) == len(active_backward)
        and int(sensitivity.loc["baseline", "truth_strict"]) == int(active_backward.truth_in_strict.sum())
@@ -871,7 +871,7 @@ def audit(t0: float, scratch: Path) -> int:
        and "independent_joint_atoms" in sensitivity.index
        and len(SENSITIVITY_CONFIGS) == 32
        and sorted(sensitivity.index) == sorted(c["config"] for c in SENSITIVITY_CONFIGS))
-    ok("the benchmark results hold all 179 records, with the 120 that have decisive clauses",
+    ok("the benchmark results hold all 179 records, with the 126 that have decisive clauses",
        len(backward) == 179 and int(backward.decisive.sum()) == len(active_ids)
        and set(backward.tablet) == set(population.loc[population.tool_benchmark_eligible, "tablet"])
        and backward.top_evidence_group_size.between(1, len(years)).all()

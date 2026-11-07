@@ -65,9 +65,12 @@ class JointPositionsTest(unittest.TestCase):
         summary = S.extract("Month III, the 15th, clouds. Jupiter and Mars were in Leo.")
         self.assertTrue(all(s.joint_day is None for s in summary))
 
-    def test_missing_month_is_untestable(self):
+    def test_missing_month_is_supporting_with_yearwide_joint_test(self):
         atoms = S.extract("Jupiter and Mars were in Leo.")
-        self.assertEqual(S.check(atoms[0], -149, []).result, "untestable")
+        self.assertTrue(all(not S.is_decisive(st) for st in atoms))
+        with patch.object(S, "window", return_value=np.array([1000., 1360.])), \
+             patch.object(sky, "joint_sign_intervals", return_value=[(1000., 1010.)]):
+            self.assertEqual(S.check(atoms[0], -149, []).result, "agree")
 
     def test_month_alternatives_are_not_joined_into_one_span(self):
         st = replace(self.atoms[0], month="II|IV")

@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-10-25T07:39:13+00:00",
+  "generated_utc": "2026-11-02T22:18:52+00:00",
   "model": "gpt-6-luna-2026-09-22",
   "route": "litellm",
   "scope": "adart-iv",
@@ -13,37 +13,37 @@
   "review": {
     "clauses": 539,
     "final_actions": {
-      "KEEP": 533,
-      "MODIFY": 6
+      "KEEP": 531,
+      "MODIFY": 8
     },
     "first_pass_actions": {
-      "KEEP": 528,
-      "MODIFY": 11
+      "KEEP": 523,
+      "MODIFY": 16
     },
     "code_field_overrides": 0,
     "model_output_failures": 0
   },
   "recall": {
-    "unsupported_but_astronomical": 1806,
-    "skipped_by_normalizer": 310,
-    "added": 179,
-    "rejected_ungrounded_evidence": 110,
-    "duplicate": 33,
+    "unsupported_but_astronomical": 1749,
+    "skipped_by_normalizer": 334,
+    "added": 176,
+    "rejected_ungrounded_evidence": 108,
+    "duplicate": 38,
     "rejected_at_final_grounding_gate": 3
   },
   "this_process_calls": {
-    "calls": 4029,
-    "prompt_tokens": 8140254,
-    "completion_tokens": 1207622,
-    "reasoning_tokens": 651886,
-    "cached_tokens": 5614830,
-    "cost_usd_reported": 0.966749,
+    "calls": 4041,
+    "prompt_tokens": 8185699,
+    "completion_tokens": 1210039,
+    "reasoning_tokens": 661892,
+    "cached_tokens": 5630333,
+    "cost_usd_reported": 0.971838,
     "calls_without_reported_cost": 0,
     "throttled_retries": 0,
     "transport_retries": 0,
     "truncated_calls": 0,
-    "latency_s_median": 2.564,
-    "latency_s_p90": 6.047,
+    "latency_s_median": 3.015,
+    "latency_s_p90": 6.218,
     "models_reported": [
       "gpt-6-luna-2026-09-22"
     ],
@@ -55,114 +55,79 @@
     ],
     "by_stage": {
       "review": {
-        "calls": 524,
-        "prompt_tokens": 1348833,
-        "completion_tokens": 88199,
-        "cost_usd": 0.09170387500000005
+        "calls": 543,
+        "prompt_tokens": 1399721,
+        "completion_tokens": 95727,
+        "cost_usd": 0.09761845000000006
       },
       "modify_verify": {
-        "calls": 9,
-        "prompt_tokens": 12523,
-        "completion_tokens": 2973,
-        "cost_usd": 0.0030512
+        "calls": 14,
+        "prompt_tokens": 19079,
+        "completion_tokens": 3873,
+        "cost_usd": 0.004320325
       },
       "recall_discovery": {
-        "calls": 892,
-        "prompt_tokens": 1047761,
-        "completion_tokens": 561432,
-        "cost_usd": 0.40556757499999985
+        "calls": 895,
+        "prompt_tokens": 1053285,
+        "completion_tokens": 543091,
+        "cost_usd": 0.3970873500000006
       },
       "recall_quote_repair": {
-        "calls": 168,
-        "prompt_tokens": 119560,
-        "completion_tokens": 24880,
-        "cost_usd": 0.024838349999999995
+        "calls": 162,
+        "prompt_tokens": 114575,
+        "completion_tokens": 21500,
+        "cost_usd": 0.022508575000000013
       },
       "recall_normalize": {
-        "calls": 2316,
-        "prompt_tokens": 5280789,
-        "completion_tokens": 486786,
-        "cost_usd": 0.3867556349999986
+        "calls": 2297,
+        "prompt_tokens": 5237990,
+        "completion_tokens": 495773,
+        "cost_usd": 0.3908139449999988
       },
       "recall_normalize_repair": {
-        "calls": 120,
-        "prompt_tokens": 330788,
-        "completion_tokens": 43352,
-        "cost_usd": 0.054832790000000006
+        "calls": 130,
+        "prompt_tokens": 361049,
+        "completion_tokens": 50075,
+        "cost_usd": 0.05948906000000001
       }
     },
     "failures": {},
-    "wall_time_s": 312.8,
+    "wall_time_s": 1868.8,
     "concurrency": {
-      "start": 8,
-      "final_limit": 64,
-      "peak_limit": 64,
-      "ceiling": 64,
+      "start": 4,
+      "final_limit": 8,
+      "peak_limit": 8,
+      "ceiling": 8,
       "http_429": 0,
       "history": [
         [
-          6.3,
+          10.9,
           "grow",
-          10
+          5
         ],
         [
-          12.0,
+          16.2,
           "grow",
-          12
+          6
         ],
         [
-          16.9,
+          21.2,
           "grow",
-          15
+          7
         ],
         [
-          21.9,
+          27.3,
           "grow",
-          18
-        ],
-        [
-          26.3,
-          "grow",
-          22
-        ],
-        [
-          31.1,
-          "grow",
-          27
-        ],
-        [
-          36.0,
-          "grow",
-          33
-        ],
-        [
-          41.2,
-          "grow",
-          41
-        ],
-        [
-          45.9,
-          "grow",
-          51
-        ],
-        [
-          50.6,
-          "grow",
-          63
-        ],
-        [
-          68.8,
-          "grow",
-          64
+          8
         ]
       ]
     }
   },
   "all_cached_record_calls": {
-    "n_calls": 4060,
-    "prompt_tokens": 8215363,
-    "completion_tokens": 1214785,
-    "cost_usd": 0.97401644,
+    "n_calls": 4041,
+    "prompt_tokens": 8185699,
+    "completion_tokens": 1210039,
+    "cost_usd": 0.97183771,
     "models_reported": [
       "gpt-6-luna-2026-09-22"
     ]

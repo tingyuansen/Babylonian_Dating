@@ -3,7 +3,7 @@
 
 A clause such as "the moon was 1 1/2 cubits behind beta Geminorum" agrees with
 a year if the computed position lies within a tolerance of the stated one. The
-tolerances of 3 degrees for the Moon and 2 degrees for a planet were chosen
+tolerances of 3 degrees for the Moon and 1.5 degrees for a planet were set
 from the residuals that this script measures (Methods, SI Appendix, section S4).
 The residuals use the published years of ADART I to III, which include the
 benchmark, so the sensitivity audit also tests other tolerances (section S7).

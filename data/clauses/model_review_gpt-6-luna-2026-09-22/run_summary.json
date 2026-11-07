@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-10-24T06:22:08+00:00",
+  "generated_utc": "2026-11-02T20:51:34+00:00",
   "model": "gpt-6-luna-2026-09-22",
   "route": "litellm",
   "scope": "adart-i-iii",
@@ -11,39 +11,40 @@
   },
   "tablets": null,
   "review": {
-    "clauses": 3193,
+    "clauses": 3191,
     "final_actions": {
-      "KEEP": 3142,
-      "MODIFY": 51
+      "KEEP": 3133,
+      "MODIFY": 58
     },
     "first_pass_actions": {
-      "KEEP": 3113,
-      "MODIFY": 80
+      "KEEP": 3095,
+      "MODIFY": 94,
+      "DROP": 2
     },
     "code_field_overrides": 0,
     "model_output_failures": 1
   },
   "recall": {
-    "unsupported_but_astronomical": 5666,
-    "duplicate": 830,
-    "added": 817,
-    "skipped_by_normalizer": 732,
-    "rejected_ungrounded_evidence": 202,
+    "unsupported_but_astronomical": 5529,
+    "added": 842,
+    "duplicate": 822,
+    "skipped_by_normalizer": 686,
+    "rejected_ungrounded_evidence": 189,
     "rejected_at_final_grounding_gate": 3
   },
   "this_process_calls": {
-    "calls": 1455,
-    "prompt_tokens": 3664025,
-    "completion_tokens": 428899,
-    "reasoning_tokens": 206223,
-    "cached_tokens": 2498326,
-    "cost_usd_reported": 0.385036,
+    "calls": 13085,
+    "prompt_tokens": 32216510,
+    "completion_tokens": 4014211,
+    "reasoning_tokens": 1948038,
+    "cached_tokens": 22258595,
+    "cost_usd_reported": 3.470596,
     "calls_without_reported_cost": 0,
     "throttled_retries": 0,
-    "transport_retries": 0,
+    "transport_retries": 11,
     "truncated_calls": 0,
-    "latency_s_median": 2.819,
-    "latency_s_p90": 6.621,
+    "latency_s_median": 3.234,
+    "latency_s_p90": 7.625,
     "models_reported": [
       "gpt-6-luna-2026-09-22"
     ],
@@ -55,104 +56,87 @@
     ],
     "by_stage": {
       "review": {
-        "calls": 449,
-        "prompt_tokens": 1194771,
-        "completion_tokens": 79012,
-        "cost_usd": 0.08593279999999992
+        "calls": 3204,
+        "prompt_tokens": 8497947,
+        "completion_tokens": 610180,
+        "cost_usd": 0.6229206000000012
       },
       "modify_verify": {
-        "calls": 6,
-        "prompt_tokens": 8617,
-        "completion_tokens": 1303,
-        "cost_usd": 0.0017281749999999998
+        "calls": 81,
+        "prompt_tokens": 116100,
+        "completion_tokens": 23052,
+        "cost_usd": 0.026032424999999998
+      },
+      "drop_verify": {
+        "calls": 2,
+        "prompt_tokens": 3130,
+        "completion_tokens": 690,
+        "cost_usd": 0.0007361
       },
       "recall_discovery": {
-        "calls": 101,
-        "prompt_tokens": 275925,
-        "completion_tokens": 114280,
-        "cost_usd": 0.09162304999999997
+        "calls": 1173,
+        "prompt_tokens": 2695402,
+        "completion_tokens": 1156467,
+        "cost_usd": 0.910486719999999
       },
       "recall_quote_repair": {
-        "calls": 27,
-        "prompt_tokens": 36718,
-        "completion_tokens": 4584,
-        "cost_usd": 0.006879725000000001
+        "calls": 298,
+        "prompt_tokens": 399818,
+        "completion_tokens": 41748,
+        "cost_usd": 0.06997645000000001
       },
       "recall_normalize": {
-        "calls": 813,
-        "prompt_tokens": 1975737,
-        "completion_tokens": 205546,
-        "cost_usd": 0.1694518400000001
+        "calls": 7757,
+        "prompt_tokens": 18841627,
+        "completion_tokens": 1946776,
+        "cost_usd": 1.5962540399999952
       },
       "recall_normalize_repair": {
-        "calls": 59,
-        "prompt_tokens": 172257,
-        "completion_tokens": 24174,
-        "cost_usd": 0.029420419999999992
+        "calls": 570,
+        "prompt_tokens": 1662486,
+        "completion_tokens": 235298,
+        "cost_usd": 0.24418974
       }
     },
-    "failures": {},
-    "wall_time_s": 241.9,
+    "failures": {
+      "review:request_rejected": 1
+    },
+    "wall_time_s": 7185.4,
     "concurrency": {
-      "start": 16,
-      "final_limit": 96,
-      "peak_limit": 96,
-      "ceiling": 96,
+      "start": 4,
+      "final_limit": 8,
+      "peak_limit": 8,
+      "ceiling": 8,
       "http_429": 0,
       "history": [
         [
-          10.6,
+          10.5,
           "grow",
-          20
+          5
         ],
         [
-          15.4,
+          17.8,
           "grow",
-          25
+          6
         ],
         [
-          20.2,
+          24.1,
           "grow",
-          31
+          7
         ],
         [
-          25.1,
+          30.5,
           "grow",
-          38
-        ],
-        [
-          29.7,
-          "grow",
-          47
-        ],
-        [
-          34.2,
-          "grow",
-          58
-        ],
-        [
-          51.1,
-          "grow",
-          72
-        ],
-        [
-          74.7,
-          "grow",
-          90
-        ],
-        [
-          81.6,
-          "grow",
-          96
+          8
         ]
       ]
     }
   },
   "all_cached_record_calls": {
-    "n_calls": 15016,
-    "prompt_tokens": 36962917,
-    "completion_tokens": 4554179,
-    "cost_usd": 3.91546202,
+    "n_calls": 13085,
+    "prompt_tokens": 32216510,
+    "completion_tokens": 4014211,
+    "cost_usd": 3.47059608,
     "models_reported": [
       "gpt-6-luna-2026-09-22"
     ]

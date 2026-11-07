@@ -49,8 +49,8 @@ from . import years as yr
 # and comparable to the distances being recorded. A topocentric grid at Babylon
 # would tighten this and is the obvious next improvement.
 TOL_MOON = 3.0
-TOL_PLANET = 2.0
-TOL_PLANET_PAIR = 2.0
+TOL_PLANET = 1.5
+TOL_PLANET_PAIR = 1.5
 # A solstice or equinox is recorded to the day, and the residual against the
 # computed turning point has a 90th percentile of under four days once the
 # scheme's own lateness is allowed for. The window is that residual, not a
@@ -173,8 +173,14 @@ def month_matches(text: str, start: int = 0, end: int | None = None):
             text.rfind(mark, 0, match.start()) for mark in ("\n", ".", ";")
         ) + 1
         prefix = text[segment_start:match.start()]
+        # In the edition, the word *Year* itself may be damaged: e.g.
+        # ``[ Y ] ear 56 , month V , ...``. This remains a heading, not a
+        # reference to a month within narrative prose. Require the complete
+        # damaged-year formula, ending immediately before the month heading.
         year_heading = re.search(
-            r"\bYear\b[^.;\n]{0,160}$", prefix, re.IGNORECASE)
+            r"(?:\bYear\b[^.;\n]{0,160}|"
+            r"\[\s*Y\s*\]\s*ear\s+\d{1,3}\s*,?)\s*$",
+            prefix, re.IGNORECASE)
         no_earlier_month = not re.search(
             r"\bmon(?:th)?\b", prefix, re.IGNORECASE)
         heading_punctuation = bool(re.match(
@@ -497,6 +503,55 @@ def day_matches(text: str, start: int, end: int):
         yield match
 
 
+def chronological_day_matches(text: str, start: int, end: int):
+    """Day *entry headings* suitable for detecting a lost month heading.
+
+    The general ``day_matches`` reader is intentionally broader: it can find
+    an explicit day quoted inside a sentence. A drop such as 29 -> 5 indicates
+    a missing month only when the *29* and *5* belong to successive diary
+    entries. Dates in retrospective formulae ("first appearance on the 29th
+    of month IX"), intervals ("from the 24th ... to the 3rd"), or summary
+    notes ("That month, the 5th") must not cause that inference.
+
+    Do not change the ordinary date extractor here: this helper is used only
+    by the lost-month detector in ``positional_context``.
+    """
+    for match in day_matches(text, start, end):
+        # "Night of the 5th" is an entry heading in this edition, including
+        # headings inside the editors' restored brackets.
+        if match.group(0).lower().startswith("night"):
+            yield match
+            continue
+        before = text[max(0, match.start() - 100):match.start()]
+        after = text[match.end():min(len(text), match.end() + 85)]
+        # Explicit dates in narrative ("on the 29th", "around the 5th") and
+        # date ranges ("from the 24th ... to the 3rd") are not new entries.
+        # Accommodate a closing editorial bracket after the preposition.
+        if re.search(
+            r"\b(?:on|from|to|until|around|about|before|after|"
+            r"since|through|by)\s*(?:\]\s*)?$",
+            before, re.IGNORECASE,
+        ):
+            continue
+        # A day explicitly qualified as belonging to another month cannot
+        # be used to infer that the governing diary month has rolled back.
+        # The OCR sometimes splits "month" as "m [ onth"; the edition also
+        # contains "prededing" for "preceding".
+        if re.match(
+            r"\s*of\s+(?:the\s+)?(?:"
+            r"m(?:onth|\s*\[\s*onth)\b|"
+            r"(?:preceding|prededing|previous|prior)\s+month\b)",
+            after, re.IGNORECASE,
+        ):
+            continue
+        # "That month, the 5th" is a reference inside the end-of-month
+        # summary, not the next sequential entry.
+        if re.search(r"\bThat\s+month\s*,\s*$", before,
+                     re.IGNORECASE):
+            continue
+        yield match
+
+
 def governing_context(text: str, pos: int) -> tuple[str | None, int | None, int]:
     """Month, day, and relative year governing a statement position.
 
@@ -577,6 +632,10 @@ def appulse_context(text: str, pos: int) -> tuple[
     an undated appulse into rare, falsely precise evidence.
     """
     month, _, year_offset = governing_context(text, pos)
+    # Day-number reset without a new surviving month heading invalidates the
+    # old month even when a subsequent astronomical event is itself legible.
+    if positional_context(text, pos)[2]:
+        month = None
     last_month_pos = 0
     for match in month_matches(text):
         if match.start() > pos:
@@ -668,7 +727,7 @@ def positional_context(text: str, pos: int) -> tuple[str | None, int, bool]:
         last_heading = match.start()
     previous_day = None
     missing_month = False
-    for match in day_matches(text, last_heading, pos):
+    for match in chronological_day_matches(text, last_heading, pos):
         day = int(match.group(1))
         # A large day-number rollback without a heading means at least one
         # month heading is lost. The later summary cannot inherit the older
@@ -701,6 +760,10 @@ def eclipse_context(text: str, pos: int) -> tuple[
     intervenes. Runs of dots are lacuna markers, not sentence boundaries.
     """
     month, _, year_offset = governing_context(text, pos)
+    # Day-number reset without a new surviving month heading invalidates the
+    # old month even when a subsequent astronomical event is itself legible.
+    if positional_context(text, pos)[2]:
+        month = None
     last_month_pos = 0
     for m in month_matches(text):
         if m.start() > pos:
@@ -1654,12 +1717,23 @@ def joint_windows(st: Statement, statement_year: int) -> list[tuple[float, float
     day restricts the test to that civil day and its preceding night; no
     tablet-specific calendar shifts or fitted timing offsets are introduced.
     """
-    if st.month is None:
-        return []
+    # No month and no day: require simultaneous overlap somewhere within the
+    # candidate Babylonian year, using the same bounds as a single position.
+    if st.month is None and st.joint_day is None:
+        w = window(statement_year, [])
+        return [] if w is None else [(float(w[0]), float(w[-1]))]
+
     n, doubled = _year_shape(statement_year)
+    # An attached day without its month may be tested on that day number in
+    # each possible month; never discard the surviving day to make a year test.
+    if st.month is None:
+        # Iterate calendar slots directly (handles VI2 and XII2 correctly).
+        slots = range(1, n + 1)
+    else:
+        slots = (cal._month_index(name, n, doubled)
+                 for name in st.month.split("|"))
     windows = []
-    for name in st.month.split("|"):
-        slot = cal._month_index(name, n, doubled)
+    for slot in slots:
         if slot is None:
             continue
         start = cal.month_start_jd(statement_year, slot)
@@ -1705,7 +1779,11 @@ def is_decisive(st: Statement) -> bool:
     if st.joint_positions:
         # A supporting inner-planet conjunct must not acquire decisive power
         # merely by being coordinated with an outer planet.
-        return (not st.restored and not st.omitted
+        # Monthless coordinated observations can now be evaluated over a
+        # whole year, but must remain supporting: broad and possibly damaged
+        # context cannot independently eliminate candidate years.
+        return (st.month is not None
+                and not st.restored and not st.omitted
                 and not st.joint_restored and not st.joint_omitted
                 and all(p in {"mars", "jupiter", "saturn"}
                         for p, _ in st.joint_positions))
@@ -1990,13 +2068,19 @@ def evidence_levels(
             (sorted(years) for years in by_signature.values()),
             key=lambda years: (years[0], len(years)),
         )
+        if ORDER_CONTRADICTIONS_FIRST:
+            # In the sensitivity ordering, contradictions precede both bit
+            # scores; only the ranking key order changes, not field meanings.
+            _, _, contradictions, decisive, support = key
+        else:
+            _, _, decisive, support, contradictions = key
         levels.append({
             "rank": rank,
             "tier": tier_labels[key[0]],
             "decisive_families": -key[1],
-            "primary_bits": -key[2],
-            "support_bits": -key[3],
-            "contradictions": key[4],
+            "primary_bits": -decisive,
+            "support_bits": -support,
+            "contradictions": contradictions,
             "years_astro": sorted(int(scores.years[i]) for i in indices),
             "physical_groups_years_astro": physical_groups,
             "predicate_exact": len(physical_groups) == 1,

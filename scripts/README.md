@@ -69,7 +69,7 @@ The benchmark of 179 dated records, the tests of the method, and the numbers of 
 | `audit/audit_held_out.py` | Dates the records of each volume with rules set on the other two (section S8, Table S6). | `benchmark/held_out_runs.parquet`, `benchmark/held_out_summary.json` |
 | `audit/audit_era_readings.py` | Reads the era years that the texts state, and checks them at the published years. | `benchmark/era_readings.parquet` |
 | `audit/audit_adart_iv_corrigenda.py` | Finds the corrections that ADART IV makes to Volumes I to III in the digital corpus. | `benchmark/adart_iv_corrigenda.parquet`, `benchmark/adart_iv_corrigenda_summary.json` |
-| `audit/score_adart_iv_addenda.py` | Scores the registered test on the dated addenda of ADART IV (section S9). | `benchmark/addenda_results.json` |
+| `audit/score_adart_iv_addenda.py` | Scores the registered test on the dated addenda of ADART IV (section S9). | `benchmark/addenda_results.json`, and `benchmark/addenda_results_first_run.json` from its first run |
 | `audit/build_paper_counts.py` | Writes the counts that the paper quotes, and Tables S3 and S4. | `paper_counts/` |
 | `audit/date_tablet.py` | Shows the clauses, the verdicts and the candidate years of one record. | nothing |
 
